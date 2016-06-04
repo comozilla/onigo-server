@@ -1,7 +1,3 @@
-//var controller = require("./sphero-controller");
-// 自分の Sphero の ID に置き換える
-var port = "aaa";
-
 var mouseX, mouseY;
 var positionX, positionY;
 var offsetX, offsetY;
@@ -16,14 +12,6 @@ window.onload = function() {
 	//console.log("rectL: " + rect.left + " rectT: " + rect.top);
 	//console.log("positionX: " + positionX + " positionY: " + positionY);
 	//console.log("rX: " + (positionX) + " rY: " + (positionY));
-}
-
-// 接続された時に呼び出されます。
-function onConnect() {
-  controller.setColor("orange");
-  // ここに処理を書きます
-  controller.move(100, "前");
-  // ここまで
 }
 
 function stickmousedown() {
@@ -96,6 +84,3 @@ document.onmousemove = function(e) {
 	//console.log("degree=" + degree + "&x=" + x + "&y=" + y);
 	}
 }
-
-controller.connect(port, onConnect);
-controller.addEventListener("collision", onCollide);
