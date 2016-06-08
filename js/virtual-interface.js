@@ -5,9 +5,12 @@ function VirtualSphero() {
   this.y = parseInt(style.top);
 }
 
-VirtualSphero.prototype.setPosition = function(x, y, center) {
-  var degree = Math.atan2(x - center, y - center);
-  degree = 360 - ((degree / Math.PI * 180) + 180);//
+VirtualSphero.prototype = Object.create(InterfaceBase);
+VirtualSphero.prototype.constructor = VirtualSphero;
+
+VirtualSphero.prototype.setPosition = function(x, y) {
+  var degree = Math.atan2(x, y);
+  degree = 360 - ((degree / Math.PI * 180) + 180);
   console.log(degree);
   var far = 10; //TODO farもpositionからとる
   var radian = (degree * Math.PI / 180);

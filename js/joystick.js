@@ -1,5 +1,5 @@
-function Joystick(virtualSphero) {
-  this.virtualSphero = virtualSphero;
+function Joystick(interfaceManager) {
+  this.interfaceManager = interfaceManager;
   this.element = document.getElementById("stick");
   this.element.addEventListener("mousedown", () => {
     this.isClick = true;
@@ -15,7 +15,7 @@ function Joystick(virtualSphero) {
   document.addEventListener("mousemove", (event) => {
     if (this.isClick) {
       this.setPosition(event.movementX, event.movementY);
-      this.virtualSphero.setPosition(this.x, this.y, 0);
+      this.interfaceManager.move(this.x, this.y);
     }
   });
 
