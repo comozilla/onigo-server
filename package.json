@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "browser-sync": "browser-sync start --server --files \"./**\""
+    "browser-sync": "browser-sync start --server --files \"./**\"",
+    "server": "sphero-websocket",
+    "server-test": "sphero-websocket --test"
   },
   "repository": {
     "type": "git",
@@ -18,5 +20,8 @@
   "homepage": "https://github.com/shundroid/sphero-joystick#readme",
   "devDependencies": {
     "browser-sync": "^2.12.10"
+  },
+  "dependencies": {
+    "sphero-websocket": "^0.2.0"
   }
 }
