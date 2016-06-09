@@ -1,0 +1,27 @@
+{
+  "name": "sphero-joystick",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "browser-sync": "browser-sync start --server --files \"./**\"",
+    "server": "sphero-websocket",
+    "server-test": "sphero-websocket --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shundroid/sphero-joystick.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shundroid/sphero-joystick/issues"
+  },
+  "homepage": "https://github.com/shundroid/sphero-joystick#readme",
+  "devDependencies": {
+    "browser-sync": "^2.12.10"
+  },
+  "dependencies": {
+    "sphero-websocket": "^0.2.0"
+  }
+}

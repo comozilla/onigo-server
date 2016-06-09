@@ -2,7 +2,13 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>テスト</title> 
+  <title>テスト</title>
+  <script type="text/javascript" src="http://localhost:8080/client/sphero-client.js"></script>
+  <script type="text/javascript" src="js/interface-manager.js"></script>
+  <script type="text/javascript" src="js/interface-base.js"></script>
+  <script type="text/javascript" src="js/virtual-interface.js"></script>
+  <script type="text/javascript" src="js/sphero-interface.js"></script>
+  <script type="text/javascript" src="js/joystick.js"></script>
   <script type="text/javascript" src="js/main.js"></script>
   <link href="css/style.css" rel="stylesheet" type="text/css">
 </head>
@@ -11,7 +17,7 @@
     <img src="sphero.png" class="sphero" id="sphero">
   </div>
   <div class="base">
-    <input type="image" src="stick.png" class="stick" id="stick" onmousedown="stickmousedown()">
+    <input type="image" src="stick.png" class="stick" id="stick">
   </div>
 </body>
 </html>
