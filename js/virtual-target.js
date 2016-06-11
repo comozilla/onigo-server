@@ -6,7 +6,19 @@ function VirtualSphero() {
 
   this.x = 0;
   this.y = 0;
+  this.ex = 0;
+  this.ey = 0;
   this.radius = 25;
+
+  var tick = function() {
+    this.x += this.ex;
+    this.y += this.ey;
+    this.fixPosition();
+    this.updateSpheroPosition();
+    requestAnimationFrameWithScope(tick, this);
+  };
+
+  requestAnimationFrameWithScope(tick, this);
 }
 
 VirtualSphero.prototype = Object.create(TargetBase);
@@ -18,11 +30,16 @@ VirtualSphero.prototype.setPosition = function(x, y) {
   var far = 10; //TODO farもpositionからとる
   var radian = (degree * Math.PI / 180);
 
-  this.x += Math.sin(radian) * far;
-  this.y -= Math.cos(radian) * far;
-
-  this.fixPosition();
-  this.updateSpheroPosition();
+  if (x === 0) {
+    this.ex = 0;
+  } else {
+    this.ex = Math.sin(radian) * far;
+  }
+  if (y === 0) {
+    this.ey = 0;
+  } else {
+    this.ey = -Math.cos(radian) * far;
+  }
 };
 
 VirtualSphero.prototype.updateSpheroPosition = function() {
@@ -48,3 +65,9 @@ VirtualSphero.prototype.fixPosition = function () {
   this.x = Math.min(this.x, window.innerWidth - 50);
   this.y = Math.min(this.y, window.innerHeight - 50);
 };
+
+function requestAnimationFrameWithScope(callback, scope) {
+  requestAnimationFrame(function() {
+    callback.apply(scope, []);
+  });
+}
