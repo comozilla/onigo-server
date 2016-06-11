@@ -14,11 +14,9 @@
 </head>
 <body>
   <canvas id="canvas"></canvas>
-
-  <iframe src="img/joystick.svg" width="100" height="100"></iframe>
-
-  <div id="base" style="display: none">
-    <input type="image" src="stick.png" id="stick" />
-  </div>
+  <svg id="stick" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="30" fill="white" stroke="black" strokeWidth="1" />
+    <circle id="draggable" cx="50" cy="50" r="19" fill="white" stroke="black" strokeWidth="1" />
+  </svg>
 </body>
 </html>
