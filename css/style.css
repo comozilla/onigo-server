@@ -1,18 +1,23 @@
+html{
+	height: 100%;
+}
+
 body{
   margin: 0px;
+  height: 100%;
   overflow: hidden;
 }
 
 .base{
-	position: relative;
+	position: absolute;
 	width: 150px;
 	height: 150px;
 	background-image: url("../base.png");
-	top: 300px;
-	left: 500px;
+	top: calc(50% - 75px);
+	left: calc(50% - 75px);
 }
 
-.stick {
+.stick{
 	position: relative;
 	top: 25px;
 	left: 25px;
