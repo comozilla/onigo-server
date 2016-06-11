@@ -8,7 +8,7 @@ body{
   overflow: hidden;
 }
 
-.base{
+#base{
 	position: absolute;
 	width: 150px;
 	height: 150px;
@@ -17,13 +17,13 @@ body{
 	left: calc(50% - 75px);
 }
 
-.stick{
+#stick{
 	position: relative;
 	top: 25px;
 	left: 25px;
 }
 
-.sphero{
+#sphero{
 	position: relative;
 	top: 150px;
 	left: 300px;
