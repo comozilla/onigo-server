@@ -8,13 +8,25 @@ body{
   overflow: hidden;
 }
 
-#base{
+/*#base{
 	position: absolute;
 	width: 150px;
 	height: 150px;
 	background-image: url("../base.png");
 	top: calc(50% - 75px);
 	left: calc(50% - 75px);
+}
+
+*/
+
+svg {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+/*	width: 150px;
+	height: 150px;
+	top: calc(50% - 75px);
+	left: calc(50% - 75px);*/
 }
 
 #stick{

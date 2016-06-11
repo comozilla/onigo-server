@@ -1,5 +1,8 @@
 function Joystick(targetManager) {
   this.targetManager = targetManager;
+  this.svg = document.getElementById("svg");
+  this.svg.width = window.innerWidth;
+  this.svg.height = window.innerHeight;
   this.element = document.getElementById("stick");
   this.element.addEventListener("mousedown", () => {
     this.isClick = true;

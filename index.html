@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>スフィロを動かそう</title>
   <script type="text/javascript" src="http://localhost:8080/client/sphero-client.js"></script>
   <script type="text/javascript" src="js/target-manager.js"></script>
@@ -10,12 +10,15 @@
   <script type="text/javascript" src="js/sphero-target.js"></script>
   <script type="text/javascript" src="js/joystick.js"></script>
   <script type="text/javascript" src="js/main.js"></script>
-  <link href="css/style.css" rel="stylesheet" type="text/css">
+  <link href="css/style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
   <canvas id="canvas"></canvas>
-  <div id="base">
-    <input type="image" src="stick.png" id="stick">
+
+  <iframe src="img/joystick.svg" width="100" height="100"></iframe>
+
+  <div id="base" style="display: none">
+    <input type="image" src="stick.png" id="stick" />
   </div>
 </body>
 </html>
