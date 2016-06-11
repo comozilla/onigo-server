@@ -30,6 +30,11 @@ VirtualSphero.prototype.updateSpheroPosition = function() {
   this.ctx.beginPath();
   this.ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0, Math.PI * 2, true);
   this.ctx.stroke();
+
+  var logo = new Image();
+  logo.src = "logo.png";
+
+  this.ctx.drawImage(logo, this.x + 8, this.y + 8, 30, 30);
 };
 
 VirtualSphero.prototype.clearCanvas = function() {
