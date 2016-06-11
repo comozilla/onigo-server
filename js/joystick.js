@@ -1,5 +1,5 @@
-function Joystick(interfaceManager) {
-  this.interfaceManager = interfaceManager;
+function Joystick(targetManager) {
+  this.targetManager = targetManager;
   this.element = document.getElementById("stick");
   this.element.addEventListener("mousedown", () => {
     this.isClick = true;
@@ -15,7 +15,7 @@ function Joystick(interfaceManager) {
   document.addEventListener("mousemove", (event) => {
     if (this.isClick) {
       this.setPosition(event.movementX, event.movementY);
-      this.interfaceManager.move(this.x, this.y);
+      this.targetManager.move(this.x, this.y);
     }
   });
 

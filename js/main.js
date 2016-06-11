@@ -1,13 +1,13 @@
-var interfaceManager;
-var virtualSphero;
-var spheroInterface;
+var targetManager;
+var virtualTarget;
+var spheroTarget;
 var joystick;
 
 document.addEventListener("DOMContentLoaded",　function() {
-  interfaceManager = new InterfaceManager();
+  targetManager = new TargetManager();
   virtualSphero = new VirtualSphero();
-  spheroInterface = new SpheroInterface();
-  interfaceManager.add(virtualSphero);
-  interfaceManager.add(spheroInterface);
-  joystick = new Joystick(interfaceManager);
+  spheroTarget = new SpheroTarget();
+  targetManager.add(virtualSphero);
+  targetManager.add(spheroTarget);
+  joystick = new Joystick(targetManager);
 });
