@@ -15,7 +15,6 @@ function Joystick(targetManager) {
   document.addEventListener("mousemove", (event) => {
     if (this.isClick) {
       this.setPosition(event.movementX, event.movementY);
-      this.targetManager.move(this.x, this.y);
     }
   });
 
@@ -35,12 +34,14 @@ Joystick.prototype.setNeutralPosition = function() {
   this.x = 0;
   this.y = 0;
   this.updateJoystick();
+  this.targetManager.move(this.x, this.y);
 };
 
 Joystick.prototype.setPosition = function(movementX, movementY) {
   this.x = fixPosition(this.x + movementX);
   this.y = fixPosition(this.y + movementY);
   this.updateJoystick();
+  this.targetManager.move(this.x, this.y);
 };
 
 Joystick.prototype.updateJoystick = function() {
