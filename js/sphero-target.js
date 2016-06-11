@@ -1,14 +1,14 @@
-function SpheroInterface() {
+function SpheroTarget() {
   this.orb = new sphero();
   this.orb.connect("ws://localhost:8080", function() {
     orb.color("red");
   });
 }
 
-SpheroInterface.prototype = Object.create(InterfaceBase);
-SpheroInterface.prototype.constructor = SpheroInterface;
+SpheroTarget.prototype = Object.create(TargetBase);
+SpheroTarget.prototype.constructor = SpheroTarget;
 
-SpheroInterface.prototype.setPosition = function(x, y) {
+SpheroTarget.prototype.setPosition = function(x, y) {
   var degree = Math.atan2(x, y);
   degree = 360 - ((degree / Math.PI * 180) + 180);
 
