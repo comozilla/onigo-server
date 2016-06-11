@@ -5,7 +5,7 @@ function VirtualSphero() {
   this.y = parseInt(style.top);
 }
 
-VirtualSphero.prototype = Object.create(InterfaceBase);
+VirtualSphero.prototype = Object.create(TargetBase);
 VirtualSphero.prototype.constructor = VirtualSphero;
 
 VirtualSphero.prototype.setPosition = function(x, y) {
