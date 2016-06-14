@@ -1,6 +1,6 @@
 import TargetBase from "./target-base";
 
-function VirtualSphero() {
+function VirtualTarget() {
   this.canvas = document.getElementById("canvas");
   this.canvas.width = window.innerWidth;
   this.canvas.height = window.innerHeight;
@@ -23,10 +23,10 @@ function VirtualSphero() {
   requestAnimationFrameWithScope(tick, this);
 }
 
-VirtualSphero.prototype = Object.create(TargetBase);
-VirtualSphero.prototype.constructor = VirtualSphero;
+VirtualTarget.prototype = Object.create(TargetBase);
+VirtualTarget.prototype.constructor = VirtualTarget;
 
-VirtualSphero.prototype.setPosition = function(x, y) {
+VirtualTarget.prototype.setPosition = function(x, y) {
   var degree = Math.atan2(x, y);
   degree = 360 - ((degree / Math.PI * 180) + 180);
   var far = 10; //TODO farもpositionからとる
@@ -44,7 +44,7 @@ VirtualSphero.prototype.setPosition = function(x, y) {
   }
 };
 
-VirtualSphero.prototype.updateSpheroPosition = function() {
+VirtualTarget.prototype.updateSpheroPosition = function() {
   this.clearCanvas();
   this.ctx.beginPath();
   this.ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0, Math.PI * 2, true);
@@ -56,11 +56,11 @@ VirtualSphero.prototype.updateSpheroPosition = function() {
   this.ctx.drawImage(logo, this.x + 8, this.y + 8, 30, 30);
 };
 
-VirtualSphero.prototype.clearCanvas = function() {
+VirtualTarget.prototype.clearCanvas = function() {
   this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 }
 
-VirtualSphero.prototype.fixPosition = function () {
+VirtualTarget.prototype.fixPosition = function () {
   this.x = Math.max(this.x, 0);
   this.y = Math.max(this.y, 0);
 
@@ -74,4 +74,4 @@ function requestAnimationFrameWithScope(callback, scope) {
   });
 }
 
-export default VirtualSphero;
+export default VirtualTarget;
