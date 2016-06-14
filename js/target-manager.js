@@ -2,8 +2,8 @@ function TargetManager() {
   this.targets = [];
 }
 
-TargetManager.prototype.add = function(spheroInterface) {
-  this.targets.push(spheroInterface);
+TargetManager.prototype.add = function(spheroTarget) {
+  this.targets.push(spheroTarget);
 };
 
 TargetManager.prototype.move = function(x, y) {
