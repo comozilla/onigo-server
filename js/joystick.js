@@ -1,21 +1,20 @@
 function Joystick(targetManager) {
   this.targetManager = targetManager;
-  this.element = document.getElementById("stick");
+  this.element = document.querySelector("#stick #draggable");
   this.element.addEventListener("mousedown", () => {
     this.isClick = true;
-    this.changeStickImage();
+    this.changeStickColor();
   });
   document.addEventListener("mouseup", () => {
     if (this.isClick) {
       this.isClick = false;
       this.setNeutralPosition();
-      this.changeStickImage();
+      this.changeStickColor();
     }
   });
   document.addEventListener("mousemove", (event) => {
     if (this.isClick) {
       this.setPosition(event.movementX, event.movementY);
-      this.targetManager.move(this.x, this.y);
     }
   });
 
@@ -23,11 +22,11 @@ function Joystick(targetManager) {
   this.setNeutralPosition();
 }
 
-Joystick.prototype.changeStickImage = function() {
+Joystick.prototype.changeStickColor = function() {
   if (this.isClick) {
-    this.element.src = "push.png";
+    this.element.setAttribute("fill", "#ddd");
   } else {
-    this.element.src = "stick.png";
+    this.element.setAttribute("fill", "white");
   }
 };
 
@@ -35,17 +34,19 @@ Joystick.prototype.setNeutralPosition = function() {
   this.x = 0;
   this.y = 0;
   this.updateJoystick();
+  this.targetManager.move(this.x, this.y);
 };
 
 Joystick.prototype.setPosition = function(movementX, movementY) {
   this.x = fixPosition(this.x + movementX);
   this.y = fixPosition(this.y + movementY);
   this.updateJoystick();
+  this.targetManager.move(this.x, this.y);
 };
 
 Joystick.prototype.updateJoystick = function() {
-  this.element.style.left = (this.x + 25) + "px";
-  this.element.style.top = (this.y + 25) + "px";
+  this.element.setAttribute("cx", this.x + 50);
+  this.element.setAttribute("cy", this.y + 50);
 };
 
 function fixPosition(beforePosition) {
@@ -54,3 +55,6 @@ function fixPosition(beforePosition) {
   result = Math.min(result, 25);
   return result;
 }
+
+export default Joystick;
+

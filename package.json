@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "browser-sync": "browser-sync start --server --files \"./**\"",
+    "build": "gulp webpack",
+    "build:min": "gulp webpack --min",
+    "build:watch": "gulp webpack --watch",
+    "build:browser-sync": "gulp webpack --browser-sync",
     "server": "sphero-websocket",
     "server-test": "sphero-websocket --test"
   },
@@ -19,7 +22,16 @@
   },
   "homepage": "https://github.com/shundroid/sphero-joystick#readme",
   "devDependencies": {
-    "browser-sync": "^2.12.10"
+    "babel-core": "^6.9.1",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.9.0",
+    "browser-sync": "^2.12.10",
+    "css-loader": "^0.23.1",
+    "gulp": "^3.9.1",
+    "gulp-util": "^3.0.7",
+    "minimist": "^1.2.0",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.13.1"
   },
   "dependencies": {
     "sphero-websocket": "^0.2.0"

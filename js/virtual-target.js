@@ -1,8 +1,26 @@
+import TargetBase from "./target-base";
+
 function VirtualSphero() {
-  this.element = document.getElementById("sphero");
-  var style = getComputedStyle(this.element, "");
-  this.x = parseInt(style.left);
-  this.y = parseInt(style.top);
+  this.canvas = document.getElementById("canvas");
+  this.canvas.width = window.innerWidth;
+  this.canvas.height = window.innerHeight;
+  this.ctx = this.canvas.getContext("2d");
+
+  this.x = 0;
+  this.y = 0;
+  this.ex = 0;
+  this.ey = 0;
+  this.radius = 25;
+
+  var tick = function() {
+    this.x += this.ex;
+    this.y += this.ey;
+    this.fixPosition();
+    this.updateSpheroPosition();
+    requestAnimationFrameWithScope(tick, this);
+  };
+
+  requestAnimationFrameWithScope(tick, this);
 }
 
 VirtualSphero.prototype = Object.create(TargetBase);
@@ -14,17 +32,33 @@ VirtualSphero.prototype.setPosition = function(x, y) {
   var far = 10; //TODO farもpositionからとる
   var radian = (degree * Math.PI / 180);
 
-  this.x += Math.sin(radian) * far;
-  this.y -= Math.cos(radian) * far;
-
-  this.fixPosition();
-  this.updateSpheroPosition();
+  if (x === 0) {
+    this.ex = 0;
+  } else {
+    this.ex = Math.sin(radian) * far;
+  }
+  if (y === 0) {
+    this.ey = 0;
+  } else {
+    this.ey = -Math.cos(radian) * far;
+  }
 };
 
 VirtualSphero.prototype.updateSpheroPosition = function() {
-  this.element.style.left = this.x + "px";
-  this.element.style.top = this.y + "px";
+  this.clearCanvas();
+  this.ctx.beginPath();
+  this.ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0, Math.PI * 2, true);
+  this.ctx.stroke();
+
+  var logo = new Image();
+  logo.src = "logo.png";
+
+  this.ctx.drawImage(logo, this.x + 8, this.y + 8, 30, 30);
 };
+
+VirtualSphero.prototype.clearCanvas = function() {
+  this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+}
 
 VirtualSphero.prototype.fixPosition = function () {
   this.x = Math.max(this.x, 0);
@@ -33,3 +67,11 @@ VirtualSphero.prototype.fixPosition = function () {
   this.x = Math.min(this.x, window.innerWidth - 50);
   this.y = Math.min(this.y, window.innerHeight - 50);
 };
+
+function requestAnimationFrameWithScope(callback, scope) {
+  requestAnimationFrame(function() {
+    callback.apply(scope, []);
+  });
+}
+
+export default VirtualSphero;

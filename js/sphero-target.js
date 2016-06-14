@@ -1,7 +1,13 @@
+import TargetBase from "./target-base";
+
 function SpheroTarget() {
   this.orb = new sphero();
+  var onConnect = function() {
+    this.orb.color("red");
+  };
+  var self = this;
   this.orb.connect("ws://localhost:8080", function() {
-    orb.color("red");
+    onConnect.apply(self, []);
   });
 }
 
@@ -16,3 +22,6 @@ SpheroTarget.prototype.setPosition = function(x, y) {
 
   this.orb.roll(far, degree);
 }
+
+export default SpheroTarget;
+
