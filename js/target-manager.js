@@ -12,3 +12,5 @@ TargetManager.prototype.move = function(x, y) {
   });
 };
 
+export default TargetManager;
+

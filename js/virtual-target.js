@@ -1,4 +1,7 @@
+import TargetBase from "./target-base";
+
 function VirtualSphero() {
+  console.log("fuga");
   this.element = document.getElementById("sphero");
   var style = getComputedStyle(this.element, "");
   this.x = parseInt(style.left);
@@ -33,3 +36,6 @@ VirtualSphero.prototype.fixPosition = function () {
   this.x = Math.min(this.x, window.innerWidth - 50);
   this.y = Math.min(this.y, window.innerHeight - 50);
 };
+
+export default VirtualSphero;
+

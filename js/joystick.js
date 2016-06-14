@@ -54,3 +54,6 @@ function fixPosition(beforePosition) {
   result = Math.min(result, 25);
   return result;
 }
+
+export default Joystick;
+
