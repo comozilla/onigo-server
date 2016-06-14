@@ -1,7 +1,6 @@
 import TargetBase from "./target-base";
 
 function VirtualSphero() {
-  console.log("fuga");
   this.element = document.getElementById("sphero");
   var style = getComputedStyle(this.element, "");
   this.x = parseInt(style.left);

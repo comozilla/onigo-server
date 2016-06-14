@@ -17,7 +17,8 @@ module.exports = {
           cacheDirectory: true,
           presets: ["es2015"]
         }
-      }
+      },
+      { test: /\.css$/, loader: "style-loader!css-loader" }
     ]
   },
   resolve: {

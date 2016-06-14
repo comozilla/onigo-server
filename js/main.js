@@ -3,6 +3,9 @@ import VirtualTarget from "./virtual-target";
 import SpheroTarget from "./sphero-target";
 import Joystick from "./joystick";
 
+// webpack
+import "../css/style.css";
+
 var targetManager;
 var virtualTarget;
 var spheroTarget;
