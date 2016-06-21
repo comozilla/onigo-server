@@ -34,6 +34,7 @@
     "webpack": "^1.13.1"
   },
   "dependencies": {
-    "sphero-websocket": "^0.2.0"
+    "sphero-websocket": "^0.3.1",
+    "sphero-ws-virtual-plugin": "0.0.1"
   }
 }
