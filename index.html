@@ -7,9 +7,19 @@
   <script type="text/javascript" src="js/build/bundle.js"></script>
 </head>
 <body>
-  <svg id="stick" viewBox="0 0 100 100">
-    <circle cx="50" cy="50" r="30" fill="white" stroke="black" strokeWidth="1" />
-    <circle id="draggable" cx="50" cy="50" r="19" fill="white" stroke="black" strokeWidth="1" />
-  </svg>
+  <div id="boxes">
+    <div id="hp-box">
+      HP: <span id="hp">100</span>
+    </div>
+    <div id="demon-box" class="active-demon">
+    </div>
+    <div id="stick-box">
+      <svg id="stick" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="30" fill="white" stroke="black" strokeWidth="1" />
+        <circle id="draggable" cx="50" cy="50" r="19" fill="white" stroke="black" strokeWidth="1" />
+      </svg>
+    </div>
+    <button id="calibration-button"></button>
+  </div>
 </body>
 </html>
