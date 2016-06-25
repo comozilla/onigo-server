@@ -21,6 +21,8 @@ function Joystick() {
 
   this.isClick = false;
   this.setNeutralPosition();
+
+  this.maxDistance = 25;
 }
 
 Joystick.prototype.changeStickColor = function() {
@@ -37,7 +39,7 @@ Joystick.prototype.setNeutralPosition = function() {
 
 Joystick.prototype.move = function(movementX, movementY) {
   var fixedPosition =
-    getFixedPosition(this.x + movementX, this.y + movementY);
+    getFixedPosition(this.x + movementX, this.y + movementY, this.maxDistance);
   this._setPosition(fixedPosition.x, fixedPosition.y);
   //this.targetManager.move(this.x, this.y);
 };
@@ -46,6 +48,10 @@ Joystick.prototype._setPosition = function(x, y) {
   this.x = x;
   this.y = y;
   this.updateJoystick();
+
+  var degreeAndSpeed = toDegreeAndSpeed(this.x, this.y, this.maxDistance);
+  eventPublisher.publish("rollingSpeed", degreeAndSpeed.speed);
+  eventPublisher.publish("rollingDegree", degreeAndSpeed.degree);
 };
 
 Joystick.prototype.updateJoystick = function() {
@@ -53,8 +59,7 @@ Joystick.prototype.updateJoystick = function() {
   this.element.setAttribute("cy", this.y + 50);
 };
 
-function getFixedPosition(x, y) {
-  const maxDistance = 25;
+function getFixedPosition(x, y, maxDistance) {
   var distance = getDistance(0, x, 0, y);
   if (getDistance(0, x, 0, y) > maxDistance) {
     var radian = Math.atan2(y, x);
@@ -66,12 +71,17 @@ function getFixedPosition(x, y) {
   return { x, y };
 }
 
-function toDegreeAndPower(x, y) {
+function toDegreeAndSpeed(x, y, maxDistance) {
   var degree = Math.atan2(y, x);
-  degree = 360 - ((degree / Math.PI * 180) + 180);
+  degree = Math.floor(360 - ((degree / Math.PI * 180) + 180));
 
-  var far = getDistance(0, x, 0, y);
-  return { degree, far };
+  // getDistanceで取れる値の範囲は、
+  // 0～this.maxDistanceである。
+  // しかし、degreeは0～255でとりたいので、
+  // 修正する
+  var magnification = 255 / maxDistance;
+  var speed = Math.floor(getDistance(0, x, 0, y) * magnification);
+  return { degree, speed };
 }
 
 function getDistance(x1, x2, y1, y2) {
