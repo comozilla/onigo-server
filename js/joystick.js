@@ -1,6 +1,7 @@
 import eventPublisher from "./publisher";
 
 function Joystick() {
+  this.maxDistance = 25;
   this.element = document.querySelector("#stick #draggable");
   this.element.addEventListener("mousedown", () => {
     this.isClick = true;
@@ -21,8 +22,6 @@ function Joystick() {
 
   this.isClick = false;
   this.setNeutralPosition();
-
-  this.maxDistance = 25;
 }
 
 Joystick.prototype.changeStickColor = function() {
@@ -41,7 +40,6 @@ Joystick.prototype.move = function(movementX, movementY) {
   var fixedPosition =
     getFixedPosition(this.x + movementX, this.y + movementY, this.maxDistance);
   this._setPosition(fixedPosition.x, fixedPosition.y);
-  //this.targetManager.move(this.x, this.y);
 };
 
 Joystick.prototype._setPosition = function(x, y) {
