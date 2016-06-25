@@ -76,3 +76,7 @@ body {
   border: none;
 }
 
+#calibration-button.active-calibration {
+  background-color: yellow;
+}
+

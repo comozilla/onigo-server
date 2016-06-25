@@ -1,18 +1,13 @@
-import TargetManager from "./target-manager";
-import SpheroTarget from "./sphero-target";
 import Joystick from "./joystick";
+import SpheroStates from "./sphero-states";
 
 // webpack
 import "../css/style.css";
 
-var targetManager;
-var virtualTarget;
-var spheroTarget;
+var spheroStates;
 var joystick;
 
 document.addEventListener("DOMContentLoaded",　function() {
-  targetManager = new TargetManager();
-  spheroTarget = new SpheroTarget();
-  targetManager.add(spheroTarget);
-  joystick = new Joystick(targetManager);
+  spheroStates = new SpheroStates();
+  joystick = new Joystick();
 });

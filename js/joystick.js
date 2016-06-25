@@ -1,5 +1,6 @@
-function Joystick(targetManager) {
-  this.targetManager = targetManager;
+import eventPublisher from "./publisher";
+
+function Joystick() {
   this.element = document.querySelector("#stick #draggable");
   this.element.addEventListener("mousedown", () => {
     this.isClick = true;
@@ -14,7 +15,7 @@ function Joystick(targetManager) {
   });
   document.addEventListener("mousemove", (event) => {
     if (this.isClick) {
-      this.setPosition(event.movementX, event.movementY);
+      this.move(event.movementX, event.movementY);
     }
   });
 
@@ -31,17 +32,20 @@ Joystick.prototype.changeStickColor = function() {
 };
 
 Joystick.prototype.setNeutralPosition = function() {
-  this.x = 0;
-  this.y = 0;
-  this.updateJoystick();
-  this.targetManager.move(this.x, this.y);
+  this._setPosition(0, 0);
 };
 
-Joystick.prototype.setPosition = function(movementX, movementY) {
-  this.x = fixPosition(this.x + movementX);
-  this.y = fixPosition(this.y + movementY);
+Joystick.prototype.move = function(movementX, movementY) {
+  var fixedPosition =
+    getFixedPosition(this.x + movementX, this.y + movementY);
+  this._setPosition(fixedPosition.x, fixedPosition.y);
+  //this.targetManager.move(this.x, this.y);
+};
+
+Joystick.prototype._setPosition = function(x, y) {
+  this.x = x;
+  this.y = y;
   this.updateJoystick();
-  this.targetManager.move(this.x, this.y);
 };
 
 Joystick.prototype.updateJoystick = function() {
@@ -49,11 +53,32 @@ Joystick.prototype.updateJoystick = function() {
   this.element.setAttribute("cy", this.y + 50);
 };
 
-function fixPosition(beforePosition) {
-  var result = beforePosition;
-  result = Math.max(result, -25);
-  result = Math.min(result, 25);
-  return result;
+function getFixedPosition(x, y) {
+  const maxDistance = 25;
+  var distance = getDistance(0, x, 0, y);
+  if (getDistance(0, x, 0, y) > maxDistance) {
+    var radian = Math.atan2(y, x);
+    return {
+      x: Math.cos(radian) * maxDistance,
+      y: Math.sin(radian) * maxDistance
+    };
+  }
+  return { x, y };
+}
+
+function toDegreeAndPower(x, y) {
+  var degree = Math.atan2(y, x);
+  degree = 360 - ((degree / Math.PI * 180) + 180);
+
+  var far = getDistance(0, x, 0, y);
+  return { degree, far };
+}
+
+function getDistance(x1, x2, y1, y2) {
+  var dx = Math.abs(x1 - x2);
+  var dy = Math.abs(y1 - y2);
+  // Todo: 平方根を求めるのは重いので変えておく
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 export default Joystick;
