@@ -71,7 +71,7 @@ function getFixedPosition(x, y, maxDistance) {
 
 function toDegreeAndSpeed(x, y, maxDistance) {
   var degree = Math.atan2(y, x);
-  degree = Math.floor(360 - ((degree / Math.PI * 180) + 180));
+  degree = Math.floor((degree / Math.PI * 180 + 450) % 360);
 
   // getDistanceで取れる値の範囲は、
   // 0～this.maxDistanceである。
