@@ -28,6 +28,14 @@ function SpheroClient() {
     this.speed = speed;
     this._roll();
   });
+
+  eventPublisher.subscribe("spheroState", (spheroState) => {
+    if (spheroState === "idling") {
+      this.orb.finishCalibration();
+    } else {
+      this.orb.startCalibration();
+    }
+  });
 }
 
 SpheroClient.prototype._roll = function() {
