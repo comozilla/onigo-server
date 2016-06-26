@@ -21,7 +21,6 @@ function Joystick() {
   });
   document.addEventListener("mousemove", (event) => {
     if (this.isClick) {
-      console.log(this.movementPerPixel);
       this.move(event.movementX * this.movementPerPixel,
         event.movementY * this.movementPerPixel);
     }
