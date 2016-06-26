@@ -3,7 +3,7 @@ import eventPublisher from "./publisher";
 function SpheroClient() {
   this.speedOfAccuracy = 5;
   this.degreeOfAccuracy = 5;
-  this.sendInterval = 500;
+  this.sendInterval = 100;
   this._isBreaking = false;
 
   this.orb = new sphero();
