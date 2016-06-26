@@ -1,6 +1,11 @@
 import eventPublisher from "./publisher";
 
 function Joystick() {
+  this.movementPerPixel = 1;
+  window.addEventListener("resize", () => {
+    this.updateMovementPerPixel();
+  });
+  this.updateMovementPerPixel();
   this.maxDistance = 25;
   this.element = document.querySelector("#stick #draggable");
   this.element.addEventListener("mousedown", () => {
@@ -16,13 +21,20 @@ function Joystick() {
   });
   document.addEventListener("mousemove", (event) => {
     if (this.isClick) {
-      this.move(event.movementX, event.movementY);
+      console.log(this.movementPerPixel);
+      this.move(event.movementX * this.movementPerPixel,
+        event.movementY * this.movementPerPixel);
     }
   });
 
   this.isClick = false;
   this.setNeutralPosition();
 }
+
+Joystick.prototype.updateMovementPerPixel = function() {
+  this.movementPerPixel =
+    100 / document.getElementById("stick-box").clientWidth;
+};
 
 Joystick.prototype.changeStickColor = function() {
   if (this.isClick) {
@@ -71,7 +83,7 @@ function getFixedPosition(x, y, maxDistance) {
 
 function toDegreeAndSpeed(x, y, maxDistance) {
   var degree = Math.atan2(y, x);
-  degree = Math.floor((degree / Math.PI * 180 + 450) % 360);
+  degree = Math.floor((degree / Math.PI * 180 + 450));
 
   // getDistanceで取れる値の範囲は、
   // 0～this.maxDistanceである。

@@ -38,7 +38,6 @@ SpheroClient.prototype._roll = function() {
       Math.abs(this.degree - this._beforeDegree) > this.degreeOfAccuracy) {
     this._isBreaking = true;
     setTimeout(() => {
-      console.log(this.degree);
       this.orb.roll(this.speed, this.degree);
       this._isBreaking = false;
     }, this.sendInterval);
