@@ -5,7 +5,8 @@ module.exports = {
     wsPort: 8080,
     allowedOrigin: "*",
     sphero: [
-      { name: "Sphero-BPO", port: "COM3" }
+      { name: "Sphero-BPO", port: "COM3" },
+      { name: "Sphero-BPO2", port: "COM3" }
     ],
     checkSignal: true
   },

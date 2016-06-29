@@ -13,6 +13,9 @@ function SpheroClient() {
   this.orb.connect("ws://localhost:8080", () => {
     onConnect.apply(this, []);
   });
+  this.orb.listenCustomMessage("hoge", () => {
+    console.log("ほげった");
+  });
 
   this._beforeDegree = 0;
   this.degree = 0;
