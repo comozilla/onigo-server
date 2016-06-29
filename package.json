@@ -7,9 +7,7 @@
     "build": "gulp webpack",
     "build:min": "gulp webpack --min",
     "build:watch": "gulp webpack --watch",
-    "build:browser-sync": "gulp webpack --browser-sync",
-    "server": "sphero-websocket",
-    "server-test": "sphero-websocket --test"
+    "build:browser-sync": "gulp webpack --browser-sync"
   },
   "repository": {
     "type": "git",
@@ -36,7 +34,7 @@
     "webpack": "^1.13.1"
   },
   "dependencies": {
-    "sphero-websocket": "0.3.4",
-    "sphero-ws-virtual-plugin": "0.0.4"
+    "sphero-websocket": "^0.4.1",
+    "sphero-ws-virtual-plugin": "0.1.3"
   }
 }
