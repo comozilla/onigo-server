@@ -2,6 +2,7 @@ var spheroWebSocket = require("sphero-websocket");
 var argv = require("argv");
 var config = require("./config");
 var VirtualSphero = require("sphero-ws-virtual-plugin");
+var Dashboard = require("./dashboard");
 
 var opts = [
   { name: "test", type: "boolean" }
@@ -30,4 +31,7 @@ spheroWS.events.on("addClient", function(key, client) {
     });
   }
 });
+
+console.log(config.dashboardPort);
+var dashboard = new Dashboard(config.dashboardPort);
 

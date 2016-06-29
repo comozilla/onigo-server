@@ -12,5 +12,6 @@ module.exports = {
   },
   virtualSphero: {
     wsPort: 8081
-  }
+  },
+  dashboardPort: 8082
 };
