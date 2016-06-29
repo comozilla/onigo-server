@@ -6,38 +6,36 @@ function SpheroClient() {
   this.sendInterval = 100;
   this._isBreaking = false;
 
+  this._beforeDegree = 0;
+  this.degree = 0;
+
+  this._beforeSpeed = 0;
+  this.speed = 0;
+
   this.orb = new sphero();
-  var onConnect = function() {
-    this.orb.color("red");
-  };
   this.orb.connect("ws://localhost:8080", () => {
-    onConnect.apply(this, []);
+    this.orb.color("red");
+    eventPublisher.subscribe("rollingDegree", (degree) => {
+      this._beforeDegree = this.degree;
+      this.degree = degree;
+      this._roll();
+    });
+    eventPublisher.subscribe("rollingSpeed", (speed) => {
+      this._beforeSpeed = this.speed;
+      this.speed = speed;
+      this._roll();
+    });
+
+    eventPublisher.subscribe("spheroState", (spheroState) => {
+      if (spheroState === "idling") {
+        this.orb.finishCalibration();
+      } else {
+        this.orb.startCalibration();
+      }
+    });
   });
   this.orb.listenCustomMessage("hoge", () => {
     console.log("ほげった");
-  });
-
-  this._beforeDegree = 0;
-  this.degree = 0;
-  eventPublisher.subscribe("rollingDegree", (degree) => {
-    this._beforeDegree = this.degree;
-    this.degree = degree;
-    this._roll();
-  });
-  this._beforeSpeed = 0;
-  this.speed = 0;
-  eventPublisher.subscribe("rollingSpeed", (speed) => {
-    this._beforeSpeed = this.speed;
-    this.speed = speed;
-    this._roll();
-  });
-
-  eventPublisher.subscribe("spheroState", (spheroState) => {
-    if (spheroState === "idling") {
-      this.orb.finishCalibration();
-    } else {
-      this.orb.startCalibration();
-    }
   });
 }
 
