@@ -34,8 +34,9 @@ function SpheroClient() {
       }
     });
   });
-  this.orb.listenCustomMessage("hoge", () => {
-    console.log("ほげった");
+  this.orb.listenCustomMessage("hp", (data) => {
+    console.log(data);
+    eventPublisher.publish("hp", data.hp);
   });
 }
 
