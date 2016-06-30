@@ -32,6 +32,5 @@ spheroWS.events.on("addClient", function(key, client) {
   }
 });
 
-console.log(config.dashboardPort);
 var dashboard = new Dashboard(config.dashboardPort);
 
