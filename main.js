@@ -17,6 +17,7 @@ spheroWS.events.on("command", function(requestKey, command, args) {
 });
 
 var players = {};
+var gameState = "inactive";
 
 spheroWS.events.on("addClient", function(key, client) {
   if (!isTestMode) {
@@ -30,6 +31,7 @@ spheroWS.events.on("addClient", function(key, client) {
       spheroWS.spheroServer.sendCustomMes(key, "hp", { hp: players[key].hp });
     });
   }
+  spheroWS.spheroServer.sendCustomMes(key, "gameState", { gameState: gameState });
 });
 
 var dashboard = new Dashboard(config.dashboardPort);
