@@ -1,7 +1,17 @@
 var express = require("express");
 var io = require("socket.io");
+var EventEmitter = require("events").EventEmitter;
+var util = require("util");
 
-function dashboard(port) {
+var instance = null;
+
+function Dashboard(port) {
+  EventEmitter.call(this);
+
+  if (instance !== null) {
+    return instance;
+  }
+
   var app = require('express')();
   var server = require('http').Server(app);
   var io = require('socket.io')(server);
@@ -11,10 +21,20 @@ function dashboard(port) {
     console.log("dashboard listening on port " + port);
   });
 
-  io.on('connection', function (socket) {
-    console.log("a user connected");
+  io.on('connection', (socket) => {
+    console.log("a user connected.");
+    socket.on("gameState", (gameState) => {
+      if (/active|inactive/.test(gameState.gameState)) {
+        this.emit("gameState", gameState.gameState);
+      }
+    });
   });
+
+  instance = this;
+  return this;
 }
 
-module.exports = dashboard;
+util.inherits(Dashboard, EventEmitter);
+
+module.exports = Dashboard;
 

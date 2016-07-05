@@ -2,7 +2,7 @@ var spheroWebSocket = require("sphero-websocket");
 var argv = require("argv");
 var config = require("./config");
 var VirtualSphero = require("sphero-ws-virtual-plugin");
-var dashboard = require("./dashboard");
+var Dashboard = require("./dashboard");
 
 var opts = [
   { name: "test", type: "boolean" }
@@ -16,9 +16,11 @@ spheroWS.events.on("command", function(requestKey, command, args) {
   virtualSphero.command(command, args);
 });
 
+var dashboard = new Dashboard(config.dashboardPort);
+
 var players = {};
-var gameState = "active";
-var availableCommandsCount = 1;
+var gameState = "inactive";
+var availableCommandsCount = 2;
 
 spheroWS.events.on("addClient", function(key, client) {
   if (!isTestMode) {
@@ -34,7 +36,10 @@ spheroWS.events.on("addClient", function(key, client) {
   }
   spheroWS.spheroServer.sendCustomMes(key, "gameState", { gameState: gameState });
   spheroWS.spheroServer.sendCustomMes(key, "availableCommandsCount", { count: availableCommandsCount });
-});
 
-dashboard(config.dashboardPort);
+  dashboard.on("gameState", (gameState) => {
+    gameState = gameState;
+    spheroWS.spheroServer.sendCustomMes(key, "gameState", { gameState: gameState });
+  });
+});
 
