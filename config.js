@@ -6,9 +6,10 @@ module.exports = {
     allowedOrigin: "*",
     sphero: [
       { name: "Sphero-BPO", port: "COM3" },
-      { name: "Sphero-BPO2", port: "COM3" }
+      { name: "Sphero-YRW", port: "COM4" }
     ],
-    checkSignal: true
+    checkSignal: true,
+    isMultipleMode: true
   },
   virtualSphero: {
     wsPort: 8081

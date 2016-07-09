@@ -31,15 +31,15 @@ spheroWS.events.on("addClient", function(key, client) {
     orb.detectCollisions();
     orb.on("collision", function() {
       players[key].hp -= 10;
-      spheroWS.spheroServer.sendCustomMes(key, "hp", { hp: players[key].hp });
+      client.sendCustomMessage("hp", { hp: players[key].hp });
     });
   }
-  spheroWS.spheroServer.sendCustomMes(key, "gameState", { gameState: gameState });
-  spheroWS.spheroServer.sendCustomMes(key, "availableCommandsCount", { count: availableCommandsCount });
+  client.sendCustomMessage("gameState", { gameState: gameState });
+  client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
 
   dashboard.on("gameState", (gameState) => {
     gameState = gameState;
-    spheroWS.spheroServer.sendCustomMes(key, "gameState", { gameState: gameState });
+    client.sendCustomMessage("gameState", { gameState: gameState });
   });
 });
 

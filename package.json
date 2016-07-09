@@ -24,7 +24,7 @@
     "argv": "0.0.2",
     "express": "^4.14.0",
     "socket.io": "^1.4.8",
-    "sphero-websocket": "^0.4.4",
+    "sphero-websocket": "^0.5.1",
     "sphero-ws-virtual-plugin": "0.1.3"
   }
 }
