@@ -16,16 +16,27 @@ function Dashboard(port) {
   var server = require('http').Server(app);
   var io = require('socket.io')(server);
 
+  var gameState = "inactive";
+  var availableCommandsCount = 1;
+
   app.use(express.static("dashboard"));
   server.listen(port, () => {
     console.log("dashboard listening on port " + port);
   });
 
   io.on('connection', (socket) => {
-    console.log("a user connected.");
-    socket.on("gameState", (gameState) => {
-      if (/active|inactive/.test(gameState.gameState)) {
-        this.emit("gameState", gameState.gameState);
+    console.log("a dashboard connected.");
+    socket.emit("defaultData", gameState, availableCommandsCount);
+    socket.on("gameState", (state) => {
+      if (/active|inactive/.test(state.gameState)) {
+        gameState = state.gameState;
+        this.emit("gameState", state.gameState);
+      }
+    });
+    socket.on("availableCommandsCount", (data) => {
+      if (data.count >= 1 && data.count <= 6) {
+        availableCommandsCount = data.count;
+        this.emit("availableCommandsCount", data.count);
       }
     });
   });

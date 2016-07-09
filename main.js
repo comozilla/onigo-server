@@ -20,7 +20,7 @@ var dashboard = new Dashboard(config.dashboardPort);
 
 var players = {};
 var gameState = "inactive";
-var availableCommandsCount = 6;
+var availableCommandsCount = 1;
 
 var clients = {};
 spheroWS.events.on("addClient", function(key, client) {
@@ -48,10 +48,16 @@ spheroWS.events.on("removeClient", function(key) {
     delete clients[key];
   }
 });
-dashboard.on("gameState", (gameState) => {
-  gameState = gameState;
+dashboard.on("gameState", (state) => {
+  gameState = state;
   Object.keys(clients).forEach(key => {
     clients[key].sendCustomMessage("gameState", { gameState: gameState });
+  });
+});
+dashboard.on("availableCommandsCount", (count) => {
+  availableCommandsCount = count;
+  Object.keys(clients).forEach(key => {
+    clients[key].sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
   });
 });
 
