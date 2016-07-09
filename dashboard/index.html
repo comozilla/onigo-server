@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title></title>
+  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript" src="main.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
     <h1>Onigo Dashboard</h1>
     <div id="game-state-view">
-      Game State: <button id="game-state-button">ACTIVE</button>
+      Game State: <button id="game-state-button">INACTIVE</button>
     </div>
   </header>
+  <h2>Available Commands</h2>
+  Count: <input type="number" id="available-commands" min="1" max="6" value="1" />
+  <button id="set-available-commands-button">Set</button>
 </body>
 </html>
