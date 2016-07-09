@@ -20,9 +20,11 @@ var dashboard = new Dashboard(config.dashboardPort);
 
 var players = {};
 var gameState = "inactive";
-var availableCommandsCount = 2;
+var availableCommandsCount = 6;
 
+var clients = {};
 spheroWS.events.on("addClient", function(key, client) {
+  clients[key] = client;
   if (!isTestMode) {
     players[key] = {
       hp: 100
@@ -36,10 +38,21 @@ spheroWS.events.on("addClient", function(key, client) {
   }
   client.sendCustomMessage("gameState", { gameState: gameState });
   client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
-
-  dashboard.on("gameState", (gameState) => {
-    gameState = gameState;
-    client.sendCustomMessage("gameState", { gameState: gameState });
+  client.on("arriveCustomMessage", (name, data, mesID) => {
+    console.log("arrived customMes : " + name);
   });
 });
+spheroWS.events.on("removeClient", function(key) {
+  console.log("removed Client: " + key);
+  if (typeof clients[key] !== "undefined") {
+    delete clients[key];
+  }
+});
+dashboard.on("gameState", (gameState) => {
+  gameState = gameState;
+  Object.keys(clients).forEach(key => {
+    clients[key].sendCustomMessage("gameState", { gameState: gameState });
+  });
+});
+
 
