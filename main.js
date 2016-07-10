@@ -3,6 +3,7 @@ var argv = require("argv");
 var config = require("./config");
 var VirtualSphero = require("sphero-ws-virtual-plugin");
 var Dashboard = require("./dashboard");
+var CommandRunner = require("./commandRunner");
 
 var opts = [
   { name: "test", type: "boolean" }
@@ -18,28 +19,43 @@ spheroWS.events.on("command", (requestKey, command, args) => {
 
 var dashboard = new Dashboard(config.dashboardPort);
 
-var players = {};
 var gameState = "inactive";
 var availableCommandsCount = 1;
 
 var clients = {};
+
 spheroWS.events.on("addClient", (key, client) => {
-  clients[key] = client;
+  clients[key] = {
+    client: client,
+    commandRunner: new CommandRunner(key),
+    hp: 100
+  };
   if (!isTestMode) {
-    players[key] = {
-      hp: 100
-    }
     var orb = client.linkedOrb.instance;
     orb.detectCollisions();
     orb.on("collision", () => {
-      players[key].hp -= 10;
-      client.sendCustomMessage("hp", { hp: players[key].hp });
+      clients[key].hp -= 10;
+      client.sendCustomMessage("hp", { hp: clients[key].hp });
     });
   }
+
+  clients[key].commandRunner.on("command", function(commandName, args) {
+    if (!client.linkedOrb.hasCommand(commandName)) {
+      throw new Error("command : " + commandName + " is not valid.");
+    }
+    client.linkedOrb.command(commandName, args);
+  });
+
   client.sendCustomMessage("gameState", { gameState: gameState });
   client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
   client.on("arriveCustomMessage", (name, data, mesID) => {
-    console.log("arrived customMes : " + name);
+    if (name === "commands") {
+      if (typeof data.type === "string" && data.type === "built-in") {
+        clients[key].commandRunner.setBuiltInCommands(data.command);
+      } else {
+        clients[key].commandRunner.setCommands(data);
+      }
+    }
   });
 });
 spheroWS.events.on("removeClient", key => {
@@ -48,12 +64,14 @@ spheroWS.events.on("removeClient", key => {
     delete clients[key];
   }
 });
+
 dashboard.on("gameState", state => {
   gameState = state;
   Object.keys(clients).forEach(key => {
-    clients[key].sendCustomMessage("gameState", { gameState: gameState });
+    clients[key].client.sendCustomMessage("gameState", { gameState: gameState });
   });
 });
+
 dashboard.on("availableCommandsCount", count => {
   availableCommandsCount = count;
   Object.keys(clients).forEach(key => {
