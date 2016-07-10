@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   var gameStateButton = document.getElementById("game-state-button");
   gameStateButton.addEventListener("click", () => {
     gameState = gameState === "active" ? "inactive" : "active";
-    socket.emit("gameState", { gameState: gameState });
+    socket.emit("gameState", gameState);
 
     gameStateButton.textContent = gameState.toUpperCase();
   });

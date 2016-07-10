@@ -23,9 +23,9 @@ function Dashboard(port) {
 
   io.on('connection', socket => {
     console.log("a user connected.");
-    socket.on("gameState", data => {
-      if (/active|inactive/.test(data.gameState)) {
-        this.emit("gameState", data.gameState);
+    socket.on("gameState", gameState => {
+      if (/active|inactive/.test(gameState)) {
+        this.emit("gameState", gameState);
       }
     });
   });
