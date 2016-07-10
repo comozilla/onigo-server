@@ -13,18 +13,18 @@ var isTestMode = argv.option(opts).run().options.test;
 var spheroWS = spheroWebSocket(config.websocket, isTestMode);
 
 var virtualSphero = new VirtualSphero(config.virtualSphero.wsPort);
-spheroWS.events.on("command", function(requestKey, command, args) {
+spheroWS.events.on("command", (requestKey, command, args) => {
   virtualSphero.command(command, args);
 });
 
 var dashboard = new Dashboard(config.dashboardPort);
 
 var gameState = "inactive";
-var availableCommandsCount = 6;
+var availableCommandsCount = 1;
 
 var clients = {};
 
-spheroWS.events.on("addClient", function(key, client) {
+spheroWS.events.on("addClient", (key, client) => {
   clients[key] = {
     client: client,
     commandRunner: new CommandRunner(key),
@@ -33,7 +33,7 @@ spheroWS.events.on("addClient", function(key, client) {
   if (!isTestMode) {
     var orb = client.linkedOrb.instance;
     orb.detectCollisions();
-    orb.on("collision", function() {
+    orb.on("collision", () => {
       clients[key].hp -= 10;
       client.sendCustomMessage("hp", { hp: clients[key].hp });
     });
@@ -58,17 +58,24 @@ spheroWS.events.on("addClient", function(key, client) {
     }
   });
 });
-spheroWS.events.on("removeClient", function(key) {
+spheroWS.events.on("removeClient", key => {
   console.log("removed Client: " + key);
   if (typeof clients[key] !== "undefined") {
     delete clients[key];
   }
 });
 
-dashboard.on("gameState", (gameState) => {
-  gameState = gameState;
+dashboard.on("gameState", state => {
+  gameState = state;
   Object.keys(clients).forEach(key => {
     clients[key].client.sendCustomMessage("gameState", { gameState: gameState });
+  });
+});
+
+dashboard.on("availableCommandsCount", count => {
+  availableCommandsCount = count;
+  Object.keys(clients).forEach(key => {
+    clients[key].sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
   });
 });
 

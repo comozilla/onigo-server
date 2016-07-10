@@ -1,12 +1,32 @@
 var socket = io();
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", () => {
   var gameState = "inactive";
+  var availableCommandsCount = 1;
+
   var gameStateButton = document.getElementById("game-state-button");
-  gameStateButton.addEventListener("click", function() {
+  var availableCommandsElement = document.getElementById("available-commands");
+
+  socket.on("defaultData", (state, count) => {
+    gameState = state;
+    gameStateButton.textContent = gameState.toUpperCase();
+
+    availableCommandsCount = count;
+    availableCommandsElement.value = availableCommandsCount;
+  });
+
+  gameStateButton.addEventListener("click", () => {
     gameState = gameState === "active" ? "inactive" : "active";
-    socket.emit("gameState", { gameState: gameState });
+    socket.emit("gameState", gameState);
 
     gameStateButton.textContent = gameState.toUpperCase();
+  });
+
+  var setAvailableCommandsButton = document.getElementById("set-available-commands-button");
+  setAvailableCommandsButton.addEventListener("click", function() {
+    if (!isNaN(availableCommandsElement.value)) {
+      availableCommandsCount = parseInt(availableCommandsElement.value);
+      socket.emit("availableCommandsCount", availableCommandsCount);
+    }
   });
 });
