@@ -23,24 +23,19 @@ var gameState = "inactive";
 var availableCommandsCount = 6;
 
 var clients = {};
-var players = {};
-// key: {commands, timeoutId, playingIndex}
-var commands = {};
 
 spheroWS.events.on("addClient", function(key, client) {
   clients[key] = {
     client: client,
-    commandRunner: new CommandRunner(key)
-  };
-  players[key] = {
+    commandRunner: new CommandRunner(key),
     hp: 100
   };
   if (!isTestMode) {
     var orb = client.linkedOrb.instance;
     orb.detectCollisions();
     orb.on("collision", function() {
-      players[key].hp -= 10;
-      client.sendCustomMessage("hp", { hp: players[key].hp });
+      clients[key].hp -= 10;
+      client.sendCustomMessage("hp", { hp: clients[key].hp });
     });
   }
 
