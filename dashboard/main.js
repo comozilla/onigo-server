@@ -1,6 +1,6 @@
 var socket = io();
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", () => {
   var gameState = "inactive";
   var availableCommandsCount = 1;
 
@@ -15,9 +15,9 @@ document.addEventListener("DOMContentLoaded", function() {
     availableCommandsElement.value = availableCommandsCount;
   });
 
-  gameStateButton.addEventListener("click", function() {
+  gameStateButton.addEventListener("click", () => {
     gameState = gameState === "active" ? "inactive" : "active";
-    socket.emit("gameState", { gameState: gameState });
+    socket.emit("gameState", gameState);
 
     gameStateButton.textContent = gameState.toUpperCase();
   });

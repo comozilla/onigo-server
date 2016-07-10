@@ -24,13 +24,13 @@ function Dashboard(port) {
     console.log("dashboard listening on port " + port);
   });
 
-  io.on('connection', (socket) => {
+  io.on('connection', socket => {
     console.log("a dashboard connected.");
     socket.emit("defaultData", gameState, availableCommandsCount);
-    socket.on("gameState", (state) => {
-      if (/active|inactive/.test(state.gameState)) {
-        gameState = state.gameState;
-        this.emit("gameState", state.gameState);
+    socket.on("gameState", state => {
+      if (/active|inactive/.test(state)) {
+        gameState = state;
+        this.emit("gameState", state);
       }
     });
     socket.on("availableCommandsCount", (data) => {
