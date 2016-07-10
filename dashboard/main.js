@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setAvailableCommandsButton.addEventListener("click", function() {
     if (!isNaN(availableCommandsElement.value)) {
       availableCommandsCount = parseInt(availableCommandsElement.value);
-      socket.emit("availableCommandsCount", { count: availableCommandsCount });
+      socket.emit("availableCommandsCount", availableCommandsCount);
     }
   });
 });

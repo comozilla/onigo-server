@@ -12,9 +12,9 @@ function Dashboard(port) {
     return instance;
   }
 
-  var app = require('express')();
-  var server = require('http').Server(app);
-  var io = require('socket.io')(server);
+  var app = require("express")();
+  var server = require("http").Server(app);
+  var io = require("socket.io")(server);
 
   var gameState = "inactive";
   var availableCommandsCount = 1;
@@ -24,7 +24,7 @@ function Dashboard(port) {
     console.log("dashboard listening on port " + port);
   });
 
-  io.on('connection', socket => {
+  io.on("connection", socket => {
     console.log("a dashboard connected.");
     socket.emit("defaultData", gameState, availableCommandsCount);
     socket.on("gameState", state => {
@@ -33,10 +33,10 @@ function Dashboard(port) {
         this.emit("gameState", state);
       }
     });
-    socket.on("availableCommandsCount", (data) => {
-      if (data.count >= 1 && data.count <= 6) {
-        availableCommandsCount = data.count;
-        this.emit("availableCommandsCount", data.count);
+    socket.on("availableCommandsCount", count => {
+      if (count >= 1 && count <= 6) {
+        availableCommandsCount = count;
+        this.emit("availableCommandsCount", count);
       }
     });
   });
