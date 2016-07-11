@@ -36,13 +36,17 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
   });
 });
 spheroWS.spheroServer.events.on("removeClient", key => {
-  dashboard.removeClient(key);
   console.log("removed Client: " + key);
   if (typeof clients[key] !== "undefined") {
     delete clients[key];
   }
+  dashboard.removeClient(key);
 });
-spheroWS.spheroServer.events.on("addOrb", orb => {
+
+Object.keys(spheroWS.spheroServer.orbs).forEach(orbNames => {
+  dashboard.addOrb(orbNames);
+});
+spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
   if (!isTestMode) {
     orb.detectCollisions();
     orb.on("collision", () => {
@@ -52,7 +56,12 @@ spheroWS.spheroServer.events.on("addOrb", orb => {
       });
     });
   }
+  dashboard.addOrb(name);
 });
+spheroWS.spheroServer.events.on("removeOrb", name => {
+  dashboard.removeOrb(name);
+});
+
 dashboard.on("gameState", state => {
   gameState = state;
   Object.keys(clients).forEach(key => {

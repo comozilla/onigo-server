@@ -23,6 +23,8 @@ function Dashboard(port) {
 
   // this.links[clientKey] = orbName
   this.links = {};
+  // [name, name, name, ...]
+  this.orbs = [];
 
   this.app.use(express.static("dashboard"));
   this.server.listen(port, () => {
@@ -32,7 +34,7 @@ function Dashboard(port) {
   this.io.on("connection", socket => {
     console.log("a dashboard connected.");
     this.sockets.push(socket);
-    socket.emit("defaultData", this.gameState, this.availableCommandsCount);
+    socket.emit("defaultData", this.gameState, this.availableCommandsCount, this.links, this.orbs);
     socket.on("gameState", state => {
       if (/active|inactive/.test(state)) {
         this.gameState = state;
@@ -66,6 +68,26 @@ Dashboard.prototype.removeClient = function(key) {
   delete this.links[key];
   this.sockets.forEach(socket => {
     socket.emit("removeClient", key);
+  });
+};
+
+Dashboard.prototype.addOrb = function(name) {
+  if (this.orbs.indexOf(name) >= 0) {
+    throw new Error("追加しようとしたOrbは既に存在します。 : " + name);
+  }
+  this.orbs.push(name);
+  this.sockets.forEach(socket => {
+    socket.emit("updateOrbs", this.orbs);
+  });
+};
+
+Dashboard.prototype.removeOrb = function(name) {
+  if (this.orbs.indexOf(name) === -1) {
+    throw new Error("削除しようとしたOrbは存在しません。 : " + name);
+  }
+  this.orbs.splice(this.orbs.indexOf(name), 1);
+  this.sockets.forEach(socket => {
+    socket.emit("updateOrbs", this.orbs);
   });
 };
 
