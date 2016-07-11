@@ -31,15 +31,6 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
     commandRunner: new CommandRunner(key),
     hp: 100
   };
-  if (!isTestMode) {
-    var orb = client.linkedOrb.instance;
-    orb.detectCollisions();
-    orb.on("collision", () => {
-      clients[key].hp -= 10;
-      client.sendCustomMessage("hp", { hp: clients[key].hp });
-    });
-  }
-
   clients[key].commandRunner.on("command", function(commandName, args) {
     if (!client.linkedOrb.hasCommand(commandName)) {
       throw new Error("command : " + commandName + " is not valid.");
@@ -60,14 +51,18 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
   });
 });
 spheroWS.spheroServer.events.on("removeClient", key => {
-  dashboard.removeClient(key);
   console.log("removed Client: " + key);
   if (typeof clients[key] !== "undefined") {
     delete clients[key];
   }
+  dashboard.removeClient(key);
 });
 
-spheroWS.spheroServer.events.on("addOrb", orb => {
+Object.keys(spheroWS.spheroServer.orbs).forEach(orbNames => {
+  dashboard.addOrb(orbNames);
+});
+
+spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
   if (!isTestMode) {
     orb.detectCollisions();
     orb.on("collision", () => {
@@ -77,7 +72,12 @@ spheroWS.spheroServer.events.on("addOrb", orb => {
       });
     });
   }
+  dashboard.addOrb(name);
 });
+spheroWS.spheroServer.events.on("removeOrb", name => {
+  dashboard.removeOrb(name);
+});
+
 dashboard.on("gameState", state => {
   gameState = state;
   Object.keys(clients).forEach(key => {

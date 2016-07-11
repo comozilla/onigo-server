@@ -7,12 +7,19 @@ document.addEventListener("DOMContentLoaded", () => {
   var gameStateButton = document.getElementById("game-state-button");
   var availableCommandsElement = document.getElementById("available-commands");
 
-  socket.on("defaultData", (state, count) => {
+  var clientLinks = {};
+  var orbNames = [];
+
+  socket.on("defaultData", (state, count, links, orbs) => {
     gameState = state;
     gameStateButton.textContent = gameState.toUpperCase();
 
     availableCommandsCount = count;
     availableCommandsElement.value = availableCommandsCount;
+
+    clientLinks = links;
+    orbNames = orbs;
+    console.log(orbNames);
   });
 
   gameStateButton.addEventListener("click", () => {
@@ -33,5 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
   socket.on("addClient", key => {
     // todo
     console.log(key);
+  });
+
+  socket.on("updateOrbs", orbs => {
+    orbNames = orbs;
   });
 });
