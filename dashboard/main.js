@@ -29,4 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
       socket.emit("availableCommandsCount", availableCommandsCount);
     }
   });
+
+  socket.on("addClient", key => {
+    // todo
+    console.log(key);
+  });
 });

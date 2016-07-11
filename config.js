@@ -9,7 +9,7 @@ module.exports = {
       { name: "Sphero-YRW", port: "COM4" }
     ],
     checkSignal: true,
-    isMultipleMode: true
+    linkMode: "manual"
   },
   virtualSphero: {
     wsPort: 8081
