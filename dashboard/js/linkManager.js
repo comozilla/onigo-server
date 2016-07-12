@@ -1,3 +1,5 @@
+import Link from "./link";
+
 function LinkManager(element) {
   this.element = element;
   this.linkInstances = [];
@@ -5,16 +7,16 @@ function LinkManager(element) {
 }
 
 LinkManager.prototype.addLink = function(clientKey, orbNames) {
-  var defaultLinkedOrb = this.clientLinks[clientKey];
+  let defaultLinkedOrb = this.clientLinks[clientKey];
   if (typeof defaultLinkedOrb === "undefined") {
     defaultLinkedOrb = null;
   }
-  var link = new Link(clientKey, orbNames, defaultLinkedOrb);
+  const link = new Link(clientKey, orbNames, defaultLinkedOrb);
   this.element.appendChild(link.element);
   this.linkInstances.push(link);
 };
 LinkManager.prototype.removeLink = function(clientKey) {
-  var keyIndex = this.linkInstances.map(instance => instance.clientKey).indexOf(clientKey);
+  let keyIndex = this.linkInstances.map(instance => instance.clientKey).indexOf(clientKey);
   if (keyIndex === -1) {
     throw new Error("removeしようとしたclientKeyは存在しませんでした。 : " + clientKey);
   }

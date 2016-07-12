@@ -10,9 +10,10 @@ function Link(clientKey, orbs, defaultLinkedOrb) {
   this.element.appendChild(this.clientElement);
 
   this.orbSelectElement = document.createElement("select");
-  var orbSelectTd = document.createElement("td");
+  const orbSelectTd = document.createElement("td");
   orbSelectTd.appendChild(this.orbSelectElement);
   this.element.appendChild(orbSelectTd);
+
   updateOrbSelect.call(this);
 }
 
@@ -21,12 +22,12 @@ Link.prototype.updateOrbs = function(orbs) {
   updateOrbSelect.call(this);
 };
 
-var updateOrbSelect = function() {
+const updateOrbSelect = function() {
   this.orbSelectElement.innerHTML = "";
-  var editedOrbs = this.orbs.slice();
+  let editedOrbs = this.orbs.slice();
   editedOrbs.unshift("-- unlinked --");
   editedOrbs.forEach(orbName => {
-    var item = document.createElement("option");
+    const item = document.createElement("option");
     item.value = orbName;
     item.textContent = orbName;
     this.orbSelectElement.appendChild(item);
