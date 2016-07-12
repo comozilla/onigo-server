@@ -18,6 +18,9 @@ import LinkManager from "./linkManager";
     gameStateButton = document.getElementById("game-state-button");
     availableCommandsElement = document.getElementById("available-commands");
     linkManager = new LinkManager(document.getElementById("links"));
+    linkManager.on("change", (clientKey, orbName) => {
+      console.log(clientKey + " links " + orbName);
+    });
 
     socket.on("defaultData", (state, count, links, orbs) => {
       gameState = state;
