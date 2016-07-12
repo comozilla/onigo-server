@@ -1,19 +1,18 @@
 import "../css/style.css";
 
-var socket = io();
+const socket = io();
 
-import Link from "./link";
 import LinkManager from "./linkManager";
 
 +function() {
-  var gameState = "inactive";
-  var availableCommandsCount = 1;
+  let gameState = "inactive";
+  let availableCommandsCount = 1;
 
-  var gameStateButton;
-  var availableCommandsElement;
+  let gameStateButton;
+  let availableCommandsElement;
 
-  var orbNames = [];
-  var linkManager;
+  let orbNames = [];
+  let linkManager;
 
   document.addEventListener("DOMContentLoaded", () => {
     gameStateButton = document.getElementById("game-state-button");
@@ -41,7 +40,7 @@ import LinkManager from "./linkManager";
       gameStateButton.textContent = gameState.toUpperCase();
     });
 
-    var setAvailableCommandsButton = document.getElementById("set-available-commands-button");
+    const setAvailableCommandsButton = document.getElementById("set-available-commands-button");
     setAvailableCommandsButton.addEventListener("click", function() {
       if (!isNaN(availableCommandsElement.value)) {
         availableCommandsCount = parseInt(availableCommandsElement.value);
