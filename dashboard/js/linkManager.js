@@ -1,10 +1,8 @@
 import eventPublisher from "./publisher";
-import {EventEmitter} from "events";
 import Link from "./link";
 
-export default class LinkManager extends EventEmitter {
+export default class LinkManager {
   constructor(element) {
-    super();
     this.element = element;
     this.linkInstances = [];
     this.clientLinks = {};
@@ -13,13 +11,16 @@ export default class LinkManager extends EventEmitter {
     eventPublisher.on("defaultLinks", links => {
       this.clientLinks = links;
       Object.keys(links).forEach(clientKey => {
+        this.clientLinks[clientKey] = null;
         this.addLink(clientKey, this.orbNames);
       });
     });
     eventPublisher.on("addClient", key => {
+      this.clientLinks[key] = null;
       this.addLink(key, this.orbNames);
     });
     eventPublisher.on("removeClient", key => {
+      delete this.clientLinks[key];
       this.removeLink(key);
     });
     eventPublisher.on("orbs", orbs => {
@@ -27,13 +28,10 @@ export default class LinkManager extends EventEmitter {
     });
   }
   addLink(clientKey, orbNames) {
-    let defaultLinkedOrb = this.clientLinks[clientKey];
-    if (typeof defaultLinkedOrb === "undefined") {
-      defaultLinkedOrb = null;
-    }
-    const link = new Link(clientKey, orbNames, defaultLinkedOrb);
+    const link = new Link(clientKey, orbNames, this.clientLinks[clientKey]);
     link.on("change", orbName => {
-      this.emit("change", clientKey, orbName);
+      this.clientLinks[clientKey] = orbName;
+      eventPublisher.emit("link", clientKey, orbName);
     });
     this.element.appendChild(link.element);
     this.linkInstances.push(link);
