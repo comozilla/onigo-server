@@ -92,6 +92,10 @@ dashboard.on("availableCommandsCount", count => {
   });
 });
 dashboard.on("updateLink", (key, orbName) => {
-  clients[key].client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
+  if (orbName === null) {
+    clients[key].unlink();
+  } else {
+    clients[key].setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
+  }
 });
 
