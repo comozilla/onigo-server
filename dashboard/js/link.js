@@ -1,38 +1,51 @@
-function Link(clientKey, orbs, defaultLinkedOrb) {
-  this.clientKey = clientKey;
-  this.orbs = orbs;
-  this.linkedOrb = defaultLinkedOrb;
+import {EventEmitter} from "events";
 
-  this.element = document.createElement("tr");
+const unlinkedText = "-- unlinked --";
 
-  this.clientElement = document.createElement("td");
-  this.clientElement.textContent = this.clientKey;
-  this.element.appendChild(this.clientElement);
+export default class Link extends EventEmitter {
+  constructor(clientKey, orbs, defaultLinkedOrb) {
+    super();
 
-  this.orbSelectElement = document.createElement("select");
-  const orbSelectTd = document.createElement("td");
-  orbSelectTd.appendChild(this.orbSelectElement);
-  this.element.appendChild(orbSelectTd);
+    this.clientKey = clientKey;
+    this.orbs = orbs;
+    this.linkedOrb = defaultLinkedOrb;
 
-  updateOrbSelect.call(this);
+    this.element = document.createElement("tr");
+
+    this.clientElement = document.createElement("td");
+    this.clientElement.textContent = this.clientKey;
+    this.element.appendChild(this.clientElement);
+
+    this.orbSelectElement = document.createElement("select");
+    this.orbSelectElement.addEventListener("change", () => {
+      if (this.orbSelectElement.value === unlinkedText) {
+        this.emit("change", null);
+      } else {
+        this.emit("change", this.orbSelectElement.value);
+      }
+    });
+
+    const orbSelectTd = document.createElement("td");
+    orbSelectTd.appendChild(this.orbSelectElement);
+    this.element.appendChild(orbSelectTd);
+
+    updateOrbSelect.call(this);
+  }
+  updateOrbs(orbs) {
+    this.orbs = orbs;
+    updateOrbSelect.call(this);
+  }
 }
 
-Link.prototype.updateOrbs = function(orbs) {
-  this.orbs = orbs;
-  updateOrbSelect.call(this);
-};
-
-const updateOrbSelect = function() {
+function updateOrbSelect() {
   this.orbSelectElement.innerHTML = "";
   let editedOrbs = this.orbs.slice();
-  editedOrbs.unshift("-- unlinked --");
+  editedOrbs.unshift(unlinkedText);
   editedOrbs.forEach(orbName => {
     const item = document.createElement("option");
     item.value = orbName;
     item.textContent = orbName;
     this.orbSelectElement.appendChild(item);
   });
-};
-
-export default Link;
+}
 
