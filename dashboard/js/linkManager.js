@@ -1,3 +1,4 @@
+import eventPublisher from "./publisher";
 import {EventEmitter} from "events";
 import Link from "./link";
 
@@ -7,6 +8,23 @@ export default class LinkManager extends EventEmitter {
     this.element = element;
     this.linkInstances = [];
     this.clientLinks = {};
+    this.orbNames = [];
+
+    eventPublisher.on("defaultLinks", links => {
+      this.clientLinks = links;
+      Object.keys(links).forEach(clientKey => {
+        this.addLink(clientKey, this.orbNames);
+      });
+    });
+    eventPublisher.on("addClient", key => {
+      this.addLink(key, this.orbNames);
+    });
+    eventPublisher.on("removeClient", key => {
+      this.removeLink(key);
+    });
+    eventPublisher.on("orbs", orbs => {
+      this.orbNames = orbs;
+    });
   }
   addLink(clientKey, orbNames) {
     let defaultLinkedOrb = this.clientLinks[clientKey];
