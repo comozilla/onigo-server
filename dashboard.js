@@ -47,7 +47,7 @@ function Dashboard(port) {
         this.emit("availableCommandsCount", count);
       }
     });
-    socket.on("updateLink", (key, orbName) => {
+    socket.on("link", (key, orbName) => {
       this.links[key] = orbName;
       this.emit("updateLink", key, orbName);
     });
