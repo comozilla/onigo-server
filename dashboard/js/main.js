@@ -1,8 +1,8 @@
 import "../css/style.css";
 
-const socket = io();
-
+import eventPublisher from "./publisher";
 import LinkManager from "./linkManager";
+import SocketManager from "./socketManager";
 
 +function() {
   let gameState = "inactive";
@@ -22,14 +22,19 @@ import LinkManager from "./linkManager";
       console.log(clientKey + " links " + orbName);
     });
 
-    socket.on("defaultData", (state, count, links, orbs) => {
+    new SocketManager();
+
+    eventPublisher.on("gameState", state => {
       gameState = state;
       gameStateButton.textContent = gameState.toUpperCase();
+    });
 
+    eventPublisher.on("availableCommandsCount", count => {
       availableCommandsCount = count;
       availableCommandsElement.value = availableCommandsCount;
+    });
 
-      orbNames = orbs;
+    eventPublisher.on("defaultLinks", links => {
       linkManager.clientLinks = links;
       Object.keys(linkManager.clientLinks).forEach(clientKey => {
         linkManager.addLink(clientKey, orbNames);
@@ -38,28 +43,27 @@ import LinkManager from "./linkManager";
 
     gameStateButton.addEventListener("click", () => {
       gameState = gameState === "active" ? "inactive" : "active";
-      socket.emit("gameState", gameState);
-
       gameStateButton.textContent = gameState.toUpperCase();
+      eventPublisher.emit("gameState", gameState);
     });
 
     const setAvailableCommandsButton = document.getElementById("set-available-commands-button");
     setAvailableCommandsButton.addEventListener("click", function() {
       if (!isNaN(availableCommandsElement.value)) {
         availableCommandsCount = parseInt(availableCommandsElement.value);
-        socket.emit("availableCommandsCount", availableCommandsCount);
+        eventPublisher.emit("availableCommandsCount", availableCommandsCount);
       }
     });
 
-    socket.on("addClient", key => {
+    eventPublisher.on("addClient", key => {
       linkManager.addLink(key, orbNames);
     });
 
-    socket.on("removeClient", key => {
+    eventPublisher.on("removeClient", key => {
       linkManager.removeLink(key);
     });
 
-    socket.on("updateOrbs", orbs => {
+    eventPublisher.on("orbs", orbs => {
       orbNames = orbs;
     });
   });
