@@ -37,7 +37,7 @@ export default class LinkManager {
     this.linkInstances.push(link);
   }
   removeLink(clientKey) {
-    let keyIndex = this.linkInstances.map(instance => instance.clientKey).indexOf(clientKey);
+    const keyIndex = this.linkInstances.map(instance => instance.clientKey).indexOf(clientKey);
     if (keyIndex === -1) {
       throw new Error("removeしようとしたclientKeyは存在しませんでした。 : " + clientKey);
     }
