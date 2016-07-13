@@ -32,10 +32,13 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
     hp: 100
   };
   clients[key].commandRunner.on("command", function(commandName, args) {
-    if (!client.linkedOrb.hasCommand(commandName)) {
-      throw new Error("command : " + commandName + " is not valid.");
+    if (client.linkedOrb !== null) {
+      console.log(key);
+      if (!client.linkedOrb.hasCommand(commandName)) {
+        throw new Error("command : " + commandName + " is not valid.");
+      }
+      client.linkedOrb.command(commandName, args);
     }
-    client.linkedOrb.command(commandName, args);
   });
 
   client.sendCustomMessage("gameState", { gameState: gameState });
@@ -93,9 +96,9 @@ dashboard.on("availableCommandsCount", count => {
 });
 dashboard.on("updateLink", (key, orbName) => {
   if (orbName === null) {
-    clients[key].unlink();
+    clients[key].client.unlink();
   } else {
-    clients[key].setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
+    clients[key].client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
   }
 });
 
