@@ -58,8 +58,8 @@ spheroWS.spheroServer.events.on("removeClient", key => {
   dashboard.removeClient(key);
 });
 
-Object.keys(spheroWS.spheroServer.orbs).forEach(orbNames => {
-  dashboard.addOrb(orbNames);
+Object.keys(spheroWS.spheroServer.orbs).forEach(orbName => {
+  dashboard.addOrb(orbName);
 });
 
 spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
