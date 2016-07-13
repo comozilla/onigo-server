@@ -39,7 +39,7 @@ export default class Link extends EventEmitter {
 
 function updateOrbSelect() {
   this.orbSelectElement.innerHTML = "";
-  let editedOrbs = this.orbs.slice();
+  const editedOrbs = this.orbs.slice();
   editedOrbs.unshift(unlinkedText);
   editedOrbs.forEach(orbName => {
     const item = document.createElement("option");
