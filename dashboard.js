@@ -26,6 +26,8 @@ function Dashboard(port) {
   // [name, name, name, ...]
   this.orbs = [];
 
+  this.unlinkedOrbs = [];
+
   this.app.use(express.static("dashboard"));
   this.server.listen(port, () => {
     console.log("dashboard listening on port " + port);
@@ -34,7 +36,12 @@ function Dashboard(port) {
   this.io.on("connection", socket => {
     console.log("a dashboard connected.");
     this.sockets.push(socket);
-    socket.emit("defaultData", this.gameState, this.availableCommandsCount, this.links, this.orbs);
+    socket.emit("defaultData",
+        this.gameState,
+        this.availableCommandsCount,
+        this.links,
+        this.orbs,
+        this.unlinkedOrbs);
     socket.on("gameState", state => {
       if (/active|inactive/.test(state)) {
         this.gameState = state;
@@ -53,6 +60,9 @@ function Dashboard(port) {
     });
     socket.on("addOrb", (name, port) => {
       this.emit("addOrb", name, port);
+    });
+    socket.on("removeOrb", name => {
+      this.emit("removeOrb", name);
     });
   });
 
@@ -91,6 +101,25 @@ Dashboard.prototype.removeOrb = function(name) {
   this.orbs.splice(this.orbs.indexOf(name), 1);
   this.sockets.forEach(socket => {
     socket.emit("updateOrbs", this.orbs);
+  });
+};
+
+Dashboard.prototype.updateUnlinkedOrbs = function(unlinkedOrbs) {
+
+  var editedUnlinkedOrbs;
+  if (typeof unlinkedOrbs === "undefined") {
+    editedUnlinkedOrbs = [];
+  } else {
+    editedUnlinkedOrbs = Object.keys(unlinkedOrbs).map(unlinkedOrbName => {
+      return {
+        orbName: unlinkedOrbName,
+        port: unlinkedOrbs[unlinkedOrbName].port
+      };
+    });
+  }
+  this.unlinkedOrbs = editedUnlinkedOrbs;
+  this.sockets.forEach(socket => {
+    socket.emit("updateUnlinkedOrbs", editedUnlinkedOrbs);
   });
 };
 

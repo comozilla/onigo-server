@@ -18,6 +18,7 @@ spheroWS.events.on("command", (requestKey, command, args) => {
 });
 
 var dashboard = new Dashboard(config.dashboardPort);
+dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 
 var gameState = "inactive";
 var availableCommandsCount = 1;
@@ -52,6 +53,9 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
       }
     }
   });
+  client.on("link", () => {
+    dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
+  });
 });
 spheroWS.spheroServer.events.on("removeClient", key => {
   console.log("removed Client: " + key);
@@ -77,9 +81,11 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
     });
   }
   dashboard.addOrb(name);
+  dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
 spheroWS.spheroServer.events.on("removeOrb", name => {
   dashboard.removeOrb(name);
+  dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
 
 dashboard.on("gameState", state => {
@@ -111,5 +117,9 @@ dashboard.on("addOrb", (name, port) => {
   } else {
     spheroWS.spheroServer.addOrb(rawOrb);
   }
+});
+dashboard.on("removeOrb", name => {
+  console.log("disconnect!!");
+  spheroWS.spheroServer.removeOrb(name);
 });
 
