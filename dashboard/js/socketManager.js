@@ -8,6 +8,7 @@ function SocketManager() {
   eventPublisher.on("gameState", this.sendGameState.bind(this));
   eventPublisher.on("availableCommandsCount", this.sendAvailableCommandsCount.bind(this));
   eventPublisher.on("link", this.sendLink.bind(this));
+  eventPublisher.on("addOrb", this.sendAddOrb.bind(this));
 
   this.socket = io();
   this.socket.on("defaultData", (state, count, links, orbs) => {
@@ -39,6 +40,10 @@ SocketManager.prototype.sendAvailableCommandsCount = function(availableCommandsC
 
 SocketManager.prototype.sendLink = function(clientKey, orbName) {
   this.socket.emit("link", clientKey, orbName);
+};
+
+SocketManager.prototype.sendAddOrb = function(name, port) {
+  this.socket.emit("addOrb", name, port);
 };
 
 // eventPublisher.emit をする。

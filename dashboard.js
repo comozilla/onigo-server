@@ -51,6 +51,9 @@ function Dashboard(port) {
       this.links[key] = orbName;
       this.emit("updateLink", key, orbName);
     });
+    socket.on("addOrb", (name, port) => {
+      this.emit("addOrb", name, port);
+    });
   });
 
   instance = this;

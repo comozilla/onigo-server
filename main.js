@@ -67,8 +67,9 @@ Object.keys(spheroWS.spheroServer.orbs).forEach(orbName => {
 
 spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
   if (!isTestMode) {
-    orb.detectCollisions();
-    orb.on("collision", () => {
+    var rawOrb = orb.instance;
+    rawOrb.detectCollisions();
+    rawOrb.on("collision", () => {
       orb.linkedClients.forEach(client => {
         clients[client.key].hp -= 10;
         client.sendCustomMessage("hp", { hp: clients[client.key].hp });
@@ -99,6 +100,16 @@ dashboard.on("updateLink", (key, orbName) => {
     clients[key].client.unlink();
   } else {
     clients[key].client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
+  }
+});
+dashboard.on("addOrb", (name, port) => {
+  var rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
+  if (!isTestMode) {
+    rawOrb.instance.connect(() => {
+      spheroWS.spheroServer.addOrb(rawOrb);
+    });
+  } else {
+    spheroWS.spheroServer.addOrb(rawOrb);
   }
 });
 
