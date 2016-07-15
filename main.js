@@ -31,7 +31,7 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
     commandRunner: new CommandRunner(key),
     hp: 100
   };
-  clients[key].commandRunner.on("command", function(commandName, args) {
+  clients[key].commandRunner.on("command", (commandName, args) => {
     if (client.linkedOrb !== null) {
       console.log(key);
       if (!client.linkedOrb.hasCommand(commandName)) {
