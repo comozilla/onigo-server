@@ -25,6 +25,9 @@ export default class LinkManager {
     });
     eventPublisher.on("orbs", orbs => {
       this.orbNames = orbs;
+      this.linkInstances.forEach(link => {
+        link.updateOrbs(this.orbNames);
+      });
     });
   }
   addLink(clientKey, orbNames) {
