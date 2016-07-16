@@ -78,7 +78,7 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
     rawOrb.detectCollisions();
     rawOrb.on("collision", () => {
       orb.linkedClients.forEach(key => {
-        if (gameState === "active") {
+        if (gameState === "active" && !clients[key].isOni) {
           clients[key].hp -= 10;
           clients[key].client.sendCustomMessage("hp", { hp: clients[key].hp });
         }
