@@ -41,6 +41,7 @@ export default class Link extends EventEmitter {
     this.element.appendChild(oniTd);
 
     updateOrbSelect.call(this);
+    // apply default value
     if (this.linkedOrb === null) {
       this.orbSelectElement.value = unlinkedText;
     } else {
