@@ -36,6 +36,9 @@ export default class LinkManager {
       this.clientLinks[clientKey] = orbName;
       eventPublisher.emit("link", clientKey, orbName);
     });
+    link.on("oni", (enable) => {
+      eventPublisher.emit("oni", clientKey, enable);
+    });
     this.element.appendChild(link.element);
     this.linkInstances.push(link);
   }

@@ -30,6 +30,16 @@ export default class Link extends EventEmitter {
     orbSelectTd.appendChild(this.orbSelectElement);
     this.element.appendChild(orbSelectTd);
 
+    this.oniCheckboxElement = document.createElement("input");
+    this.oniCheckboxElement.type = "checkbox";
+    this.oniCheckboxElement.addEventListener("change", () => {
+      this.emit("oni", this.oniCheckboxElement.checked);
+    });
+
+    const oniTd = document.createElement("td");
+    oniTd.appendChild(this.oniCheckboxElement);
+    this.element.appendChild(oniTd);
+
     updateOrbSelect.call(this);
     if (this.linkedOrb === null) {
       this.orbSelectElement.value = unlinkedText;

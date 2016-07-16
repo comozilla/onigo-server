@@ -30,7 +30,8 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
   clients[key] = {
     client: client,
     commandRunner: new CommandRunner(key),
-    hp: 100
+    hp: 100,
+    isOni: false
   };
   clients[key].commandRunner.on("command", (commandName, args) => {
     if (client.linkedOrb !== null) {
@@ -122,5 +123,9 @@ dashboard.on("addOrb", (name, port) => {
 });
 dashboard.on("removeOrb", name => {
   spheroWS.spheroServer.removeOrb(name);
+});
+dashboard.on("oni", (clientKey, enable) => {
+  clients[clientKey].isOni = enable;
+  clients[clientKey].client.sendCustomMessage("oni", enable);
 });
 
