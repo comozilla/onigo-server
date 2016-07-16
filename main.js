@@ -47,6 +47,7 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
   client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
   client.sendCustomMessage("oni", clients[key].isOni);
   client.sendCustomMessage("hp", { hp: clients[key].hp });
+  client.sendCustomMessage("clientKey", key);
   client.on("arriveCustomMessage", (name, data, mesID) => {
     if (name === "commands") {
       if (typeof data.type === "string" && data.type === "built-in") {

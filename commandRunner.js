@@ -13,11 +13,12 @@ function CommandRunner(key) {
   this.builtInCommands = {
     rotate: () => {
       this.clearTimeout();
-      (rotateFunction = () => {
+      var rotateFunction = () => {
         this.angle = (this.angle + 45) % 360;
         this.emit("command", "roll", [0, this.angle]);
         this.timeoutId = setTimeout(rotateFunction, 500);
-      })();
+      };
+      rotateFunction();
     },
     stop: () => {
       this.clearTimeout();
