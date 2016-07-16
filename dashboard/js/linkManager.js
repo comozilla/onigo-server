@@ -11,7 +11,6 @@ export default class LinkManager {
     eventPublisher.on("defaultLinks", links => {
       this.clientLinks = links;
       Object.keys(links).forEach(clientKey => {
-        this.clientLinks[clientKey] = null;
         this.addLink(clientKey, this.orbNames);
       });
     });
@@ -27,8 +26,9 @@ export default class LinkManager {
       this.orbNames = orbs;
     });
   }
-  addLink(clientKey, orbNames) {
-    const link = new Link(clientKey, orbNames, this.clientLinks[clientKey]);
+  addLink(clientKey) {
+    console.log(this.clientLinks[clientKey]);
+    const link = new Link(clientKey, this.orbNames, this.clientLinks[clientKey]);
     link.on("change", orbName => {
       this.clientLinks[clientKey] = orbName;
       eventPublisher.emit("link", clientKey, orbName);
