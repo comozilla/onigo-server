@@ -119,7 +119,6 @@ dashboard.on("addOrb", (name, port) => {
   }
 });
 dashboard.on("removeOrb", name => {
-  console.log("disconnect!!");
   spheroWS.spheroServer.removeOrb(name);
 });
 
