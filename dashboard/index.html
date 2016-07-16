@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <title></title>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-  <script type="text/javascript" src="main.js"></script>
-  <link rel="stylesheet" href="style.css" />
+  <script type="text/javascript" src="js/build/bundle.js"></script>
 </head>
 <body>
   <header>
@@ -17,5 +16,12 @@
   <h2>Available Commands</h2>
   Count: <input type="number" id="available-commands" min="1" max="6" value="1" />
   <button id="set-available-commands-button">Set</button>
+  <h2>Manage Links</h2>
+  <table id="links">
+    <tr>
+      <th>Client</th>
+      <th>Linked Orb</th>
+    </tr>
+  </table>
 </body>
 </html>
