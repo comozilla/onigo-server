@@ -66,9 +66,12 @@ Dashboard.prototype.addClient = function(key) {
 
 Dashboard.prototype.removeClient = function(key) {
   delete this.links[key];
-  this.sockets.forEach(socket => {
-    socket.emit("removeClient", key);
-  });
+  if (typeof this.links[key] === "undefined") {
+    // 削除できたときのみ
+    this.sockets.forEach(socket => {
+      socket.emit("removeClient", key);
+    });
+  }
 };
 
 Dashboard.prototype.addOrb = function(name) {
