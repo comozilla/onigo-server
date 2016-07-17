@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title></title>
+  <title>Onigo Dashboard</title>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
   <script type="text/javascript" src="js/build/bundle.js"></script>
 </head>
@@ -16,8 +16,8 @@
   <h2>Available Commands</h2>
   Count: <input type="number" id="available-commands" min="1" max="6" value="1" />
   <button id="set-available-commands-button">Set</button>
-  <h2>Manage Links</h2>
-  <table id="links">
+  <h2>Clients</h2>
+  <table id="controllers">
     <tr>
       <th>Client</th>
       <th>Linked Orb</th>
@@ -28,7 +28,7 @@
   Name: <input type="text" id="new-orb-name" /><br />
   Port: <input type="text" id="new-orb-port" /><br />
   <button id="add-orb">Add</button>
-  <h2>Unlinked Orbs</h2>
+  <h2>Orbs</h2>
   <table id="unlinked-orbs">
   </table>
 </body>

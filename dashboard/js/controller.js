@@ -2,7 +2,7 @@ import {EventEmitter} from "events";
 
 const unlinkedText = "-- unlinked --";
 
-export default class Link extends EventEmitter {
+export default class Controller extends EventEmitter {
   constructor(clientKey, orbs, defaultLinkedOrb) {
     super();
 
