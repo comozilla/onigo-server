@@ -3,18 +3,18 @@ import {EventEmitter} from "events";
 const unlinkedText = "-- unlinked --";
 
 export default class Controller extends EventEmitter {
-  constructor(clientKey, orbs, defaultLinkedOrb) {
+  constructor(controllerKey, orbs, defaultLinkedOrb) {
     super();
 
-    this.clientKey = clientKey;
+    this.controllerKey = controllerKey;
     this.orbs = orbs;
     this.linkedOrb = defaultLinkedOrb;
 
     this.element = document.createElement("tr");
 
-    this.clientElement = document.createElement("td");
-    this.clientElement.textContent = this.clientKey;
-    this.element.appendChild(this.clientElement);
+    this.controllerElement = document.createElement("td");
+    this.controllerElement.textContent = this.controllerKey;
+    this.element.appendChild(this.controllerElement);
 
     this.orbSelectElement = document.createElement("select");
     this.orbSelectElement.addEventListener("change", () => {

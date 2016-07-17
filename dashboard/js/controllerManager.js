@@ -6,24 +6,24 @@ export default class ControllerManager {
     this.element = element;
     this.controllers = [];
 
-    // this.clientLinks[clientKey] = linkedOrbName
-    this.clientLinks = {};
+    // this.controllerLinks[controllerKey] = linkedOrbName
+    this.controllerLinks = {};
     this.orbNames = [];
 
     eventPublisher.on("defaultLinks", links => {
-      this.clientLinks = links;
-      Object.keys(links).forEach(clientKey => {
-        this.addController(clientKey);
+      this.controllerLinks = links;
+      Object.keys(links).forEach(controllerKey => {
+        this.addController(controllerKey);
       });
     });
-    eventPublisher.on("addClient", clientKey => {
-      this.clientLinks[clientKey] = null;
-      this.addController(clientKey);
+    eventPublisher.on("addController", key => {
+      this.controllerLinks[key] = null;
+      this.addController(key);
     });
-    eventPublisher.on("removeClient", clientKey => {
-      if (typeof this.clientLinks[clientKey] !== "undefined") {
-        delete this.clientLinks[clientKey];
-        this.removeController(clientKey);
+    eventPublisher.on("removeController", key => {
+      if (typeof this.controllerLinks[key] !== "undefined") {
+        delete this.controllerLinks[key];
+        this.removeController(key);
       }
     });
     eventPublisher.on("orbs", orbs => {
@@ -33,22 +33,22 @@ export default class ControllerManager {
       });
     });
   }
-  addController(clientKey) {
-    const link = new Controller(clientKey, this.orbNames, this.clientLinks[clientKey]);
+  addController(controllerKey) {
+    const link = new Controller(controllerKey, this.orbNames, this.controllerLinks[controllerKey]);
     link.on("change", orbName => {
-      this.clientLinks[clientKey] = orbName;
-      eventPublisher.emit("link", clientKey, orbName);
+      this.controllerLinks[controllerKey] = orbName;
+      eventPublisher.emit("link", controllerKey, orbName);
     });
     link.on("oni", enable => {
-      eventPublisher.emit("oni", clientKey, enable);
+      eventPublisher.emit("oni", controllerKey, enable);
     });
     this.element.appendChild(link.element);
     this.controllers.push(link);
   }
-  removeController(clientKey) {
-    const keyIndex = this.controllers.map(instance => instance.clientKey).indexOf(clientKey);
+  removeController(controllerKey) {
+    const keyIndex = this.controllers.map(instance => instance.controllerKey).indexOf(controllerKey);
     if (keyIndex === -1) {
-      throw new Error(`removeしようとしたclientKeyは存在しませんでした。 : ${clientKey}`);
+      throw new Error(`removeしようとしたcontrollerKeyは存在しませんでした。 : ${controllerKey}`);
     }
     this.element.removeChild(this.controllers[keyIndex].element);
     this.controllers.splice(keyIndex, 1);

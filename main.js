@@ -23,17 +23,17 @@ dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 let gameState = "inactive";
 let availableCommandsCount = 1;
 
-const clients = {};
+const controllers = {};
 
 spheroWS.spheroServer.events.on("addClient", (key, client) => {
-  dashboard.addClient(key);
-  clients[key] = {
+  dashboard.addController(key);
+  controllers[key] = {
     client: client,
     commandRunner: new CommandRunner(key),
     hp: 100,
     isOni: false
   };
-  clients[key].commandRunner.on("command", (commandName, args) => {
+  controllers[key].commandRunner.on("command", (commandName, args) => {
     if (client.linkedOrb !== null) {
       console.log(key);
       if (!client.linkedOrb.hasCommand(commandName)) {
@@ -45,15 +45,15 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
 
   client.sendCustomMessage("gameState", { gameState: gameState });
   client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
-  client.sendCustomMessage("oni", clients[key].isOni);
-  client.sendCustomMessage("hp", { hp: clients[key].hp });
+  client.sendCustomMessage("oni", controllers[key].isOni);
+  client.sendCustomMessage("hp", { hp: controllers[key].hp });
   client.sendCustomMessage("clientKey", key);
   client.on("arriveCustomMessage", (name, data, mesID) => {
     if (name === "commands") {
       if (typeof data.type === "string" && data.type === "built-in") {
-        clients[key].commandRunner.setBuiltInCommands(data.command);
+        controllers[key].commandRunner.setBuiltInCommands(data.command);
       } else {
-        clients[key].commandRunner.setCommands(data);
+        controllers[key].commandRunner.setCommands(data);
       }
     }
   });
@@ -63,10 +63,10 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
 });
 spheroWS.spheroServer.events.on("removeClient", key => {
   console.log(`removed Client: ${key}`);
-  if (typeof clients[key] !== "undefined") {
-    delete clients[key];
+  if (typeof controllers[key] !== "undefined") {
+    delete controllers[key];
   }
-  dashboard.removeClient(key);
+  dashboard.removeController(key);
 });
 
 Object.keys(spheroWS.spheroServer.orbs).forEach(orbName => {
@@ -79,9 +79,9 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
     rawOrb.detectCollisions();
     rawOrb.on("collision", () => {
       orb.linkedClients.forEach(key => {
-        if (gameState === "active" && !clients[key].isOni) {
-          clients[key].hp -= 10;
-          clients[key].client.sendCustomMessage("hp", { hp: clients[key].hp });
+        if (gameState === "active" && !controllers[key].isOni) {
+          controllers[key].hp -= 10;
+          controllers[key].client.sendCustomMessage("hp", { hp: controllers[key].hp });
         }
       });
     });
@@ -96,22 +96,22 @@ spheroWS.spheroServer.events.on("removeOrb", name => {
 
 dashboard.on("gameState", state => {
   gameState = state;
-  Object.keys(clients).forEach(key => {
-    clients[key].client.sendCustomMessage("gameState", { gameState: gameState });
+  Object.keys(controllers).forEach(key => {
+    controllers[key].client.sendCustomMessage("gameState", { gameState: gameState });
   });
 });
 
 dashboard.on("availableCommandsCount", count => {
   availableCommandsCount = count;
-  Object.keys(clients).forEach(key => {
-    clients[key].client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
+  Object.keys(controllers).forEach(key => {
+    controllers[key].client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
   });
 });
 dashboard.on("updateLink", (key, orbName) => {
   if (orbName === null) {
-    clients[key].client.unlink();
+    controllers[key].client.unlink();
   } else {
-    clients[key].client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
+    controllers[key].client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
   }
 });
 dashboard.on("addOrb", (name, port) => {
@@ -127,8 +127,8 @@ dashboard.on("addOrb", (name, port) => {
 dashboard.on("removeOrb", name => {
   spheroWS.spheroServer.removeOrb(name);
 });
-dashboard.on("oni", (clientKey, enable) => {
-  clients[clientKey].isOni = enable;
-  clients[clientKey].client.sendCustomMessage("oni", enable);
+dashboard.on("oni", (key, enable) => {
+  controllers[key].isOni = enable;
+  controllers[key].client.sendCustomMessage("oni", enable);
 });
 

@@ -21,7 +21,7 @@ function Dashboard(port) {
   this.gameState = "inactive";
   this.availableCommandsCount = 1;
 
-  // this.links[clientKey] = orbName
+  // this.links[controllerKey] = orbName
   this.links = {};
   // [name, name, name, ...]
   this.orbs = [];
@@ -65,8 +65,8 @@ function Dashboard(port) {
     socket.on("removeOrb", name => {
       this.emit("removeOrb", name);
     });
-    socket.on("oni", (clientKey, enable) => {
-      this.emit("oni", clientKey, enable);
+    socket.on("oni", (key, enable) => {
+      this.emit("oni", key, enable);
     });
   });
 
@@ -74,18 +74,18 @@ function Dashboard(port) {
   return this;
 }
 
-Dashboard.prototype.addClient = function(key) {
+Dashboard.prototype.addController = function(key) {
   this.links[key] = null;
   this.sockets.forEach(socket => {
-    socket.emit("addClient", key);
+    socket.emit("addController", key);
   });
 };
 
-Dashboard.prototype.removeClient = function(key) {
+Dashboard.prototype.removeController = function(key) {
   if (typeof this.links[key] !== "undefined") {
     delete this.links[key];
     this.sockets.forEach(socket => {
-      socket.emit("removeClient", key);
+      socket.emit("removeController", key);
     });
   }
 };
