@@ -58,10 +58,6 @@ function updateOrbSelect() {
     item.textContent = orbName;
     this.orbSelectElement.appendChild(item);
   });
-  if (this.linkedOrb === null) {
-    this.orbSelectElement.value = unlinkedText;
-  } else {
-    this.orbSelectElement.value = this.linkedOrb;
-  }
+  this.orbSelectElement.value = this.linkedOrb === null ? unlinkedText : this.linkedOrb;
 }
 
