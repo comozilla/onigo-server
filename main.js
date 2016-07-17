@@ -37,7 +37,7 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
     if (client.linkedOrb !== null) {
       console.log(key);
       if (!client.linkedOrb.hasCommand(commandName)) {
-        throw new Error("command : " + commandName + " is not valid.");
+        throw new Error(`command : ${commandName} is not valid.`);
       }
       client.linkedOrb.command(commandName, args);
     }
@@ -62,7 +62,7 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
   });
 });
 spheroWS.spheroServer.events.on("removeClient", key => {
-  console.log("removed Client: " + key);
+  console.log(`removed Client: ${key}`);
   if (typeof clients[key] !== "undefined") {
     delete clients[key];
   }
