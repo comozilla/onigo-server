@@ -7,6 +7,7 @@ import GameState from "./gameState";
 import AvailableCommandsCount from "./availableCommandsCount";
 import AddOrb from "./addOrb";
 import OrbManager from "./orbManager";
+import CheckBatteryButton from "./checkBatteryButton";
 
 document.addEventListener("DOMContentLoaded", () => {
   new ControllerManager(document.getElementById("controllers"));
@@ -17,5 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("available-commands"),
       document.getElementById("set-available-commands-button"));
   new SocketManager();
+  new CheckBatteryButton(document.getElementById("check-battery-button"));
 });
 

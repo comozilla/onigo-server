@@ -68,6 +68,9 @@ function Dashboard(port) {
     socket.on("oni", (key, enable) => {
       this.emit("oni", key, enable);
     });
+    socket.on("checkBattery", () => {
+      this.emit("checkBattery");
+    });
   });
 
   instance = this;
@@ -125,6 +128,12 @@ Dashboard.prototype.updateUnlinkedOrbs = function(unlinkedOrbs) {
   this.unlinkedOrbs = editedUnlinkedOrbs;
   this.sockets.forEach(socket => {
     socket.emit("updateUnlinkedOrbs", editedUnlinkedOrbs);
+  });
+};
+
+Dashboard.prototype.updateBattery = function(orbName, batteryState) {
+  this.sockets.forEach(socket => {
+    socket.emit("updateBattery", orbName, batteryState);
   });
 };
 

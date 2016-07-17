@@ -132,4 +132,16 @@ dashboard.on("oni", (key, enable) => {
   controllers[key].isOni = enable;
   controllers[key].client.sendCustomMessage("oni", enable);
 });
+dashboard.on("checkBattery", () => {
+  const orbs = spheroWS.spheroServer.getOrb();
+  Object.keys(orbs).forEach(orbName => {
+    orbs[orbName].instance.getPowerState(function(error, data) {
+      if (error) {
+        throw new Error(error);
+      } else {
+        dashboard.updateBattery(orbName, data.batteryState);
+      }
+    });
+  });
+});
 

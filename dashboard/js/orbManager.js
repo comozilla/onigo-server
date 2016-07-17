@@ -7,6 +7,9 @@ export default class OrbManager {
     this.orbs = {};
     // [name, name, name, ...]
     this.unlinkedOrbs = [];
+    // { <name>: batteryState, ... }
+    this.batteryStates = {};
+
     eventPublisher.on("orbs", orbs => {
       this.orbs = {};
       orbs.forEach(orb => {
@@ -19,15 +22,19 @@ export default class OrbManager {
       for (let i = 0; i < Math.max(newUnlinkedOrbs.length, this.unlinkedOrbs.length); i++) {
         if (i >= this.unlinkedOrbs.length) {
           this.unlinkedOrbs.push(newUnlinkedOrbs[i]);
-          this.updateRow(newUnlinkedOrbs[i]);
+          this.updateLinkForRow(newUnlinkedOrbs[i]);
         } else if (i >= newUnlinkedOrbs.length) {
           const orbName = this.unlinkedOrbs.splice(i, 1);
-          this.updateRow(orbName[0]);
-        } else if (this.unlinkedOrbs[i] !== orbName) {
+          this.updateLinkForRow(orbName[0]);
+        } else if (this.unlinkedOrbs[i] !== newUnlinkedOrbs[i]) {
           this.unlinkedOrbs[i] = newUnlinkedOrbs[i];
-          this.updateRow(this.unlinkedOrbs[i]);
+          this.updateLinkForRow(this.unlinkedOrbs[i]);
         }
       };
+    });
+    eventPublisher.on("battery", (orbName, batteryState) => {
+      this.batteryStates[orbName] = batteryState;
+      this.updateBatteryForRow(orbName);
     });
     this.clear();
     this.addTitle();
@@ -41,6 +48,9 @@ export default class OrbManager {
     const portTh = document.createElement("th");
     portTh.textContent = "Port";
     trElement.appendChild(portTh);
+    const batteryTh = document.createElement("th");
+    batteryTh.textContent = "Battery State";
+    trElement.appendChild(batteryTh);
     const unlinkedTh = document.createElement("th");
     unlinkedTh.textContent = "Link Status";
     trElement.appendChild(unlinkedTh);
@@ -70,6 +80,9 @@ export default class OrbManager {
     const portTd = document.createElement("td");
     portTd.textContent = orb.port;
     trElement.appendChild(portTd);
+    const batteryTd = document.createElement("td");
+    batteryTd.textContent = "unchecked";
+    trElement.appendChild(batteryTd);
     const unlinkedTd = document.createElement("td");
     trElement.appendChild(unlinkedTd);
     const disconnectTd = document.createElement("td");
@@ -80,17 +93,28 @@ export default class OrbManager {
       eventPublisher.emit("disconnect", orbName);
     });
     disconnectTd.appendChild(disconnectButton);
-    this.updateRow(orbName);
+    this.updateLinkForRow(orbName);
+    this.updateBatteryForRow(orbName);
   }
-  updateRow(orbName) {
+  updateLinkForRow(orbName) {
     const isLinked = this.unlinkedOrbs.indexOf(orbName) === -1;
     const trElement = document.querySelector(`[data-row-name="${orbName}"]`);
     if (trElement === null) {
       throw new Error("update しようとした Row は存在しませんでした。 : " + orbName);
     }
-    const unlinkedTd = trElement.childNodes[2];
+    const unlinkedTd = trElement.childNodes[3];
     unlinkedTd.textContent = isLinked ? "linked" : "unlinked";
-    const disconnectButton = trElement.childNodes[3].childNodes[0];
+    const disconnectButton = trElement.childNodes[4].childNodes[0];
     disconnectButton.disabled = isLinked;
+  }
+  updateBatteryForRow(orbName) {
+    const trElement = document.querySelector(`[data-row-name="${orbName}"]`);
+    if (trElement === null) {
+      throw new Error("update しようとした Row は存在しませんでした。 : " + orbName);
+    }
+    const batteryTd = trElement.childNodes[2];
+    batteryTd.textContent =
+      typeof this.batteryStates[orbName] === "undefined" ?
+      "unchecked" : this.batteryStates[orbName]
   }
 }
