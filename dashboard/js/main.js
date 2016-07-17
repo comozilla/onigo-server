@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   new ControllerManager(document.getElementById("controllers"));
   new GameState(document.getElementById("game-state-button"));
   new AddOrb();
-  new UnlinkedOrbs(document.getElementById("unlinked-orbs"));
+  new UnlinkedOrbs(document.getElementById("orbs"));
   new AvailableCommandsCount(
       document.getElementById("available-commands"),
       document.getElementById("set-available-commands-button"));
