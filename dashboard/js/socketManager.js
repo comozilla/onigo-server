@@ -8,13 +8,16 @@ function SocketManager() {
   eventPublisher.on("gameState", this.sendGameState.bind(this));
   eventPublisher.on("availableCommandsCount", this.sendAvailableCommandsCount.bind(this));
   eventPublisher.on("link", this.sendLink.bind(this));
+  eventPublisher.on("addOrb", this.sendAddOrb.bind(this));
+  eventPublisher.on("disconnect", this.sendDisconnect.bind(this));
 
   this.socket = io();
-  this.socket.on("defaultData", (state, count, links, orbs) => {
+  this.socket.on("defaultData", (state, count, links, orbs, unlinkedOrbs) => {
     emit.call(this, "gameState", [state]);
     emit.call(this, "availableCommandsCount", [count]);
     emit.call(this, "orbs", [orbs]);
     emit.call(this, "defaultLinks", [links]);
+    emit.call(this, "unlinkedOrbs", [unlinkedOrbs]);
   });
   this.socket.on("addClient", key => {
     emit.call(this, "addClient", [key]);
@@ -24,6 +27,9 @@ function SocketManager() {
   });
   this.socket.on("updateOrbs", orbs => {
     emit.call(this, "orbs", [orbs]);
+  });
+  this.socket.on("updateUnlinkedOrbs", unlinkedOrbs => {
+    emit.call(this, "unlinkedOrbs", [unlinkedOrbs]);
   });
 
   instance = this;
@@ -39,6 +45,14 @@ SocketManager.prototype.sendAvailableCommandsCount = function(availableCommandsC
 
 SocketManager.prototype.sendLink = function(clientKey, orbName) {
   this.socket.emit("link", clientKey, orbName);
+};
+
+SocketManager.prototype.sendAddOrb = function(name, port) {
+  this.socket.emit("addOrb", name, port);
+};
+
+SocketManager.prototype.sendDisconnect = function(name) {
+  this.socket.emit("removeOrb", name);
 };
 
 // eventPublisher.emit をする。

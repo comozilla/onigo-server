@@ -18,6 +18,7 @@ spheroWS.events.on("command", (requestKey, command, args) => {
 });
 
 var dashboard = new Dashboard(config.dashboardPort);
+dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 
 var gameState = "inactive";
 var availableCommandsCount = 1;
@@ -52,6 +53,9 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
       }
     }
   });
+  client.on("link", () => {
+    dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
+  });
 });
 spheroWS.spheroServer.events.on("removeClient", key => {
   console.log("removed Client: " + key);
@@ -67,18 +71,23 @@ Object.keys(spheroWS.spheroServer.orbs).forEach(orbName => {
 
 spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
   if (!isTestMode) {
-    orb.detectCollisions();
-    orb.on("collision", () => {
-      orb.linkedClients.forEach(client => {
-        clients[client.key].hp -= 10;
-        client.sendCustomMessage("hp", { hp: clients[client.key].hp });
+    var rawOrb = orb.instance;
+    rawOrb.detectCollisions();
+    rawOrb.on("collision", () => {
+      orb.linkedClients.forEach(key => {
+        if (gameState === "active") {
+          clients[key].hp -= 10;
+          clients[key].client.sendCustomMessage("hp", { hp: clients[key].hp });
+        }
       });
     });
   }
   dashboard.addOrb(name);
+  dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
 spheroWS.spheroServer.events.on("removeOrb", name => {
   dashboard.removeOrb(name);
+  dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
 
 dashboard.on("gameState", state => {
@@ -100,5 +109,18 @@ dashboard.on("updateLink", (key, orbName) => {
   } else {
     clients[key].client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
   }
+});
+dashboard.on("addOrb", (name, port) => {
+  var rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
+  if (!isTestMode) {
+    rawOrb.instance.connect(() => {
+      spheroWS.spheroServer.addOrb(rawOrb);
+    });
+  } else {
+    spheroWS.spheroServer.addOrb(rawOrb);
+  }
+});
+dashboard.on("removeOrb", name => {
+  spheroWS.spheroServer.removeOrb(name);
 });
 
