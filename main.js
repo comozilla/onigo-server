@@ -30,7 +30,8 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
   clients[key] = {
     client: client,
     commandRunner: new CommandRunner(key),
-    hp: 100
+    hp: 100,
+    isOni: false
   };
   clients[key].commandRunner.on("command", (commandName, args) => {
     if (client.linkedOrb !== null) {
@@ -44,6 +45,9 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
 
   client.sendCustomMessage("gameState", { gameState: gameState });
   client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
+  client.sendCustomMessage("oni", clients[key].isOni);
+  client.sendCustomMessage("hp", { hp: clients[key].hp });
+  client.sendCustomMessage("clientKey", key);
   client.on("arriveCustomMessage", (name, data, mesID) => {
     if (name === "commands") {
       if (typeof data.type === "string" && data.type === "built-in") {
@@ -75,7 +79,7 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
     rawOrb.detectCollisions();
     rawOrb.on("collision", () => {
       orb.linkedClients.forEach(key => {
-        if (gameState === "active") {
+        if (gameState === "active" && !clients[key].isOni) {
           clients[key].hp -= 10;
           clients[key].client.sendCustomMessage("hp", { hp: clients[key].hp });
         }
@@ -122,5 +126,9 @@ dashboard.on("addOrb", (name, port) => {
 });
 dashboard.on("removeOrb", name => {
   spheroWS.spheroServer.removeOrb(name);
+});
+dashboard.on("oni", (clientKey, enable) => {
+  clients[clientKey].isOni = enable;
+  clients[clientKey].client.sendCustomMessage("oni", enable);
 });
 

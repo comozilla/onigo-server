@@ -10,6 +10,7 @@ function SocketManager() {
   eventPublisher.on("link", this.sendLink.bind(this));
   eventPublisher.on("addOrb", this.sendAddOrb.bind(this));
   eventPublisher.on("disconnect", this.sendDisconnect.bind(this));
+  eventPublisher.on("oni", this.sendOni.bind(this));
 
   this.socket = io();
   this.socket.on("defaultData", (state, count, links, orbs, unlinkedOrbs) => {
@@ -53,6 +54,10 @@ SocketManager.prototype.sendAddOrb = function(name, port) {
 
 SocketManager.prototype.sendDisconnect = function(name) {
   this.socket.emit("removeOrb", name);
+};
+
+SocketManager.prototype.sendOni = function(clientKey, enable) {
+  this.socket.emit("oni", clientKey, enable);
 };
 
 // eventPublisher.emit をする。

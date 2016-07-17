@@ -65,6 +65,9 @@ function Dashboard(port) {
     socket.on("removeOrb", name => {
       this.emit("removeOrb", name);
     });
+    socket.on("oni", (clientKey, enable) => {
+      this.emit("oni", clientKey, enable);
+    });
   });
 
   instance = this;
