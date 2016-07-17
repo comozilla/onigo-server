@@ -8,6 +8,10 @@
     "build:watch": "webpack --progress --colors --watch",
     "start": "babel-node main.js"
   },
+  "babel": {
+    "ignore": [],
+    "presets": ["es2015"]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/shundroid/sphero-joystick.git"

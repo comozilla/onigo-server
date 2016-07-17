@@ -1,9 +1,9 @@
-var express = require("express");
-var io = require("socket.io");
-var EventEmitter = require("events").EventEmitter;
-var util = require("util");
+import express from "express";
+import io from "socket.io";
+import {EventEmitter} from "events";
+import util from "util";
 
-var instance = null;
+let instance = null;
 
 function Dashboard(port) {
   EventEmitter.call(this);
@@ -111,7 +111,7 @@ Dashboard.prototype.removeOrb = function(name) {
 };
 
 Dashboard.prototype.updateUnlinkedOrbs = function(unlinkedOrbs) {
-  var editedUnlinkedOrbs;
+  let editedUnlinkedOrbs;
   if (typeof unlinkedOrbs === "undefined") {
     editedUnlinkedOrbs = [];
   } else {
