@@ -69,8 +69,9 @@ spheroWS.spheroServer.events.on("removeClient", key => {
   dashboard.removeController(key);
 });
 
-Object.keys(spheroWS.spheroServer.orbs).forEach(orbName => {
-  dashboard.addOrb(orbName);
+const orbs = spheroWS.spheroServer.getOrb();
+Object.keys(orbs).forEach(orbName => {
+  dashboard.addOrb(orbName, orbs[orbName].port);
 });
 
 spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
@@ -86,7 +87,7 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
       });
     });
   }
-  dashboard.addOrb(name);
+  dashboard.addOrb(name, orb.port);
   dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
 spheroWS.spheroServer.events.on("removeOrb", name => {

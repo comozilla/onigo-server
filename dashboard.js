@@ -90,18 +90,18 @@ Dashboard.prototype.removeController = function(key) {
   }
 };
 
-Dashboard.prototype.addOrb = function(name) {
+Dashboard.prototype.addOrb = function(name, port) {
   if (this.orbs.indexOf(name) >= 0) {
     throw new Error(`追加しようとしたOrbは既に存在します。 : ${name}`);
   }
-  this.orbs.push(name);
+  this.orbs.push({ orbName: name, port });
   this.sockets.forEach(socket => {
     socket.emit("updateOrbs", this.orbs);
   });
 };
 
 Dashboard.prototype.removeOrb = function(name) {
-  if (this.orbs.indexOf(name) === -1) {
+  if (this.orbs.map(orb => orb.orbName).indexOf(name) === -1) {
     throw new Error(`削除しようとしたOrbは存在しません。 : ${name}`);
   }
   this.orbs.splice(this.orbs.indexOf(name), 1);

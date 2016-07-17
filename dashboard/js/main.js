@@ -6,13 +6,13 @@ import SocketManager from "./socketManager";
 import GameState from "./gameState";
 import AvailableCommandsCount from "./availableCommandsCount";
 import AddOrb from "./addOrb";
-import UnlinkedOrbs from "./unlinkedOrbs";
+import OrbManager from "./orbManager";
 
 document.addEventListener("DOMContentLoaded", () => {
   new ControllerManager(document.getElementById("controllers"));
   new GameState(document.getElementById("game-state-button"));
   new AddOrb();
-  new UnlinkedOrbs(document.getElementById("orbs"));
+  new OrbManager(document.getElementById("orbs"));
   new AvailableCommandsCount(
       document.getElementById("available-commands"),
       document.getElementById("set-available-commands-button"));
