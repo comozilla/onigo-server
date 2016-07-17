@@ -36,7 +36,8 @@ function Dashboard(port) {
   this.io.on("connection", socket => {
     console.log("a dashboard connected.");
     this.sockets.push(socket);
-    socket.emit("defaultData",
+    socket.emit(
+        "defaultData",
         this.gameState,
         this.availableCommandsCount,
         this.links,
@@ -105,7 +106,6 @@ Dashboard.prototype.removeOrb = function(name) {
 };
 
 Dashboard.prototype.updateUnlinkedOrbs = function(unlinkedOrbs) {
-
   var editedUnlinkedOrbs;
   if (typeof unlinkedOrbs === "undefined") {
     editedUnlinkedOrbs = [];
