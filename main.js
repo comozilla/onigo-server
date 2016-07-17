@@ -1,29 +1,29 @@
-var spheroWebSocket = require("sphero-websocket");
-var argv = require("argv");
-var config = require("./config");
-var VirtualSphero = require("sphero-ws-virtual-plugin");
-var Dashboard = require("./dashboard");
-var CommandRunner = require("./commandRunner");
+import spheroWebSocket from "sphero-websocket";
+import argv from "argv";
+import config from "./config";
+import VirtualSphero from "sphero-ws-virtual-plugin";
+import Dashboard from "./dashboard";
+import CommandRunner from "./commandRunner";
 
-var opts = [
+const opts = [
   { name: "test", type: "boolean" }
 ];
-var isTestMode = argv.option(opts).run().options.test;
+const isTestMode = argv.option(opts).run().options.test;
 
-var spheroWS = spheroWebSocket(config.websocket, isTestMode);
+const spheroWS = spheroWebSocket(config.websocket, isTestMode);
 
-var virtualSphero = new VirtualSphero(config.virtualSphero.wsPort);
+const virtualSphero = new VirtualSphero(config.virtualSphero.wsPort);
 spheroWS.events.on("command", (requestKey, command, args) => {
   virtualSphero.command(command, args);
 });
 
-var dashboard = new Dashboard(config.dashboardPort);
+const dashboard = new Dashboard(config.dashboardPort);
 dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 
-var gameState = "inactive";
-var availableCommandsCount = 1;
+let gameState = "inactive";
+let availableCommandsCount = 1;
 
-var clients = {};
+const clients = {};
 
 spheroWS.spheroServer.events.on("addClient", (key, client) => {
   dashboard.addClient(key);
@@ -37,7 +37,7 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
     if (client.linkedOrb !== null) {
       console.log(key);
       if (!client.linkedOrb.hasCommand(commandName)) {
-        throw new Error("command : " + commandName + " is not valid.");
+        throw new Error(`command : ${commandName} is not valid.`);
       }
       client.linkedOrb.command(commandName, args);
     }
@@ -62,7 +62,7 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
   });
 });
 spheroWS.spheroServer.events.on("removeClient", key => {
-  console.log("removed Client: " + key);
+  console.log(`removed Client: ${key}`);
   if (typeof clients[key] !== "undefined") {
     delete clients[key];
   }
@@ -75,7 +75,7 @@ Object.keys(spheroWS.spheroServer.orbs).forEach(orbName => {
 
 spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
   if (!isTestMode) {
-    var rawOrb = orb.instance;
+    const rawOrb = orb.instance;
     rawOrb.detectCollisions();
     rawOrb.on("collision", () => {
       orb.linkedClients.forEach(key => {
@@ -115,7 +115,7 @@ dashboard.on("updateLink", (key, orbName) => {
   }
 });
 dashboard.on("addOrb", (name, port) => {
-  var rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
+  const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
   if (!isTestMode) {
     rawOrb.instance.connect(() => {
       spheroWS.spheroServer.addOrb(rawOrb);

@@ -1,6 +1,6 @@
-var VirtualPlugin = require("sphero-ws-virtual-plugin");
+import VirtualPlugin from "sphero-ws-virtual-plugin";
 
-module.exports = {
+export default {
   websocket: {
     wsPort: 8080,
     allowedOrigin: "*",

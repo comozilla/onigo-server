@@ -1,9 +1,9 @@
-var express = require("express");
-var io = require("socket.io");
-var EventEmitter = require("events").EventEmitter;
-var util = require("util");
+import express from "express";
+import io from "socket.io";
+import {EventEmitter} from "events";
+import util from "util";
 
-var instance = null;
+let instance = null;
 
 function Dashboard(port) {
   EventEmitter.call(this);
@@ -30,7 +30,7 @@ function Dashboard(port) {
 
   this.app.use(express.static("dashboard"));
   this.server.listen(port, () => {
-    console.log("dashboard listening on port " + port);
+    console.log(`dashboard is listening on port ${port}`);
   });
 
   this.io.on("connection", socket => {
@@ -92,7 +92,7 @@ Dashboard.prototype.removeClient = function(key) {
 
 Dashboard.prototype.addOrb = function(name) {
   if (this.orbs.indexOf(name) >= 0) {
-    throw new Error("追加しようとしたOrbは既に存在します。 : " + name);
+    throw new Error(`追加しようとしたOrbは既に存在します。 : ${name}`);
   }
   this.orbs.push(name);
   this.sockets.forEach(socket => {
@@ -102,7 +102,7 @@ Dashboard.prototype.addOrb = function(name) {
 
 Dashboard.prototype.removeOrb = function(name) {
   if (this.orbs.indexOf(name) === -1) {
-    throw new Error("削除しようとしたOrbは存在しません。 : " + name);
+    throw new Error(`削除しようとしたOrbは存在しません。 : ${name}`);
   }
   this.orbs.splice(this.orbs.indexOf(name), 1);
   this.sockets.forEach(socket => {
@@ -111,7 +111,7 @@ Dashboard.prototype.removeOrb = function(name) {
 };
 
 Dashboard.prototype.updateUnlinkedOrbs = function(unlinkedOrbs) {
-  var editedUnlinkedOrbs;
+  let editedUnlinkedOrbs;
   if (typeof unlinkedOrbs === "undefined") {
     editedUnlinkedOrbs = [];
   } else {
