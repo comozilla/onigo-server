@@ -56,8 +56,8 @@ SocketManager.prototype.sendDisconnect = function(name) {
   this.socket.emit("removeOrb", name);
 };
 
-SocketManager.prototype.sendOni = function(controllerKey, enable) {
-  this.socket.emit("oni", controllerKey, enable);
+SocketManager.prototype.sendOni = function(controllerKey, isEnabled) {
+  this.socket.emit("oni", controllerKey, isEnabled);
 };
 
 // eventPublisher.emit をする。

@@ -39,8 +39,8 @@ export default class ControllerManager {
       this.controllerLinks[controllerKey] = orbName;
       eventPublisher.emit("link", controllerKey, orbName);
     });
-    link.on("oni", enable => {
-      eventPublisher.emit("oni", controllerKey, enable);
+    link.on("oni", isEnabled => {
+      eventPublisher.emit("oni", controllerKey, isEnabled);
     });
     this.element.appendChild(link.element);
     this.controllers.push(link);
