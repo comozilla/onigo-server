@@ -20,11 +20,11 @@ function SocketManager() {
     emit.call(this, "defaultLinks", [links]);
     emit.call(this, "unlinkedOrbs", [unlinkedOrbs]);
   });
-  this.socket.on("addClient", key => {
-    emit.call(this, "addClient", [key]);
+  this.socket.on("addController", key => {
+    emit.call(this, "addController", [key]);
   });
-  this.socket.on("removeClient", key => {
-    emit.call(this, "removeClient", [key]);
+  this.socket.on("removeController", key => {
+    emit.call(this, "removeController", [key]);
   });
   this.socket.on("updateOrbs", orbs => {
     emit.call(this, "orbs", [orbs]);
@@ -44,8 +44,8 @@ SocketManager.prototype.sendAvailableCommandsCount = function(availableCommandsC
   this.socket.emit("availableCommandsCount", availableCommandsCount);
 };
 
-SocketManager.prototype.sendLink = function(clientKey, orbName) {
-  this.socket.emit("link", clientKey, orbName);
+SocketManager.prototype.sendLink = function(controllerKey, orbName) {
+  this.socket.emit("link", controllerKey, orbName);
 };
 
 SocketManager.prototype.sendAddOrb = function(name, port) {
@@ -56,8 +56,8 @@ SocketManager.prototype.sendDisconnect = function(name) {
   this.socket.emit("removeOrb", name);
 };
 
-SocketManager.prototype.sendOni = function(clientKey, enable) {
-  this.socket.emit("oni", clientKey, enable);
+SocketManager.prototype.sendOni = function(controllerKey, isEnabled) {
+  this.socket.emit("oni", controllerKey, isEnabled);
 };
 
 // eventPublisher.emit をする。
