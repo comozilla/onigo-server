@@ -92,7 +92,6 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
 });
 spheroWS.spheroServer.events.on("removeOrb", name => {
   dashboard.removeOrb(name);
-  dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
 
 dashboard.on("gameState", state => {
