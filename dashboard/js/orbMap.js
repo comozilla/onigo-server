@@ -20,11 +20,6 @@ export default class OrbMap {
       this.orbs[orbName].link = link;
     }
   }
-  setIndex(orbName, index) {
-    if (this.has(orbName)) {
-      this.orbs[orbName].index = index;
-    }
-  }
   remove(orbName) {
     if (this.has(orbName)) {
       delete this.orbs[orbName];
@@ -38,14 +33,7 @@ export default class OrbMap {
   }
   getDiff(comparisonOrbMap) {
     const getAddedItem = (before, after) => {
-      const addedIndexes = [];
-      return after.filter((item, index) => {
-        const isLeave = before.indexOf(item) === -1;
-        if (isLeave) {
-          addedIndexes.push(index);
-        }
-        return isLeave;
-      }).map((item, index) => { return { index: addedIndexes[index], item } });
+      return after.filter(item => before.indexOf(item) === -1);
     };
     const orbNames = this.getNames();
     const added = getAddedItem(orbNames, comparisonOrbMap.getNames());

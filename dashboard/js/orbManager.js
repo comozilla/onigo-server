@@ -10,14 +10,13 @@ export default class OrbManager {
     eventPublisher.on("orbs", orbs => {
       const afterOrbMap = new OrbMap(orbs);
       const diff = this.orbMap.getDiff(afterOrbMap);
-      diff.added.forEach(diffDetails => {
-        this.orbMap.set(diffDetails.item, afterOrbMap.get(diffDetails.item));
-        this.orbMap.setIndex(diffDetails.item, diffDetails.index);
-        this.addRow(diffDetails.item);
+      diff.added.forEach(orbName => {
+        this.orbMap.set(orbName, afterOrbMap.get(orbName));
+        this.addRow(orbName);
       });
-      diff.removed.forEach(diffDetails => {
-        this.orbMap.remove(diffDetails.item);
-        this.removeRow(diffDetails.item);
+      diff.removed.forEach(orbName => {
+        this.orbMap.remove(orbName);
+        this.removeRow(orbName);
       });
       diff.noChanged.forEach(orbName => {
         const beforeOrb = this.orbMap.get(orbName);
@@ -34,16 +33,14 @@ export default class OrbManager {
     });
   }
   addRow(orbName) {
-    const orb = this.orbMap.get(orbName);
-
     const trElement = document.createElement("tr");
     trElement.dataset.rowName = orbName;
-    this.element.insertBefore(trElement, this.element.childNodes[orb.index + 2]);
+    this.element.appendChild(trElement);
     const orbNameTd = document.createElement("td");
     orbNameTd.textContent = orbName;
     trElement.appendChild(orbNameTd);
     const portTd = document.createElement("td");
-    portTd.textContent = orb.port;
+    portTd.textContent = this.orbMap.get(orbName).port;
     trElement.appendChild(portTd);
     const batteryTd = document.createElement("td");
     batteryTd.textContent = "unchecked";
@@ -89,22 +86,3 @@ export default class OrbManager {
   }
 }
 
-function getDiff(before, after) {
-  const getAddedItem = (before, after) => {
-    const addedIndexes = [];
-    return after.filter((item, index) => {
-      const isLeave = before.indexOf(item) === -1;
-      if (isLeave) {
-        addedIndexes.push(index);
-      }
-      return isLeave;
-    }).map((item, index) => { return { index: addedIndexes[index], item } });
-  };
-  const added = getAddedItem(before, after);
-  const removed = getAddedItem(after, before);
-  return {
-    added,
-    removed,
-    noChanged: before.filter(item => after.indexOf(item) >= 0)
-  };
-}
