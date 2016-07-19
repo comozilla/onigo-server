@@ -134,7 +134,7 @@ dashboard.on("oni", (key, enable) => {
 dashboard.on("checkBattery", () => {
   const orbs = spheroWS.spheroServer.getOrb();
   Object.keys(orbs).forEach(orbName => {
-    orbs[orbName].instance.getPowerState(function(error, data) {
+    orbs[orbName].instance.getPowerState((error, data) => {
       if (error) {
         throw new Error(error);
       } else {
