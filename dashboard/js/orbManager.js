@@ -8,10 +8,10 @@ export default class OrbManager {
     this.orbMap = new OrbMap();
 
     eventPublisher.on("orbs", orbs => {
-      const afterOrbNames = orbs.map(orb => orb.orbName);
-      const diff = this.orbMap.getDiff(afterOrbNames);
+      const afterOrbMap = new OrbMap(orbs);
+      const diff = this.orbMap.getDiff(afterOrbMap);
       diff.added.forEach(diffDetails => {
-        this.orbMap.set(diffDetails.item, orbs[afterOrbNames.indexOf(diffDetails.item)]);
+        this.orbMap.set(diffDetails.item, afterOrbMap.get(diffDetails.item));
         this.orbMap.setIndex(diffDetails.item, diffDetails.index);
         this.addRow(diffDetails.item);
       });
@@ -21,7 +21,7 @@ export default class OrbManager {
       });
       diff.noChanged.forEach(orbName => {
         const beforeOrb = this.orbMap.get(orbName);
-        const afterOrb = orbs[afterOrbNames.indexOf(orbName)];
+        const afterOrb = afterOrbMap.get(orbName);
         if (beforeOrb.battery !== afterOrb.battery) {
           this.orbMap.setBattery(orbName, afterOrb.battery);
           this.updateBatteryForRow(orbName);

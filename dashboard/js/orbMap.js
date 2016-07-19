@@ -1,6 +1,11 @@
 export default class OrbMap {
-  constructor() {
+  constructor(defaultOrbs) {
     this.orbs = {};
+    if (Array.isArray(defaultOrbs)) {
+      defaultOrbs.forEach(orb => {
+        this.set(orb.orbName, orb);
+      });
+    }
   }
   set(orbName, orb) {
     this.orbs[orbName] = orb;
@@ -31,7 +36,7 @@ export default class OrbMap {
   get(orbName) {
     return this.orbs[orbName];
   }
-  getDiff(comparisonOrbs) {
+  getDiff(comparisonOrbMap) {
     const getAddedItem = (before, after) => {
       const addedIndexes = [];
       return after.filter((item, index) => {
@@ -43,12 +48,12 @@ export default class OrbMap {
       }).map((item, index) => { return { index: addedIndexes[index], item } });
     };
     const orbNames = this.getNames();
-    const added = getAddedItem(orbNames, comparisonOrbs);
-    const removed = getAddedItem(comparisonOrbs, orbNames);
+    const added = getAddedItem(orbNames, comparisonOrbMap.getNames());
+    const removed = getAddedItem(comparisonOrbMap.getNames(), orbNames);
     return {
       added,
       removed,
-      noChanged: orbNames.filter(item => comparisonOrbs.indexOf(item) >= 0)
+      noChanged: orbNames.filter(item => comparisonOrbMap.has(item) >= 0)
     };
   }
   has(orbName) {
