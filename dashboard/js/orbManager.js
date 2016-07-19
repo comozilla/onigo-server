@@ -1,38 +1,40 @@
 import eventPublisher from "./publisher";
+import OrbMap from "./orbMap";
 
 export default class OrbManager {
   constructor(element) {
     this.element = element;
     // { <name>: { orbName, port }, ... }
-    this.orbs = {};
+    this.orbMap = new OrbMap();
 
     eventPublisher.on("orbs", orbs => {
       const afterOrbNames = orbs.map(orb => orb.orbName);
-      const diff = getDiff(Object.keys(this.orbs), afterOrbNames);
+      const diff = this.orbMap.getDiff(afterOrbNames);
       diff.added.forEach(diffDetails => {
-        this.orbs[diffDetails.item] = orbs[afterOrbNames.indexOf(diffDetails.item)];
-        this.orbs[diffDetails.item].index = diffDetails.index;
+        this.orbMap.set(diffDetails.item, orbs[afterOrbNames.indexOf(diffDetails.item)]);
+        this.orbMap.setIndex(diffDetails.item, diffDetails.index);
         this.addRow(diffDetails.item);
       });
       diff.removed.forEach(diffDetails => {
+        this.orbMap.remove(diffDetails.item);
         this.removeRow(diffDetails.item);
       });
       diff.noChanged.forEach(orbName => {
-        const beforeOrb = this.orbs[orbName];
+        const beforeOrb = this.orbMap.get(orbName);
         const afterOrb = orbs[afterOrbNames.indexOf(orbName)];
         if (beforeOrb.battery !== afterOrb.battery) {
-          this.orbs[orbName].battery = afterOrb.battery;
+          this.orbMap.setBattery(orbName, afterOrb.battery);
           this.updateBatteryForRow(orbName);
         }
         if (beforeOrb.link !== afterOrb.link) {
-          this.orbs[orbName].link = afterOrb.link;
+          this.orbMap.setLink(orbName, afterOrb.link);
           this.updateLinkForRow(orbName);
         }
       });
     });
   }
   addRow(orbName) {
-    const orb = this.orbs[orbName];
+    const orb = this.orbMap.get(orbName);
 
     const trElement = document.createElement("tr");
     trElement.dataset.rowName = orbName;
@@ -69,21 +71,21 @@ export default class OrbManager {
       throw new Error("update しようとした Row は存在しませんでした。 : " + orbName);
     }
     const unlinkedTd = trElement.childNodes[3];
-    unlinkedTd.textContent = this.orbs[orbName].link;
+    unlinkedTd.textContent = this.orbMap.get(orbName).link;
     const disconnectButton = trElement.childNodes[4].childNodes[0];
-    disconnectButton.disabled = this.orbs[orbName].link === "linked";
+    disconnectButton.disabled = this.orbMap.get(orbName).link === "linked";
   }
   updateBatteryForRow(orbName) {
     const trElement = document.querySelector(`[data-row-name="${orbName}"]`);
     if (trElement === null) {
       throw new Error("updateBattery しようとした Row は存在しませんでした。 : " + orbName);
     }
-    if (typeof this.orbs[orbName] === "undefined") {
+    if (!this.orbMap.has(orbName)) {
       throw new Error("updateBattery しようとした Orb は存在しませんでした。 : " + orbName);
     }
     const batteryTd = trElement.childNodes[2];
     batteryTd.textContent =
-      this.orbs[orbName].battery === null ? "unchecked" : this.orbs[orbName].battery;
+      this.orbMap.get(orbName).battery === null ? "unchecked" : this.orbMap.get(orbName).battery;
   }
 }
 
