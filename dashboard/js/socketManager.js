@@ -57,6 +57,7 @@ SocketManager.prototype.sendAddOrb = function(name, port) {
 };
 
 SocketManager.prototype.sendDisconnect = function(name) {
+  console.log(name);
   this.socket.emit("removeOrb", name);
 };
 

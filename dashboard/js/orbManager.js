@@ -19,18 +19,18 @@ export default class OrbManager {
     });
     eventPublisher.on("unlinkedOrbs", unlinkedOrbs => {
       const newUnlinkedOrbs = unlinkedOrbs.map(unlinkedOrb => unlinkedOrb.orbName);
-      for (let i = 0; i < Math.max(newUnlinkedOrbs.length, this.unlinkedOrbs.length); i++) {
-        if (i >= this.unlinkedOrbs.length) {
-          this.unlinkedOrbs.push(newUnlinkedOrbs[i]);
-          this.updateLinkForRow(newUnlinkedOrbs[i]);
-        } else if (i >= newUnlinkedOrbs.length) {
-          const orbName = this.unlinkedOrbs.splice(i, 1);
-          this.updateLinkForRow(orbName[0]);
-        } else if (this.unlinkedOrbs[i] !== newUnlinkedOrbs[i]) {
-          this.unlinkedOrbs[i] = newUnlinkedOrbs[i];
-          this.updateLinkForRow(this.unlinkedOrbs[i]);
-        }
-      };
+      const addedUnlinkedOrbs =
+        newUnlinkedOrbs.filter(unlinkedOrb => this.unlinkedOrbs.indexOf(unlinkedOrb) === -1);
+      const removedUnlinkedOrbs =
+        this.unlinkedOrbs.filter(unlinkedOrb => newUnlinkedOrbs.indexOf(unlinkedOrb) === -1);
+      addedUnlinkedOrbs.forEach(unlinkedOrb => {
+        this.unlinkedOrbs.push(unlinkedOrb);
+        this.updateLinkForRow(unlinkedOrb);
+      });
+      removedUnlinkedOrbs.forEach(unlinkedOrb => {
+        this.unlinkedOrbs.splice(this.unlinkedOrbs.indexOf(unlinkedOrb), 1);
+        this.updateLinkForRow(unlinkedOrb);
+      });
     });
     eventPublisher.on("battery", (orbName, batteryState) => {
       this.batteryStates[orbName] = batteryState;
