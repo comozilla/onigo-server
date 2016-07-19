@@ -33,42 +33,51 @@ function Dashboard(port) {
   });
 
   this.io.on("connection", socket => {
-    console.log("a dashboard connected.");
-    this.socket = socket;
-    socket.emit(
-        "defaultData",
-        this.gameState,
-        this.availableCommandsCount,
-        this.links,
-        this.orbs);
-    socket.on("gameState", state => {
-      if (/active|inactive/.test(state)) {
-        this.gameState = state;
-        this.emit("gameState", state);
-      }
-    });
-    socket.on("availableCommandsCount", count => {
-      if (count >= 1 && count <= 6) {
-        this.availableCommandsCount = count;
-        this.emit("availableCommandsCount", count);
-      }
-    });
-    socket.on("link", (key, orbName) => {
-      this.links[key] = orbName;
-      this.emit("updateLink", key, orbName);
-    });
-    socket.on("addOrb", (name, port) => {
-      this.emit("addOrb", name, port);
-    });
-    socket.on("removeOrb", name => {
-      this.emit("removeOrb", name);
-    });
-    socket.on("oni", (key, enable) => {
-      this.emit("oni", key, enable);
-    });
-    socket.on("checkBattery", () => {
-      this.emit("checkBattery");
-    });
+    if (this.socket !== null) {
+      socket.disconnect();
+      console.log("a dashboard rejected.");
+    } else {
+      console.log("a dashboard connected.");
+      this.socket = socket;
+      socket.emit(
+          "defaultData",
+          this.gameState,
+          this.availableCommandsCount,
+          this.links,
+          this.orbs);
+      socket.on("gameState", state => {
+        if (/active|inactive/.test(state)) {
+          this.gameState = state;
+          this.emit("gameState", state);
+        }
+      });
+      socket.on("availableCommandsCount", count => {
+        if (count >= 1 && count <= 6) {
+          this.availableCommandsCount = count;
+          this.emit("availableCommandsCount", count);
+        }
+      });
+      socket.on("link", (key, orbName) => {
+        this.links[key] = orbName;
+        this.emit("updateLink", key, orbName);
+      });
+      socket.on("addOrb", (name, port) => {
+        this.emit("addOrb", name, port);
+      });
+      socket.on("removeOrb", name => {
+        this.emit("removeOrb", name);
+      });
+      socket.on("oni", (key, enable) => {
+        this.emit("oni", key, enable);
+      });
+      socket.on("checkBattery", () => {
+        this.emit("checkBattery");
+      });
+      socket.on("disconnect", () => {
+        console.log("a dashboard removed.");
+        this.socket = null;
+      });
+    }
   });
 
   instance = this;
@@ -117,9 +126,9 @@ Dashboard.prototype.updateUnlinkedOrbs = function(unlinkedOrbs) {
   this.orbs.forEach(orb => {
     orb.link = unlinkedOrbNames.indexOf(orb.orbName) >= 0 ? "unlinked" : "linked"
   });
-  this.sockets.forEach(socket => {
-    socket.emit("updateOrbs", this.orbs);
-  });
+  if (this.socket !== null) {
+    this.socket.emit("updateOrbs", this.orbs);
+  }
 };
 
 Dashboard.prototype.updateBattery = function(orbName, batteryState) {
@@ -129,7 +138,7 @@ Dashboard.prototype.updateBattery = function(orbName, batteryState) {
   }
   orbNameItem[0].battery = batteryState;
   if (this.socket !== null) {
-    this.socket.emit("updateUnlinkedOrbs", editedUnlinkedOrbs);
+    this.socket.emit("updateOrbs", this.orbs);
   }
 };
 
