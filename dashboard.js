@@ -122,7 +122,11 @@ Dashboard.prototype.updateUnlinkedOrbs = function(unlinkedOrbs) {
 };
 
 Dashboard.prototype.updateBattery = function(orbName, batteryState) {
-  this.orbs.filter(orb => orb.orbName === orbName)[0].battery = batteryState;
+  const orbNameItem = this.orbs.filter(orb => orb.orbName === orbName)[0];
+  if (orbNameItem.length < 1) {
+    throw new Error("updateBattery しようとしましたが、orb が見つかりませんでした。 : " + orbName);
+  }
+  orbNameItem[0].battery = batteryState;
   this.sockets.forEach(socket => {
     socket.emit("updateOrbs", this.orbs);
   });
