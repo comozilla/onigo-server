@@ -11,14 +11,14 @@ function SocketManager() {
   eventPublisher.on("addOrb", this.sendAddOrb.bind(this));
   eventPublisher.on("disconnect", this.sendDisconnect.bind(this));
   eventPublisher.on("oni", this.sendOni.bind(this));
+  eventPublisher.on("checkBattery", this.sendCheckBattery.bind(this));
 
   this.socket = io();
-  this.socket.on("defaultData", (state, count, links, orbs, unlinkedOrbs) => {
+  this.socket.on("defaultData", (state, count, links, orbs) => {
     emit.call(this, "gameState", [state]);
     emit.call(this, "availableCommandsCount", [count]);
     emit.call(this, "orbs", [orbs]);
     emit.call(this, "defaultLinks", [links]);
-    emit.call(this, "unlinkedOrbs", [unlinkedOrbs]);
   });
   this.socket.on("addController", key => {
     emit.call(this, "addController", [key]);
@@ -28,9 +28,6 @@ function SocketManager() {
   });
   this.socket.on("updateOrbs", orbs => {
     emit.call(this, "orbs", [orbs]);
-  });
-  this.socket.on("updateUnlinkedOrbs", unlinkedOrbs => {
-    emit.call(this, "unlinkedOrbs", [unlinkedOrbs]);
   });
 
   instance = this;
@@ -58,6 +55,10 @@ SocketManager.prototype.sendDisconnect = function(name) {
 
 SocketManager.prototype.sendOni = function(controllerKey, isEnabled) {
   this.socket.emit("oni", controllerKey, isEnabled);
+};
+
+SocketManager.prototype.sendCheckBattery = function() {
+  this.socket.emit("checkBattery");
 };
 
 // eventPublisher.emit をする。

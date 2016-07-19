@@ -27,7 +27,7 @@ export default class ControllerManager {
       }
     });
     eventPublisher.on("orbs", orbs => {
-      this.orbNames = orbs;
+      this.orbNames = orbs.map(orb => orb.orbName);
       this.controllers.forEach(controller => {
         controller.updateOrbs(this.orbNames);
       });
