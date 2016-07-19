@@ -1,0 +1,22 @@
+header * {
+  display: inline-block;
+}
+
+header h1 {
+  margin-top: 5px;
+}
+
+#game-state-view {
+  text-align: right;
+}
+
+table {
+  border-collapse: collapse;
+}
+th {
+  border-bottom: 1px solid black;
+}
+td {
+  border-top: 1px solid black;
+  padding: 0 5px;
+}
