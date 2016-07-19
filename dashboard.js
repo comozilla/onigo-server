@@ -15,8 +15,9 @@ function Dashboard(port) {
   this.app = express();
   this.server = require("http").Server(this.app);
   this.io = require("socket.io")(this.server);
+  this.io.origins(`localhost:${port}`);
 
-  this.sockets = [];
+  this.socket = null;
 
   this.gameState = "inactive";
   this.availableCommandsCount = 1;
@@ -33,7 +34,7 @@ function Dashboard(port) {
 
   this.io.on("connection", socket => {
     console.log("a dashboard connected.");
-    this.sockets.push(socket);
+    this.socket = socket;
     socket.emit(
         "defaultData",
         this.gameState,
@@ -76,17 +77,17 @@ function Dashboard(port) {
 
 Dashboard.prototype.addController = function(key) {
   this.links[key] = null;
-  this.sockets.forEach(socket => {
-    socket.emit("addController", key);
-  });
+  if (this.socket !== null) {
+    this.socket.emit("addController", key);
+  }
 };
 
 Dashboard.prototype.removeController = function(key) {
   if (typeof this.links[key] !== "undefined") {
     delete this.links[key];
-    this.sockets.forEach(socket => {
-      socket.emit("removeController", key);
-    });
+    if (this.socket !== null) {
+      this.socket.emit("removeController", key);
+    }
   }
 };
 
@@ -95,9 +96,9 @@ Dashboard.prototype.addOrb = function(name, port) {
     throw new Error(`追加しようとしたOrbは既に存在します。 : ${name}`);
   }
   this.orbs.push({ orbName: name, port, battery: null, link: "unlinked" });
-  this.sockets.forEach(socket => {
-    socket.emit("updateOrbs", this.orbs);
-  });
+  if (this.socket !== null) {
+    this.socket.emit("updateOrbs", this.orbs);
+  }
 };
 
 Dashboard.prototype.removeOrb = function(name) {
@@ -106,9 +107,9 @@ Dashboard.prototype.removeOrb = function(name) {
     throw new Error(`削除しようとしたOrbは存在しません。 : ${name}`);
   }
   this.orbs.splice(orbNames.indexOf(name), 1);
-  this.sockets.forEach(socket => {
-    socket.emit("updateOrbs", this.orbs);
-  });
+  if (this.socket !== null) {
+    this.socket.emit("updateOrbs", this.orbs);
+  }
 };
 
 Dashboard.prototype.updateUnlinkedOrbs = function(unlinkedOrbs) {
@@ -127,12 +128,11 @@ Dashboard.prototype.updateBattery = function(orbName, batteryState) {
     throw new Error("updateBattery しようとしましたが、orb が見つかりませんでした。 : " + orbName);
   }
   orbNameItem[0].battery = batteryState;
-  this.sockets.forEach(socket => {
-    socket.emit("updateOrbs", this.orbs);
-  });
+  if (this.socket !== null) {
+    this.socket.emit("updateUnlinkedOrbs", editedUnlinkedOrbs);
+  }
 };
 
 util.inherits(Dashboard, EventEmitter);
 
 module.exports = Dashboard;
-
