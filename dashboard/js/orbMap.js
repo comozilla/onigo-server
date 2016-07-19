@@ -41,7 +41,7 @@ export default class OrbMap {
     return {
       added,
       removed,
-      noChanged: orbNames.filter(item => comparisonOrbMap.has(item) >= 0)
+      noChanged: orbNames.filter(item => comparisonOrbMap.has(item))
     };
   }
   has(orbName) {
