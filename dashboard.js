@@ -104,10 +104,10 @@ Dashboard.prototype.addOrb = function(name, port) {
 };
 
 Dashboard.prototype.removeOrb = function(name) {
-  if (this.orbs.map(orb => orb.orbName).indexOf(name) === -1) {
+  const orbNames = this.orbs.map(orb => orb.orbName);
+  if (orbNames.indexOf(name) === -1) {
     throw new Error(`削除しようとしたOrbは存在しません。 : ${name}`);
   }
-  const orbNames = this.orbs.map(orb => orb.orbName);
   this.orbs.splice(orbNames.indexOf(name), 1);
   this.sockets.forEach(socket => {
     socket.emit("updateOrbs", this.orbs);
