@@ -2,6 +2,7 @@ import express from "express";
 import io from "socket.io";
 import {EventEmitter} from "events";
 import util from "util";
+import OrbMap from "./util/orbMap";
 
 let instance = null;
 
@@ -24,8 +25,7 @@ function Dashboard(port) {
 
   // this.links[controllerKey] = orbName
   this.links = {};
-  // [name, name, name, ...]
-  this.orbs = [];
+  this.orbMap = new OrbMap();
 
   this.app.use(express.static("dashboard"));
   this.server.listen(port, () => {
@@ -44,7 +44,7 @@ function Dashboard(port) {
           this.gameState,
           this.availableCommandsCount,
           this.links,
-          this.orbs);
+          this.orbMap.toArray());
       socket.on("gameState", state => {
         if (/active|inactive/.test(state)) {
           this.gameState = state;
@@ -101,44 +101,51 @@ Dashboard.prototype.removeController = function(key) {
 };
 
 Dashboard.prototype.addOrb = function(name, port) {
-  if (this.orbs.indexOf(name) >= 0) {
+  if (this.orbMap.has(name)) {
     throw new Error(`追加しようとしたOrbは既に存在します。 : ${name}`);
   }
-  this.orbs.push({ orbName: name, port, battery: null, link: "unlinked" });
+  this.orbMap.set(name, {
+    orbName: name,
+    port,
+    battery: null,
+    link: "unlinked"
+  });
   if (this.socket !== null) {
-    this.socket.emit("updateOrbs", this.orbs);
+    this.socket.emit("updateOrbs", this.orbMap.toArray());
   }
 };
 
 Dashboard.prototype.removeOrb = function(name) {
-  const orbNames = this.orbs.map(orb => orb.orbName);
+  const orbNames = this.orbMap.getNames();
   if (orbNames.indexOf(name) === -1) {
     throw new Error(`削除しようとしたOrbは存在しません。 : ${name}`);
   }
-  this.orbs.splice(orbNames.indexOf(name), 1);
+  this.orbMap.remove(name);
   if (this.socket !== null) {
-    this.socket.emit("updateOrbs", this.orbs);
+    this.socket.emit("updateOrbs", this.orbMap.toArray());
   }
 };
 
 Dashboard.prototype.updateUnlinkedOrbs = function(unlinkedOrbs) {
   const unlinkedOrbNames = Object.keys(unlinkedOrbs);
-  this.orbs.forEach(orb => {
-    orb.link = unlinkedOrbNames.indexOf(orb.orbName) >= 0 ? "unlinked" : "linked"
+  this.orbMap.getNames().forEach(orbName => {
+    this.orbMap.setLink(
+      orbName,
+      unlinkedOrbNames.indexOf(orbName) >= 0 ? "unlinked" : "linked");
   });
   if (this.socket !== null) {
-    this.socket.emit("updateOrbs", this.orbs);
+    this.socket.emit("updateOrbs", this.orbMap.toArray());
   }
 };
 
 Dashboard.prototype.updateBattery = function(orbName, batteryState) {
-  const orbNameItem = this.orbs.filter(orb => orb.orbName === orbName);
-  if (orbNameItem.length < 1) {
+  const orbNameItem = this.orbMap.get(orbName);
+  if (typeof orbNameItem === "undefined") {
     throw new Error("updateBattery しようとしましたが、orb が見つかりませんでした。 : " + orbName);
   }
-  orbNameItem[0].battery = batteryState;
+  orbNameItem.battery = batteryState;
   if (this.socket !== null) {
-    this.socket.emit("updateOrbs", this.orbs);
+    this.socket.emit("updateOrbs", this.orbMap.toArray());
   }
 };
 
