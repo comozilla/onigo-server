@@ -47,4 +47,7 @@ export default class OrbMap {
   has(orbName) {
     return typeof this.orbs[orbName] !== "undefined";
   }
+  toArray() {
+    return Object.keys(this.orbs).map(orbName => this.orbs[orbName]);
+  }
 }

@@ -1,5 +1,5 @@
 import eventPublisher from "./publisher";
-import OrbMap from "./orbMap";
+import OrbMap from "../../util/orbMap";
 
 export default class OrbManager {
   constructor(element) {
@@ -85,4 +85,3 @@ export default class OrbManager {
       this.orbMap.get(orbName).battery === null ? "unchecked" : this.orbMap.get(orbName).battery;
   }
 }
-
