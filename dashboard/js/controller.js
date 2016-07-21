@@ -40,6 +40,16 @@ export default class Controller extends EventEmitter {
     oniTd.appendChild(this.oniCheckboxElement);
     this.element.appendChild(oniTd);
 
+    this.resetHpButton = document.createElement("button");
+    this.resetHpButton.textContent = "set HP to 100";
+    this.resetHpButton.addEventListener("click", () => {
+      this.emit("resetHp");
+    });
+
+    const resetHpTd = document.createElement("td");
+    resetHpTd.appendChild(this.resetHpButton);
+    this.element.appendChild(resetHpTd);
+
     updateOrbSelect.call(this);
   }
   updateOrbs(orbs) {

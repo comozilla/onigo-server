@@ -143,4 +143,8 @@ dashboard.on("checkBattery", () => {
     });
   });
 });
+dashboard.on("resetHp", key => {
+  controllers[key].hp = 100;
+  controllers[key].client.sendCustomMessage("hp", { hp: controllers[key].hp });
+});
 

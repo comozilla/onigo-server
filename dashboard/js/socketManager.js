@@ -12,6 +12,7 @@ function SocketManager() {
   eventPublisher.on("disconnect", this.sendDisconnect.bind(this));
   eventPublisher.on("oni", this.sendOni.bind(this));
   eventPublisher.on("checkBattery", this.sendCheckBattery.bind(this));
+  eventPublisher.on("resetHp", this.sendResetHp.bind(this));
 
   this.socket = io();
   this.socket.on("defaultData", (state, count, links, orbs) => {
@@ -59,6 +60,10 @@ SocketManager.prototype.sendOni = function(controllerKey, isEnabled) {
 
 SocketManager.prototype.sendCheckBattery = function() {
   this.socket.emit("checkBattery");
+};
+
+SocketManager.prototype.sendResetHp = function(controllerKey) {
+  this.socket.emit("resetHp", controllerKey);
 };
 
 // eventPublisher.emit をする。

@@ -77,6 +77,9 @@ function Dashboard(port) {
         console.log("a dashboard removed.");
         this.socket = null;
       });
+      socket.on("resetHp", key => {
+        this.emit("resetHp", key);
+      });
     }
   });
 

@@ -34,16 +34,19 @@ export default class ControllerManager {
     });
   }
   addController(controllerKey) {
-    const link = new Controller(controllerKey, this.orbNames, this.controllerLinks[controllerKey]);
-    link.on("change", orbName => {
+    const controller = new Controller(controllerKey, this.orbNames, this.controllerLinks[controllerKey]);
+    controller.on("change", orbName => {
       this.controllerLinks[controllerKey] = orbName;
       eventPublisher.emit("link", controllerKey, orbName);
     });
-    link.on("oni", isEnabled => {
+    controller.on("oni", isEnabled => {
       eventPublisher.emit("oni", controllerKey, isEnabled);
     });
-    this.element.appendChild(link.element);
-    this.controllers.push(link);
+    controller.on("resetHp", () => {
+      eventPublisher.emit("resetHp", controllerKey);
+    });
+    this.element.appendChild(controller.element);
+    this.controllers.push(controller);
   }
   removeController(controllerKey) {
     const keyIndex = this.controllers.map(instance => instance.controllerKey).indexOf(controllerKey);
