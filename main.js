@@ -4,6 +4,7 @@ import config from "./config";
 import VirtualSphero from "sphero-ws-virtual-plugin";
 import Dashboard from "./dashboard";
 import CommandRunner from "./commandRunner";
+import Controller from "./controller";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -27,12 +28,7 @@ const controllers = {};
 
 spheroWS.spheroServer.events.on("addClient", (key, client) => {
   dashboard.addController(key);
-  controllers[key] = {
-    client: client,
-    commandRunner: new CommandRunner(key),
-    hp: 100,
-    isOni: false
-  };
+  controllers[key] = new Controller(client, new CommandRunner(key));
   controllers[key].commandRunner.on("command", (commandName, args) => {
     if (client.linkedOrb !== null) {
       console.log(key);
@@ -45,8 +41,6 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
 
   client.sendCustomMessage("gameState", { gameState: gameState });
   client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
-  client.sendCustomMessage("oni", controllers[key].isOni);
-  client.sendCustomMessage("hp", { hp: controllers[key].hp });
   client.sendCustomMessage("clientKey", key);
   client.on("arriveCustomMessage", (name, data, mesID) => {
     if (name === "commands") {
@@ -81,8 +75,7 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
     rawOrb.on("collision", () => {
       orb.linkedClients.forEach(key => {
         if (gameState === "active" && !controllers[key].isOni) {
-          controllers[key].hp -= 10;
-          controllers[key].client.sendCustomMessage("hp", { hp: controllers[key].hp });
+          controllers[key].setHp(controllers[key].hp - 10);
         }
       });
     });
@@ -128,8 +121,7 @@ dashboard.on("removeOrb", name => {
   spheroWS.spheroServer.removeOrb(name);
 });
 dashboard.on("oni", (key, enable) => {
-  controllers[key].isOni = enable;
-  controllers[key].client.sendCustomMessage("oni", enable);
+  controllers[key].setIsOni(enable);
 });
 dashboard.on("checkBattery", () => {
   const orbs = spheroWS.spheroServer.getOrb();
@@ -144,7 +136,6 @@ dashboard.on("checkBattery", () => {
   });
 });
 dashboard.on("resetHp", key => {
-  controllers[key].hp = 100;
-  controllers[key].client.sendCustomMessage("hp", { hp: controllers[key].hp });
+  controllers[key].setHp(100);
 });
 
