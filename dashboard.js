@@ -116,8 +116,7 @@ Dashboard.prototype.addOrb = function(name, port) {
 };
 
 Dashboard.prototype.removeOrb = function(name) {
-  const orbNames = this.orbMap.getNames();
-  if (orbNames.indexOf(name) === -1) {
+  if (!this.orbMap.has(name)) {
     throw new Error(`削除しようとしたOrbは存在しません。 : ${name}`);
   }
   this.orbMap.remove(name);
