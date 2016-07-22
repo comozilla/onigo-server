@@ -27,9 +27,9 @@ export default class ControllerManager {
     });
     eventPublisher.on("hp", (key, hp) => {
       this.controllers.forEach(controller => {
-	if (controller.controllerKey === key) {
-	  controller.updateHp(hp);
-	}
+        if (controller.controllerKey === key) {
+          controller.updateHp(hp);
+        }
       });
     });
   }
