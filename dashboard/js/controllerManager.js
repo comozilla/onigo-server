@@ -8,13 +8,14 @@ export default class ControllerManager {
 
     this.orbNames = [];
 
-    eventPublisher.on("defaultLinks", links => {
-      Object.keys(links).forEach(controllerKey => {
-        this.addController(controllerKey);
+    eventPublisher.on("defaultControllers", controllers => {
+      console.log(controllers);
+      Object.keys(controllers).forEach(controllerKey => {
+        this.addController(controllerKey, controllers[controllerKey]);
       });
     });
-    eventPublisher.on("addController", key => {
-      this.addController(key);
+    eventPublisher.on("addController", (key, controllerDetails) => {
+      this.addController(key, controllerDetails);
     });
     eventPublisher.on("removeController", key => {
       this.removeController(key);
@@ -33,8 +34,8 @@ export default class ControllerManager {
       });
     });
   }
-  addController(controllerKey) {
-    const controller = new Controller(controllerKey, this.orbNames);
+  addController(controllerKey, controllerDetails) {
+    const controller = new Controller(controllerKey, this.orbNames, controllerDetails);
     controller.on("change", orbName => {
       eventPublisher.emit("link", controllerKey, orbName);
     });

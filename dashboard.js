@@ -3,6 +3,7 @@ import io from "socket.io";
 import {EventEmitter} from "events";
 import util from "util";
 import OrbMap from "./util/orbMap";
+import controllerModel from "./controllerModel";
 
 let instance = null;
 
@@ -23,8 +24,6 @@ function Dashboard(port) {
   this.gameState = "inactive";
   this.availableCommandsCount = 1;
 
-  // this.links[controllerKey] = orbName
-  this.links = {};
   this.orbMap = new OrbMap();
 
   this.app.use(express.static("dashboard"));
@@ -33,17 +32,17 @@ function Dashboard(port) {
   });
 
   this.io.on("connection", socket => {
-    if (this.socket !== null) {
-      socket.disconnect();
-      console.log("a dashboard rejected.");
-    } else {
+    // if (this.socket !== null) {
+    //   socket.disconnect();
+    //   console.log("a dashboard rejected.");
+    // } else {
       console.log("a dashboard connected.");
       this.socket = socket;
       socket.emit(
           "defaultData",
           this.gameState,
           this.availableCommandsCount,
-          this.links,
+          controllerModel.getAllStates(),
           this.orbMap.toArray());
       socket.on("gameState", state => {
         if (/active|inactive/.test(state)) {
@@ -58,7 +57,6 @@ function Dashboard(port) {
         }
       });
       socket.on("link", (key, orbName) => {
-        this.links[key] = orbName;
         this.emit("updateLink", key, orbName);
       });
       socket.on("addOrb", (name, port) => {
@@ -80,7 +78,7 @@ function Dashboard(port) {
       socket.on("resetHp", key => {
         this.emit("resetHp", key);
       });
-    }
+    // }
   });
 
   instance = this;
@@ -88,18 +86,14 @@ function Dashboard(port) {
 }
 
 Dashboard.prototype.addController = function(key) {
-  this.links[key] = null;
   if (this.socket !== null) {
-    this.socket.emit("addController", key);
+    this.socket.emit("addController", key, controllerModel.get(key).getStates());
   }
 };
 
 Dashboard.prototype.removeController = function(key) {
-  if (typeof this.links[key] !== "undefined") {
-    delete this.links[key];
-    if (this.socket !== null) {
-      this.socket.emit("removeController", key);
-    }
+  if (this.socket !== null) {
+    this.socket.emit("removeController", key);
   }
 };
 

@@ -3,7 +3,7 @@ import {EventEmitter} from "events";
 const unlinkedText = "-- unlinked --";
 
 export default class Controller extends EventEmitter {
-  constructor(controllerKey, orbs) {
+  constructor(controllerKey, orbs, controllerDetails) {
     super();
 
     this.controllerKey = controllerKey;
@@ -41,7 +41,6 @@ export default class Controller extends EventEmitter {
     this.element.appendChild(oniTd);
 
     this.hpTd = document.createElement("td");
-    this.hpTd.textContent = "unchecked";
     this.element.appendChild(this.hpTd);
 
     this.resetHpButton = document.createElement("button");
@@ -55,13 +54,13 @@ export default class Controller extends EventEmitter {
     this.element.appendChild(resetHpTd);
 
     updateOrbSelect.call(this);
+    this.updateHp(controllerDetails.hp);
   }
   updateOrbs(orbs) {
     this.orbs = orbs;
     updateOrbSelect.call(this);
   }
   updateHp(hp) {
-    console.log(this);
     this.hpTd.textContent = hp;
   }
 }
