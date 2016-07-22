@@ -1,6 +1,6 @@
 import express from "express";
 import io from "socket.io";
-import {EventEmitter} from "events";
+import { EventEmitter } from "events";
 import util from "util";
 import OrbMap from "./util/orbMap";
 import controllerModel from "./controllerModel";
