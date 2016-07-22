@@ -51,6 +51,11 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
     }
   });
   client.on("link", () => {
+    if (client.linkedOrb !== null) {
+      controllerModel.get(key).setLink(client.linkedOrb.name);
+    } else {
+      controllerModel.get(key).setLink(null);
+    }
     dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
   });
   controllerModel.get(key).on("hp", hp => {
@@ -58,6 +63,7 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
   });
 });
 spheroWS.spheroServer.events.on("removeClient", key => {
+  controllerModel.remove(key);
   console.log(`removed Client: ${key}`);
   dashboard.removeController(key);
 });

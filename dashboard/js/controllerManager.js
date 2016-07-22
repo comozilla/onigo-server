@@ -9,7 +9,6 @@ export default class ControllerManager {
     this.orbNames = [];
 
     eventPublisher.on("defaultControllers", controllers => {
-      console.log(controllers);
       Object.keys(controllers).forEach(controllerKey => {
         this.addController(controllerKey, controllers[controllerKey]);
       });

@@ -8,7 +8,7 @@ export default class Controller extends EventEmitter {
 
     this.controllerKey = controllerKey;
     this.orbs = orbs;
-    this.linkedOrb = null;
+    this.linkedOrb = controllerDetails.link;
 
     this.element = document.createElement("tr");
 
@@ -35,6 +35,7 @@ export default class Controller extends EventEmitter {
     this.oniCheckboxElement.addEventListener("change", () => {
       this.emit("oni", this.oniCheckboxElement.checked);
     });
+    this.oniCheckboxElement.checked = controllerDetails.isOni;
 
     const oniTd = document.createElement("td");
     oniTd.appendChild(this.oniCheckboxElement);
