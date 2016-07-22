@@ -30,6 +30,9 @@ function SocketManager() {
   this.socket.on("updateOrbs", orbs => {
     emit.call(this, "orbs", [orbs]);
   });
+  this.socket.on("hp", (key, hp) => {
+    emit.call(this, "hp", [key, hp]);
+  });
 
   instance = this;
 }

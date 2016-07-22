@@ -14,6 +14,7 @@ export default class Controller extends EventEmitter {
   setHp(hp) {
     this.hp = hp;
     this.client.sendCustomMessage("hp", { hp: this.hp });
+    this.emit("hp", this.hp);
   }
   setIsOni(isOni) {
     this.isOni = isOni;

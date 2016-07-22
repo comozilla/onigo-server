@@ -32,6 +32,13 @@ export default class ControllerManager {
         controller.updateOrbs(this.orbNames);
       });
     });
+    eventPublisher.on("hp", (key, hp) => {
+      this.controllers.forEach(controller => {
+	if (controller.controllerKey === key) {
+	  controller.updateHp(hp);
+	}
+      });
+    });
   }
   addController(controllerKey) {
     const controller = new Controller(controllerKey, this.orbNames, this.controllerLinks[controllerKey]);

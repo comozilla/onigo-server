@@ -54,6 +54,9 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
   client.on("link", () => {
     dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
   });
+  controllers[key].on("hp", hp => {
+    dashboard.updateHp(key, hp);
+  });
 });
 spheroWS.spheroServer.events.on("removeClient", key => {
   console.log(`removed Client: ${key}`);

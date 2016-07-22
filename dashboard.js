@@ -151,6 +151,12 @@ Dashboard.prototype.updateBattery = function(orbName, batteryState) {
   }
 };
 
+Dashboard.prototype.updateHp = function(controllerKey, hp) {
+  if (this.socket !== null) {
+    this.socket.emit("hp", controllerKey, hp);
+  }
+}
+
 util.inherits(Dashboard, EventEmitter);
 
 module.exports = Dashboard;

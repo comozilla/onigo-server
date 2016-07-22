@@ -40,6 +40,10 @@ export default class Controller extends EventEmitter {
     oniTd.appendChild(this.oniCheckboxElement);
     this.element.appendChild(oniTd);
 
+    this.hpTd = document.createElement("td");
+    this.hpTd.textContent = "unchecked";
+    this.element.appendChild(this.hpTd);
+
     this.resetHpButton = document.createElement("button");
     this.resetHpButton.textContent = "set HP to 100";
     this.resetHpButton.addEventListener("click", () => {
@@ -55,6 +59,10 @@ export default class Controller extends EventEmitter {
   updateOrbs(orbs) {
     this.orbs = orbs;
     updateOrbSelect.call(this);
+  }
+  updateHp(hp) {
+    console.log(this);
+    this.hpTd.textContent = hp;
   }
 }
 
