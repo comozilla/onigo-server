@@ -4,6 +4,8 @@ import config from "./config";
 import VirtualSphero from "sphero-ws-virtual-plugin";
 import Dashboard from "./dashboard";
 import CommandRunner from "./commandRunner";
+import Controller from "./controller";
+import controllerModel from "./controllerModel";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -23,17 +25,10 @@ dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 let gameState = "inactive";
 let availableCommandsCount = 1;
 
-const controllers = {};
-
 spheroWS.spheroServer.events.on("addClient", (key, client) => {
+  controllerModel.add(key, client);
   dashboard.addController(key);
-  controllers[key] = {
-    client: client,
-    commandRunner: new CommandRunner(key),
-    hp: 100,
-    isOni: false
-  };
-  controllers[key].commandRunner.on("command", (commandName, args) => {
+  controllerModel.get(key).commandRunner.on("command", (commandName, args) => {
     if (client.linkedOrb !== null) {
       console.log(key);
       if (!client.linkedOrb.hasCommand(commandName)) {
@@ -45,27 +40,31 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
 
   client.sendCustomMessage("gameState", { gameState: gameState });
   client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
-  client.sendCustomMessage("oni", controllers[key].isOni);
-  client.sendCustomMessage("hp", { hp: controllers[key].hp });
   client.sendCustomMessage("clientKey", key);
   client.on("arriveCustomMessage", (name, data, mesID) => {
     if (name === "commands") {
       if (typeof data.type === "string" && data.type === "built-in") {
-        controllers[key].commandRunner.setBuiltInCommands(data.command);
+        controllerModel.get(key).commandRunner.setBuiltInCommands(data.command);
       } else {
-        controllers[key].commandRunner.setCommands(data);
+        controllerModel.get(key).commandRunner.setCommands(data);
       }
     }
   });
   client.on("link", () => {
+    if (client.linkedOrb !== null) {
+      controllerModel.get(key).setLink(client.linkedOrb.name);
+    } else {
+      controllerModel.get(key).setLink(null);
+    }
     dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
+  });
+  controllerModel.get(key).on("hp", hp => {
+    dashboard.updateHp(key, hp);
   });
 });
 spheroWS.spheroServer.events.on("removeClient", key => {
+  controllerModel.remove(key);
   console.log(`removed Client: ${key}`);
-  if (typeof controllers[key] !== "undefined") {
-    delete controllers[key];
-  }
   dashboard.removeController(key);
 });
 
@@ -80,9 +79,8 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
     rawOrb.detectCollisions();
     rawOrb.on("collision", () => {
       orb.linkedClients.forEach(key => {
-        if (gameState === "active" && !controllers[key].isOni) {
-          controllers[key].hp -= 10;
-          controllers[key].client.sendCustomMessage("hp", { hp: controllers[key].hp });
+        if (gameState === "active" && !controllerModel.get(key).isOni) {
+          controllerModel.get(key).setHp(controllerModel.get(key).hp - 10);
         }
       });
     });
@@ -96,22 +94,22 @@ spheroWS.spheroServer.events.on("removeOrb", name => {
 
 dashboard.on("gameState", state => {
   gameState = state;
-  Object.keys(controllers).forEach(key => {
-    controllers[key].client.sendCustomMessage("gameState", { gameState: gameState });
+  Object.keys(controllerModel.controllers).forEach(key => {
+    controllerModel.get(key).client.sendCustomMessage("gameState", { gameState: gameState });
   });
 });
 
 dashboard.on("availableCommandsCount", count => {
   availableCommandsCount = count;
-  Object.keys(controllers).forEach(key => {
-    controllers[key].client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
+  Object.keys(controllerModel.controllers).forEach(key => {
+    controllerModel.get(key).client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
   });
 });
 dashboard.on("updateLink", (key, orbName) => {
   if (orbName === null) {
-    controllers[key].client.unlink();
+    controllerModel.get(key).client.unlink();
   } else {
-    controllers[key].client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
+    controllerModel.get(key).client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
   }
 });
 dashboard.on("addOrb", (name, port) => {
@@ -128,8 +126,7 @@ dashboard.on("removeOrb", name => {
   spheroWS.spheroServer.removeOrb(name);
 });
 dashboard.on("oni", (key, enable) => {
-  controllers[key].isOni = enable;
-  controllers[key].client.sendCustomMessage("oni", enable);
+  controllerModel.get(key).setIsOni(enable);
 });
 dashboard.on("checkBattery", () => {
   const orbs = spheroWS.spheroServer.getOrb();
@@ -142,5 +139,8 @@ dashboard.on("checkBattery", () => {
       }
     });
   });
+});
+dashboard.on("resetHp", key => {
+  controllerModel.get(key).setHp(100);
 });
 

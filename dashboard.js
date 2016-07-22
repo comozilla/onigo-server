@@ -1,8 +1,9 @@
 import express from "express";
 import io from "socket.io";
-import {EventEmitter} from "events";
+import { EventEmitter } from "events";
 import util from "util";
 import OrbMap from "./util/orbMap";
+import controllerModel from "./controllerModel";
 
 let instance = null;
 
@@ -23,8 +24,6 @@ function Dashboard(port) {
   this.gameState = "inactive";
   this.availableCommandsCount = 1;
 
-  // this.links[controllerKey] = orbName
-  this.links = {};
   this.orbMap = new OrbMap();
 
   this.app.use(express.static("dashboard"));
@@ -43,7 +42,7 @@ function Dashboard(port) {
           "defaultData",
           this.gameState,
           this.availableCommandsCount,
-          this.links,
+          controllerModel.getAllStates(),
           this.orbMap.toArray());
       socket.on("gameState", state => {
         if (/active|inactive/.test(state)) {
@@ -58,7 +57,6 @@ function Dashboard(port) {
         }
       });
       socket.on("link", (key, orbName) => {
-        this.links[key] = orbName;
         this.emit("updateLink", key, orbName);
       });
       socket.on("addOrb", (name, port) => {
@@ -77,6 +75,9 @@ function Dashboard(port) {
         console.log("a dashboard removed.");
         this.socket = null;
       });
+      socket.on("resetHp", key => {
+        this.emit("resetHp", key);
+      });
     }
   });
 
@@ -85,18 +86,14 @@ function Dashboard(port) {
 }
 
 Dashboard.prototype.addController = function(key) {
-  this.links[key] = null;
   if (this.socket !== null) {
-    this.socket.emit("addController", key);
+    this.socket.emit("addController", key, controllerModel.get(key).getStates());
   }
 };
 
 Dashboard.prototype.removeController = function(key) {
-  if (typeof this.links[key] !== "undefined") {
-    delete this.links[key];
-    if (this.socket !== null) {
-      this.socket.emit("removeController", key);
-    }
+  if (this.socket !== null) {
+    this.socket.emit("removeController", key);
   }
 };
 
@@ -147,6 +144,12 @@ Dashboard.prototype.updateBattery = function(orbName, batteryState) {
     this.socket.emit("updateOrbs", this.orbMap.toArray());
   }
 };
+
+Dashboard.prototype.updateHp = function(controllerKey, hp) {
+  if (this.socket !== null) {
+    this.socket.emit("hp", controllerKey, hp);
+  }
+}
 
 util.inherits(Dashboard, EventEmitter);
 

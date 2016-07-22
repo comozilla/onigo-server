@@ -12,22 +12,26 @@ function SocketManager() {
   eventPublisher.on("disconnect", this.sendDisconnect.bind(this));
   eventPublisher.on("oni", this.sendOni.bind(this));
   eventPublisher.on("checkBattery", this.sendCheckBattery.bind(this));
+  eventPublisher.on("resetHp", this.sendResetHp.bind(this));
 
   this.socket = io();
-  this.socket.on("defaultData", (state, count, links, orbs) => {
+  this.socket.on("defaultData", (state, count, controllers, orbs) => {
     emit.call(this, "gameState", [state]);
     emit.call(this, "availableCommandsCount", [count]);
     emit.call(this, "orbs", [orbs]);
-    emit.call(this, "defaultLinks", [links]);
+    emit.call(this, "defaultControllers", [controllers]);
   });
-  this.socket.on("addController", key => {
-    emit.call(this, "addController", [key]);
+  this.socket.on("addController", (key, controllerDetails) => {
+    emit.call(this, "addController", [key, controllerDetails]);
   });
   this.socket.on("removeController", key => {
     emit.call(this, "removeController", [key]);
   });
   this.socket.on("updateOrbs", orbs => {
     emit.call(this, "orbs", [orbs]);
+  });
+  this.socket.on("hp", (key, hp) => {
+    emit.call(this, "hp", [key, hp]);
   });
 
   instance = this;
@@ -59,6 +63,10 @@ SocketManager.prototype.sendOni = function(controllerKey, isEnabled) {
 
 SocketManager.prototype.sendCheckBattery = function() {
   this.socket.emit("checkBattery");
+};
+
+SocketManager.prototype.sendResetHp = function(controllerKey) {
+  this.socket.emit("resetHp", controllerKey);
 };
 
 // eventPublisher.emit をする。

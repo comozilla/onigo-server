@@ -6,25 +6,18 @@ export default class ControllerManager {
     this.element = element;
     this.controllers = [];
 
-    // this.controllerLinks[controllerKey] = linkedOrbName
-    this.controllerLinks = {};
     this.orbNames = [];
 
-    eventPublisher.on("defaultLinks", links => {
-      this.controllerLinks = links;
-      Object.keys(links).forEach(controllerKey => {
-        this.addController(controllerKey);
+    eventPublisher.on("defaultControllers", controllers => {
+      Object.keys(controllers).forEach(controllerKey => {
+        this.addController(controllerKey, controllers[controllerKey]);
       });
     });
-    eventPublisher.on("addController", key => {
-      this.controllerLinks[key] = null;
-      this.addController(key);
+    eventPublisher.on("addController", (key, controllerDetails) => {
+      this.addController(key, controllerDetails);
     });
     eventPublisher.on("removeController", key => {
-      if (typeof this.controllerLinks[key] !== "undefined") {
-        delete this.controllerLinks[key];
-        this.removeController(key);
-      }
+      this.removeController(key);
     });
     eventPublisher.on("orbs", orbs => {
       this.orbNames = orbs.map(orb => orb.orbName);
@@ -32,18 +25,27 @@ export default class ControllerManager {
         controller.updateOrbs(this.orbNames);
       });
     });
+    eventPublisher.on("hp", (key, hp) => {
+      this.controllers.forEach(controller => {
+        if (controller.controllerKey === key) {
+          controller.updateHp(hp);
+        }
+      });
+    });
   }
-  addController(controllerKey) {
-    const link = new Controller(controllerKey, this.orbNames, this.controllerLinks[controllerKey]);
-    link.on("change", orbName => {
-      this.controllerLinks[controllerKey] = orbName;
+  addController(controllerKey, controllerDetails) {
+    const controller = new Controller(controllerKey, this.orbNames, controllerDetails);
+    controller.on("change", orbName => {
       eventPublisher.emit("link", controllerKey, orbName);
     });
-    link.on("oni", isEnabled => {
+    controller.on("oni", isEnabled => {
       eventPublisher.emit("oni", controllerKey, isEnabled);
     });
-    this.element.appendChild(link.element);
-    this.controllers.push(link);
+    controller.on("resetHp", () => {
+      eventPublisher.emit("resetHp", controllerKey);
+    });
+    this.element.appendChild(controller.element);
+    this.controllers.push(controller);
   }
   removeController(controllerKey) {
     const keyIndex = this.controllers.map(instance => instance.controllerKey).indexOf(controllerKey);
