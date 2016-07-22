@@ -3,12 +3,12 @@ import {EventEmitter} from "events";
 const unlinkedText = "-- unlinked --";
 
 export default class Controller extends EventEmitter {
-  constructor(controllerKey, orbs, defaultLinkedOrb) {
+  constructor(controllerKey, orbs) {
     super();
 
     this.controllerKey = controllerKey;
     this.orbs = orbs;
-    this.linkedOrb = defaultLinkedOrb;
+    this.linkedOrb = null;
 
     this.element = document.createElement("tr");
 

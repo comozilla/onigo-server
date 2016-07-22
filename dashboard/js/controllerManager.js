@@ -6,25 +6,18 @@ export default class ControllerManager {
     this.element = element;
     this.controllers = [];
 
-    // this.controllerLinks[controllerKey] = linkedOrbName
-    this.controllerLinks = {};
     this.orbNames = [];
 
     eventPublisher.on("defaultLinks", links => {
-      this.controllerLinks = links;
       Object.keys(links).forEach(controllerKey => {
         this.addController(controllerKey);
       });
     });
     eventPublisher.on("addController", key => {
-      this.controllerLinks[key] = null;
       this.addController(key);
     });
     eventPublisher.on("removeController", key => {
-      if (typeof this.controllerLinks[key] !== "undefined") {
-        delete this.controllerLinks[key];
-        this.removeController(key);
-      }
+      this.removeController(key);
     });
     eventPublisher.on("orbs", orbs => {
       this.orbNames = orbs.map(orb => orb.orbName);
@@ -41,9 +34,8 @@ export default class ControllerManager {
     });
   }
   addController(controllerKey) {
-    const controller = new Controller(controllerKey, this.orbNames, this.controllerLinks[controllerKey]);
+    const controller = new Controller(controllerKey, this.orbNames);
     controller.on("change", orbName => {
-      this.controllerLinks[controllerKey] = orbName;
       eventPublisher.emit("link", controllerKey, orbName);
     });
     controller.on("oni", isEnabled => {
