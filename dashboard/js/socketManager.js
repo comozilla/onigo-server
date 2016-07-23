@@ -6,6 +6,7 @@ function SocketManager() {
     return instance;
   }
   eventPublisher.on("gameState", this.sendGameState.bind(this));
+  eventPublisher.on("rankingState", this.sendRankingState.bind(this));
   eventPublisher.on("availableCommandsCount", this.sendAvailableCommandsCount.bind(this));
   eventPublisher.on("link", this.sendLink.bind(this));
   eventPublisher.on("addOrb", this.sendAddOrb.bind(this));
@@ -39,6 +40,11 @@ function SocketManager() {
 
 SocketManager.prototype.sendGameState = function(gameState) {
   this.socket.emit("gameState", gameState);
+};
+
+SocketManager.prototype.sendRankingState = function(rankingState) {
+  console.log(rankingState);
+  this.socket.emit("rankingState", rankingState);
 };
 
 SocketManager.prototype.sendAvailableCommandsCount = function(availableCommandsCount) {

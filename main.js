@@ -23,6 +23,7 @@ const dashboard = new Dashboard(config.dashboardPort);
 dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 
 let gameState = "inactive";
+let rankingState = "hide";
 let availableCommandsCount = 1;
 
 spheroWS.spheroServer.events.on("addClient", (key, client) => {
@@ -39,6 +40,7 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
   });
 
   client.sendCustomMessage("gameState", { gameState: gameState });
+  client.sendCustomMessage("rankingState", rankingState);
   client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
   client.sendCustomMessage("clientKey", key);
   client.on("arriveCustomMessage", (name, data, mesID) => {
@@ -96,6 +98,12 @@ dashboard.on("gameState", state => {
   gameState = state;
   Object.keys(controllerModel.controllers).forEach(key => {
     controllerModel.get(key).client.sendCustomMessage("gameState", { gameState: gameState });
+  });
+});
+dashboard.on("rankingState", state => {
+  rankingState = state;
+  Object.keys(controllerModel.controllers).forEach(key => {
+    controllerModel.get(key).client.sendCustomMessage("rankingState", state);
   });
 });
 
