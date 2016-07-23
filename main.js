@@ -104,13 +104,14 @@ dashboard.on("gameState", state => {
   });
 });
 dashboard.on("rankingState", state => {
+  const controllerKeys = Object.keys(controllerModel.controllers);
   rankingState = state;
-  Object.keys(controllerModel.controllers).forEach(key => {
+  controllerKeys.forEach(key => {
     controllerModel.get(key).client.sendCustomMessage("rankingState", state);
   });
   if (state === "show") {
     const ranking = rankingMaker.make(controllerModel.controllers);
-    Object.keys(controllerModel.controllers).forEach(key => {
+    controllerKeys.forEach(key => {
       controllerModel.get(key).client.sendCustomMessage("ranking", ranking);
     });
   }
