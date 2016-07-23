@@ -43,7 +43,6 @@ SocketManager.prototype.sendGameState = function(gameState) {
 };
 
 SocketManager.prototype.sendRankingState = function(rankingState) {
-  console.log(rankingState);
   this.socket.emit("rankingState", rankingState);
 };
 
