@@ -2,9 +2,10 @@ export default class RankingMaker {
   constructor() {
   }
   make(controllers) {
+    const controllerKeys = Object.keys(controllers);
     // indexが順位となっている
     // [ { hp: 100, key: "xxx" }, { hp: 80, key: "xxx" }, ...]
-    const ranking = Object.keys(controllers).filter(key => {
+    const ranking = controllerKeys.filter(key => {
       // まず鬼であるものを除外する
       return !controllers[key].isOni;
     }).sort((a, b) => {
@@ -15,11 +16,11 @@ export default class RankingMaker {
       return {
         key,
         hp: controllers[key].hp,
-        isTie: index > 0 && controllers[key].hp === controllers[Object.keys(controllers)[index]].hp
+        isTie: index > 0 && controllers[key].hp === controllers[controllerKeys[index]].hp
       };
     });
     // [key, key, ...]
-    const onis = Object.keys(controllers).filter(key => controllers[key].isOni);
+    const onis = controllerKeys.filter(key => controllers[key].isOni);
     return { ranking, onis };
   }
 }
