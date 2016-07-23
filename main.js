@@ -6,6 +6,7 @@ import Dashboard from "./dashboard";
 import CommandRunner from "./commandRunner";
 import Controller from "./controller";
 import controllerModel from "./controllerModel";
+import RankingMaker from "./rankingMaker";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -25,6 +26,8 @@ dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 let gameState = "inactive";
 let rankingState = "hide";
 let availableCommandsCount = 1;
+
+const rankingMaker = new RankingMaker();
 
 spheroWS.spheroServer.events.on("addClient", (key, client) => {
   controllerModel.add(key, client);
@@ -105,6 +108,12 @@ dashboard.on("rankingState", state => {
   Object.keys(controllerModel.controllers).forEach(key => {
     controllerModel.get(key).client.sendCustomMessage("rankingState", state);
   });
+  if (state === "show") {
+    const ranking = rankingMaker.make(controllerModel.controllers);
+    Object.keys(controllerModel.controllers).forEach(key => {
+      controllerModel.get(key).client.sendCustomMessage("ranking", ranking);
+    });
+  }
 });
 
 dashboard.on("availableCommandsCount", count => {
