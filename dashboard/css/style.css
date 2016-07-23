@@ -1,9 +1,10 @@
-header * {
-  display: inline-block;
+header {
+  display: flex;
+  margin: 5px 0 10px 0;
 }
 
 header h1 {
-  margin-top: 5px;
+  margin: 0 10px 0 0;
 }
 
 #game-state-view {

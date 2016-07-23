@@ -22,6 +22,7 @@ function Dashboard(port) {
   this.socket = null;
 
   this.gameState = "inactive";
+  this.rankingState = "hide";
   this.availableCommandsCount = 1;
 
   this.orbMap = new OrbMap();
@@ -45,9 +46,15 @@ function Dashboard(port) {
           controllerModel.getAllStates(),
           this.orbMap.toArray());
       socket.on("gameState", state => {
-        if (/active|inactive/.test(state)) {
+        if (/^(active|inactive)$/.test(state)) {
           this.gameState = state;
           this.emit("gameState", state);
+        }
+      });
+      socket.on("rankingState", state => {
+        if (/^(show|hide)$/.test(state)) {
+          this.rankingState = state;
+          this.emit("rankingState", state);
         }
       });
       socket.on("availableCommandsCount", count => {
