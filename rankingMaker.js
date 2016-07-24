@@ -11,12 +11,12 @@ export default class RankingMaker {
     }).sort((a, b) => {
       // HPに基づき、降順にソートする
       return controllers[b].hp - controllers[a].hp;
-    }).map((key, index) => {
+    }).map((key, index, array) => {
       // 必要な情報のみを取り出した新しい配列を生成する
       return {
         key,
         hp: controllers[key].hp,
-        isTie: index > 0 && controllers[key].hp === controllers[controllerKeys[index]].hp
+        isTie: index > 0 && controllers[key].hp === controllers[array[index - 1]].hp
       };
     });
     // [key, key, ...]
