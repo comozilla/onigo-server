@@ -1,3 +1,10 @@
+const originalError = console.error;
+
+console.error = function(message) {
+  console.log(/Error: Opening (.+):/.exec(message)[1]);
+  originalError(message);
+};
+
 import spheroWebSocket from "sphero-websocket";
 import argv from "argv";
 import config from "./config";
