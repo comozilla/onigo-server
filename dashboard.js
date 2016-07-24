@@ -32,10 +32,10 @@ function Dashboard(port) {
   });
 
   this.io.on("connection", socket => {
-    if (this.socket !== null) {
-      socket.disconnect();
-      console.log("a dashboard rejected.");
-    } else {
+    // if (this.socket !== null) {
+    //   socket.disconnect();
+    //   console.log("a dashboard rejected.");
+    // } else {
       console.log("a dashboard connected.");
       this.socket = socket;
       socket.emit(
@@ -56,8 +56,8 @@ function Dashboard(port) {
           this.emit("availableCommandsCount", count);
         }
       });
-      socket.on("link", (key, orbName) => {
-        this.emit("updateLink", key, orbName);
+      socket.on("link", (name, orbName) => {
+        this.emit("updateLink", name, orbName);
       });
       socket.on("addOrb", (name, port) => {
         this.emit("addOrb", name, port);
@@ -65,8 +65,8 @@ function Dashboard(port) {
       socket.on("removeOrb", name => {
         this.emit("removeOrb", name);
       });
-      socket.on("oni", (key, enable) => {
-        this.emit("oni", key, enable);
+      socket.on("oni", (name, enable) => {
+        this.emit("oni", name, enable);
       });
       socket.on("checkBattery", () => {
         this.emit("checkBattery");
@@ -75,27 +75,36 @@ function Dashboard(port) {
         console.log("a dashboard removed.");
         this.socket = null;
       });
-      socket.on("resetHp", key => {
-        this.emit("resetHp", key);
+      socket.on("resetHp", name => {
+        this.emit("resetHp", name);
       });
+    // }
+  });
+
+  controllerModel.on("add", (key, client) => {
+    if (this.socket !== null) {
+      this.socket.emit("addUnnamed", key);
+    }
+  });
+  controllerModel.on("named", (key, name) => {
+    if (this.socket !== null) {
+      this.socket.emit("named", key, name, controllerModel.get(name).getStates());
+    }
+  });
+  controllerModel.on("removeUnnamed", key => {
+    if (this.socket !== null) {
+      this.socket.emit("removeUnnamed", key);
+    }
+  });
+  controllerModel.on("removeClient", name => {
+    if (this.socket !== null) {
+      this.socket.emit("removeClient", name);
     }
   });
 
   instance = this;
   return this;
 }
-
-Dashboard.prototype.addController = function(key) {
-  if (this.socket !== null) {
-    this.socket.emit("addController", key, controllerModel.get(key).getStates());
-  }
-};
-
-Dashboard.prototype.removeController = function(key) {
-  if (this.socket !== null) {
-    this.socket.emit("removeController", key);
-  }
-};
 
 Dashboard.prototype.addOrb = function(name, port) {
   if (this.orbMap.has(name)) {
