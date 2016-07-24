@@ -8,6 +8,7 @@ export default class Controller extends EventEmitter {
 
     this.client = client;
     this.commandRunner = commandRunner;
+    this.name = null;
     this.setHp(defaultHp);
     this.setIsOni(false);
     this.setLink(null);
@@ -23,6 +24,9 @@ export default class Controller extends EventEmitter {
   }
   setLink(orbName) {
     this.link = orbName;
+  }
+  setName(name) {
+    this.name = name;
   }
   getStates() {
     return {

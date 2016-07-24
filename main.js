@@ -48,6 +48,15 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
       } else {
         controllerModel.get(key).commandRunner.setCommands(data);
       }
+    } else if (name === "requestName") {
+      if (controllerModel.hasName(data)) {
+        client.sendCustomMessage("rejectName", null);
+      } else {
+        controllerModel.get(key).setName(data);
+        client.sendCustomMessage("acceptName", data);
+      }
+    } else if (name === "useDefinedName") {
+      controllerModel.get(key).setName(data);
     }
   });
   client.on("link", () => {

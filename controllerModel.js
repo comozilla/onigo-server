@@ -16,6 +16,14 @@ class ControllerModel {
   has(key) {
     return typeof this.controllers[key] !== "undefined";
   }
+  hasName(name) {
+    Object.keys(this.controllers).forEach(key => {
+      if (this.controllers[key].name === name) {
+        return true;
+      }
+    });
+    return false;
+  }
   get(key) {
     return this.controllers[key];
   }
