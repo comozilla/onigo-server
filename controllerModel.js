@@ -26,6 +26,8 @@ class ControllerModel extends EventEmitter {
     let isNewName = typeof this.controllers[name] === "undefined";
     if (isNewName) {
       this.controllers[name] = new Controller(name, new CommandRunner(key));
+    } else if (this.controllers[name].client !== null) {
+      throw new Error("setNameしようとしましたが、既にclientが存在します。 name: " + name);
     }
     this.controllers[name].setClient(this.unnamedClients[key]);
     delete this.unnamedClients[key];
