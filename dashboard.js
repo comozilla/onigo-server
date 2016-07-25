@@ -32,10 +32,10 @@ function Dashboard(port) {
   });
 
   this.io.on("connection", socket => {
-    // if (this.socket !== null) {
-    //   socket.disconnect();
-    //   console.log("a dashboard rejected.");
-    // } else {
+    if (this.socket !== null) {
+      socket.disconnect();
+      console.log("a dashboard rejected.");
+    } else {
       console.log("a dashboard connected.");
       this.socket = socket;
       socket.emit(
@@ -79,7 +79,7 @@ function Dashboard(port) {
       socket.on("resetHp", name => {
         this.emit("resetHp", name);
       });
-    // }
+    }
   });
 
   controllerModel.on("add", (key, client) => {
