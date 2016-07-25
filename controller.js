@@ -31,8 +31,10 @@ export default class Controller extends EventEmitter {
   }
   setClient(client) {
     this.client = client;
-    this.client.sendCustomMessage("hp", { hp: this.hp });
-    this.client.sendCustomMessage("oni", this.isOni);
+    if (this.client !== null) {
+      this.client.sendCustomMessage("hp", { hp: this.hp });
+      this.client.sendCustomMessage("oni", this.isOni);
+    }
   }
   getStates() {
     return {

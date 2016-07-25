@@ -88,11 +88,6 @@ controllerModel.on("named", (key, name, isNewName) => {
     }
   });
   client.on("link", () => {
-    if (client.linkedOrb !== null) {
-      controller.setLink(client.linkedOrb.name);
-    } else {
-      controller.setLink(null);
-    }
     dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
   });
   if (controller.link !== null) {
@@ -144,11 +139,13 @@ dashboard.on("availableCommandsCount", count => {
   });
 });
 dashboard.on("updateLink", (controllerName, orbName) => {
+  const controller = controllerModel.get(controllerName);
   if (orbName === null) {
-    controllerModel.get(controllerName).client.unlink();
+    controller.client.unlink();
   } else {
-    controllerModel.get(controllerName).client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
+    controller.client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
   }
+  controller.setLink(orbName);
 });
 dashboard.on("addOrb", (name, port) => {
   const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
