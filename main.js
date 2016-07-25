@@ -56,7 +56,6 @@ spheroWS.spheroServer.events.on("removeClient", key => {
   } else {
     controllerModel.removeClient(controllerModel.toName(key));
   }
-  console.log(`removed Client: ${key}`);
 });
 
 controllerModel.on("named", (key, name, isNewName) => {
