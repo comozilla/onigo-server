@@ -31,46 +31,76 @@ const rankingMaker = new RankingMaker();
 
 spheroWS.spheroServer.events.on("addClient", (key, client) => {
   controllerModel.add(key, client);
-  dashboard.addController(key);
-  controllerModel.get(key).commandRunner.on("command", (commandName, args) => {
-    if (client.linkedOrb !== null) {
-      console.log(key);
-      if (!client.linkedOrb.hasCommand(commandName)) {
-        throw new Error(`command : ${commandName} is not valid.`);
+  client.on("arriveCustomMessage", (name, data, mesID) => {
+    // Nameが同じなら、clientKeyが別でもHPなどが引き継がれる、と実装するため、
+    // requestNameとuseDefinedNameを分けている。
+    // requestName ・・ 新しい名前を使う。もしその名前が既に使われていたらrejectする。
+    // useDefinedName ・・既存の名前を使う。もしその名前がなければrejectする。
+    if (name === "requestName") {
+      if (controllerModel.has(data)) {
+        client.sendCustomMessage("rejectName", null);
+      } else {
+        controllerModel.setName(key, data);
+        client.sendCustomMessage("acceptName", data);
       }
-      client.linkedOrb.command(commandName, args);
+    } else if (name === "useDefinedName") {
+      if (!controllerModel.has(data)) {
+        client.sendCustomMessage("rejectName", null);
+      } else {
+        controllerModel.setName(key, data);
+        client.sendCustomMessage("acceptName", data);
+      }
     }
   });
+});
+
+spheroWS.spheroServer.events.on("removeClient", key => {
+  if (controllerModel.hasInUnnamedClients(key)) {
+    controllerModel.removeFromUnnamedClients(key);
+  } else {
+    controllerModel.removeClient(controllerModel.toName(key));
+  }
+});
+
+controllerModel.on("named", (key, name, isNewName) => {
+  const controller = controllerModel.get(name);
+  const client = controller.client;
 
   client.sendCustomMessage("gameState", { gameState: gameState });
   client.sendCustomMessage("rankingState", rankingState);
   client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
   client.sendCustomMessage("clientKey", key);
-  client.on("arriveCustomMessage", (name, data, mesID) => {
-    if (name === "commands") {
+
+  if (isNewName) {
+    controller.commandRunner.on("command", (commandName, args) => {
+      const client = controller.client;
+      if (client.linkedOrb !== null) {
+        if (!client.linkedOrb.hasCommand(commandName)) {
+          throw new Error(`command : ${commandName} is not valid.`);
+        }
+        client.linkedOrb.command(commandName, args);
+      }
+    });
+    controller.on("hp", hp => {
+      dashboard.updateHp(name, hp);
+    });
+  }
+
+  client.on("arriveCustomMessage", (messageName, data, mesID) => {
+    if (messageName === "commands") {
       if (typeof data.type === "string" && data.type === "built-in") {
-        controllerModel.get(key).commandRunner.setBuiltInCommands(data.command);
+        controller.commandRunner.setBuiltInCommands(data.command);
       } else {
-        controllerModel.get(key).commandRunner.setCommands(data);
+        controller.commandRunner.setCommands(data);
       }
     }
   });
   client.on("link", () => {
-    if (client.linkedOrb !== null) {
-      controllerModel.get(key).setLink(client.linkedOrb.name);
-    } else {
-      controllerModel.get(key).setLink(null);
-    }
     dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
   });
-  controllerModel.get(key).on("hp", hp => {
-    dashboard.updateHp(key, hp);
-  });
-});
-spheroWS.spheroServer.events.on("removeClient", key => {
-  controllerModel.remove(key);
-  console.log(`removed Client: ${key}`);
-  dashboard.removeController(key);
+  if (controller.link !== null) {
+    client.setLinkedOrb(spheroWS.spheroServer.getOrb(controller.link));
+  }
 });
 
 const orbs = spheroWS.spheroServer.getOrb();
@@ -83,11 +113,14 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
     const rawOrb = orb.instance;
     rawOrb.detectCollisions();
     rawOrb.on("collision", () => {
-      orb.linkedClients.forEach(key => {
-        if (gameState === "active" && !controllerModel.get(key).isOni) {
-          controllerModel.get(key).setHp(controllerModel.get(key).hp - 10);
+      Object.keys(controllerModel.controllers).forEach(controllerName => {
+        const controller = controllerModel.get(controllerName);
+        if (gameState === "active" && !controller.isOni &&
+            controller.client !== null &&
+            orb.linkedClients.indexOf(controller.client.key) !== -1) {
+          controller.setHp(controller.hp - 10);
         }
-      });
+      })
     });
   }
   dashboard.addOrb(name, orb.port);
@@ -119,16 +152,21 @@ dashboard.on("rankingState", state => {
 
 dashboard.on("availableCommandsCount", count => {
   availableCommandsCount = count;
-  Object.keys(controllerModel.controllers).forEach(key => {
-    controllerModel.get(key).client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
+  Object.keys(controllerModel.controllers).forEach(name => {
+    const client = controllerModel.get(name).client;
+    if (client !== null) {
+      client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
+    }
   });
 });
-dashboard.on("updateLink", (key, orbName) => {
+dashboard.on("updateLink", (controllerName, orbName) => {
+  const controller = controllerModel.get(controllerName);
   if (orbName === null) {
-    controllerModel.get(key).client.unlink();
+    controller.client.unlink();
   } else {
-    controllerModel.get(key).client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
+    controller.client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
   }
+  controller.setLink(orbName);
 });
 dashboard.on("addOrb", (name, port) => {
   const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
@@ -143,8 +181,8 @@ dashboard.on("addOrb", (name, port) => {
 dashboard.on("removeOrb", name => {
   spheroWS.spheroServer.removeOrb(name);
 });
-dashboard.on("oni", (key, enable) => {
-  controllerModel.get(key).setIsOni(enable);
+dashboard.on("oni", (name, enable) => {
+  controllerModel.get(name).setIsOni(enable);
 });
 dashboard.on("checkBattery", () => {
   const orbs = spheroWS.spheroServer.getOrb();
@@ -158,7 +196,7 @@ dashboard.on("checkBattery", () => {
     });
   });
 });
-dashboard.on("resetHp", key => {
-  controllerModel.get(key).setHp(100);
+dashboard.on("resetHp", name => {
+  controllerModel.get(name).setHp(100);
 });
 

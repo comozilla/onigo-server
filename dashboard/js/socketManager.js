@@ -16,17 +16,24 @@ function SocketManager() {
   eventPublisher.on("resetHp", this.sendResetHp.bind(this));
 
   this.socket = io();
-  this.socket.on("defaultData", (state, count, controllers, orbs) => {
+  this.socket.on("defaultData", (state, count, controllers, orbs, unnameds) => {
     emit.call(this, "gameState", [state]);
     emit.call(this, "availableCommandsCount", [count]);
     emit.call(this, "orbs", [orbs]);
     emit.call(this, "defaultControllers", [controllers]);
+    emit.call(this, "defaultUnnameds", [unnameds]);
   });
-  this.socket.on("addController", (key, controllerDetails) => {
-    emit.call(this, "addController", [key, controllerDetails]);
+  this.socket.on("addUnnamed", key => {
+    emit.call(this, "addUnnamed", [key]);
   });
-  this.socket.on("removeController", key => {
-    emit.call(this, "removeController", [key]);
+  this.socket.on("named", (key, name, controllerDetails) => {
+    emit.call(this, "named", [key, name, controllerDetails]);
+  });
+  this.socket.on("removeUnnamed", key => {
+    emit.call(this, "removeUnnamed", [key]);
+  });
+  this.socket.on("removeClient", key => {
+    emit.call(this, "removeClient", [key]);
   });
   this.socket.on("updateOrbs", orbs => {
     emit.call(this, "orbs", [orbs]);
@@ -50,8 +57,8 @@ SocketManager.prototype.sendAvailableCommandsCount = function(availableCommandsC
   this.socket.emit("availableCommandsCount", availableCommandsCount);
 };
 
-SocketManager.prototype.sendLink = function(controllerKey, orbName) {
-  this.socket.emit("link", controllerKey, orbName);
+SocketManager.prototype.sendLink = function(controllerName, orbName) {
+  this.socket.emit("link", controllerName, orbName);
 };
 
 SocketManager.prototype.sendAddOrb = function(name, port) {
@@ -62,16 +69,16 @@ SocketManager.prototype.sendDisconnect = function(name) {
   this.socket.emit("removeOrb", name);
 };
 
-SocketManager.prototype.sendOni = function(controllerKey, isEnabled) {
-  this.socket.emit("oni", controllerKey, isEnabled);
+SocketManager.prototype.sendOni = function(controllerName, isEnabled) {
+  this.socket.emit("oni", controllerName, isEnabled);
 };
 
 SocketManager.prototype.sendCheckBattery = function() {
   this.socket.emit("checkBattery");
 };
 
-SocketManager.prototype.sendResetHp = function(controllerKey) {
-  this.socket.emit("resetHp", controllerKey);
+SocketManager.prototype.sendResetHp = function(controllerName) {
+  this.socket.emit("resetHp", controllerName);
 };
 
 // eventPublisher.emit をする。

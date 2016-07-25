@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --progress --colors",
     "build:watch": "webpack --progress --colors --watch",
-    "start": "babel-node main.js"
+    "start": "babel-node main.js",
+    "debug": "babel-node --debug-brk main.js"
   },
   "babel": {
     "ignore": [],
