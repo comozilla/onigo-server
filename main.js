@@ -28,6 +28,10 @@ let availableCommandsCount = 1;
 spheroWS.spheroServer.events.on("addClient", (key, client) => {
   controllerModel.add(key, client);
   client.on("arriveCustomMessage", (name, data, mesID) => {
+    // Nameが同じなら、clientKeyが別でもHPなどが引き継がれる、と実装するため、
+    // requestNameとuseDefinedNameを分けている。
+    // requestName ・・ 新しい名前を使う。もしその名前が既に使われていたらrejectする。
+    // useDefinedName ・・既存の名前を使う。もしその名前がなければrejectする。
     if (name === "requestName") {
       if (controllerModel.has(data)) {
         client.sendCustomMessage("rejectName", null);
