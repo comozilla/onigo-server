@@ -52,7 +52,6 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
 
 spheroWS.spheroServer.events.on("removeClient", key => {
   if (controllerModel.hasInUnnamedClients(key)) {
-    console.log(key);
     controllerModel.removeFromUnnamedClients(key);
   } else {
     controllerModel.removeClient(controllerModel.toName(key));
@@ -72,7 +71,6 @@ controllerModel.on("named", (key, name, isNewName) => {
     controller.commandRunner.on("command", (commandName, args) => {
       const client = controller.client;
       if (client.linkedOrb !== null) {
-        console.log(key);
         if (!client.linkedOrb.hasCommand(commandName)) {
           throw new Error(`command : ${commandName} is not valid.`);
         }
