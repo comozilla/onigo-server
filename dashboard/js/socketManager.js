@@ -31,8 +31,8 @@ function SocketManager() {
   this.socket.on("removeUnnamed", key => {
     emit.call(this, "removeUnnamed", [key]);
   });
-  this.socket.on("removeController", key => {
-    emit.call(this, "removeController", [key]);
+  this.socket.on("removeClient", key => {
+    emit.call(this, "removeClient", [key]);
   });
   this.socket.on("updateOrbs", orbs => {
     emit.call(this, "orbs", [orbs]);

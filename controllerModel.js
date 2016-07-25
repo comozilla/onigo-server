@@ -63,13 +63,15 @@ class ControllerModel extends EventEmitter {
     return Object.keys(this.unnamedClients);
   }
   toName(key) {
-    Object.keys(this.controllers).forEach(name => {
-      if (this.controllers[name].client !== null &&
-          this.controllers[name].client.key === key) {
-        return name;
-      }
+    const nameArray = Object.keys(this.controllers).filter(name => {
+      return this.controllers[name].client !== null &&
+        this.controllers[name].client.key === key;
     });
-    return null;
+    if (nameArray.length === 1) {
+      return nameArray[0];
+    } else {
+      return null;
+    }
   }
 }
 

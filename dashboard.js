@@ -97,7 +97,7 @@ function Dashboard(port) {
       this.socket.emit("removeUnnamed", key);
     }
   });
-  controllerModel.on("removeClient", name => {
+  controllerModel.on("remove", name => {
     if (this.socket !== null) {
       this.socket.emit("removeClient", name);
     }
