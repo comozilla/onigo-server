@@ -48,6 +48,7 @@ spheroWS.spheroServer.events.on("addClient", (key, client) => {
 
 spheroWS.spheroServer.events.on("removeClient", key => {
   if (controllerModel.hasInUnnamedClients(key)) {
+    console.log(key);
     controllerModel.removeFromUnnamedClients(key);
   } else {
     controllerModel.removeClient(controllerModel.toName(key));

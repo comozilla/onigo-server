@@ -43,7 +43,8 @@ function Dashboard(port) {
           this.gameState,
           this.availableCommandsCount,
           controllerModel.getAllStates(),
-          this.orbMap.toArray());
+          this.orbMap.toArray(),
+          controllerModel.getUnnamedKeys());
       socket.on("gameState", state => {
         if (/active|inactive/.test(state)) {
           this.gameState = state;

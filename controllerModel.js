@@ -32,7 +32,7 @@ class ControllerModel extends EventEmitter {
     this.emit("named", key, name, isNewName);
   }
   removeFromUnnamedClients(key) {
-    if (this.hasUnnamedClient(key)) {
+    if (this.hasInUnnamedClients(key)) {
       delete this.unnamedClients[key];
       this.emit("removeUnnamed", key);
     }
@@ -58,6 +58,9 @@ class ControllerModel extends EventEmitter {
       result[name] = this.controllers[name].getStates();
     });
     return result;
+  }
+  getUnnamedKeys() {
+    return Object.keys(this.unnamedClients);
   }
   toName(key) {
     Object.keys(this.controllers).forEach(name => {

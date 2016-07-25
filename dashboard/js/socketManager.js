@@ -15,14 +15,21 @@ function SocketManager() {
   eventPublisher.on("resetHp", this.sendResetHp.bind(this));
 
   this.socket = io();
-  this.socket.on("defaultData", (state, count, controllers, orbs) => {
+  this.socket.on("defaultData", (state, count, controllers, orbs, unnameds) => {
     emit.call(this, "gameState", [state]);
     emit.call(this, "availableCommandsCount", [count]);
     emit.call(this, "orbs", [orbs]);
     emit.call(this, "defaultControllers", [controllers]);
+    emit.call(this, "defaultUnnameds", [unnameds]);
+  });
+  this.socket.on("addUnnamed", key => {
+    emit.call(this, "addUnnamed", [key]);
   });
   this.socket.on("named", (key, name, controllerDetails) => {
     emit.call(this, "named", [key, name, controllerDetails]);
+  });
+  this.socket.on("removeUnnamed", key => {
+    emit.call(this, "removeUnnamed", [key]);
   });
   this.socket.on("removeController", key => {
     emit.call(this, "removeController", [key]);
