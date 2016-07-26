@@ -56,7 +56,7 @@ CommandRunner.prototype.setCommands = function(commands) {
     // built-in command
     this.commandFunctions[commands[0].commandName].apply(this, [{
       isBuiltIn: true
-    }].concat(commands[0].args));
+    }].concat(processArguments(commands[0].args)));
   } else {
     this.commands = commands;
     this.stopLoop();
@@ -88,12 +88,28 @@ CommandRunner.prototype.loopMethod = function(index) {
   const currentCommand = this.commands[index];
   this.commandFunctions[currentCommand.commandName].apply(this, [{
     isBuiltIn: false
-  }].concat(currentCommand.args));
+  }].concat(processArguments(currentCommand.args)));
   var nextIndex = index + 1 >= this.commands.length ? 0 : index + 1;
   this.loopTimeoutId = setTimeout(() => {
     this.loopMethod(nextIndex);
   }, currentCommand.time * 1000);
 };
+
+// コマンドの引数にmotionSpecialDataがあった場合、それを実際の値に変更する
+function processArguments(args) {
+  return args.map(arg => {
+    if (typeof arg === "object" && arg.isMotionSpecialData) {
+      switch (arg.dataName) {
+      case "randomRange":
+        return Math.floor(Math.random() * (arg.args[1] - arg.args[0])) + arg.args[0];
+      case "randomInArray":
+        return arg.args[0][Math.floor(Math.random() * arg.args[0].length)];
+      }
+    } else {
+      return arg;
+    }
+  });
+}
 
 module.exports = CommandRunner;
 
