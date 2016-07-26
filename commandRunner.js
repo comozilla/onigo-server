@@ -8,33 +8,35 @@ function CommandRunner(key) {
   this.commands = [];
   this.baseSpeed = 0;
   this.angle = 0;
-  this.timeoutId = null;
-  this.dashTimeoutId = null;
-  this.rotateTimeoutId = null;
+  this.loopTimeoutId = null;
+  this.customTimeoutIds = {};
+  this.backgroundTimeoutIds = {};
   this.commandFunctions = {
     rotate: (config, turn) => {
       if (config.isBuiltIn) {
-        this.stopCommand();
+        this.stopLoop();
+        this.clearCustomTimeoutIds();
       }
       const rotateFunction = () => {
         this.angle = (this.angle + turn) % 360;
         this.emit("command", "roll", [0, this.angle]);
-        this.rotateTimeoutId = setTimeout(rotateFunction, 500);
+        this.customTimeoutIds.rotate = setTimeout(rotateFunction, 500);
       };
       rotateFunction();
     },
     stop: (config) => {
       if (config.isBuiltIn) {
-        this.stopCommand();
+        this.stopLoop();
+        this.clearCustomTimeoutIds();
       }
       this.emit("command", "roll", [0, this.angle]);
     },
     dash: (config, baseSpeed, dashTime) => {
-      if (this.dashTimeoutId !== null) {
-        clearTimeout(this.dashTimeoutId);
+      if (this.backgroundTimeoutIds.dash !== null) {
+        clearTimeout(this.backgroundTimeoutIds.dash);
       }
       this.baseSpeed = baseSpeed;
-      this.dashTimeoutId = setTimeout(() => {
+      this.backgroundTimeoutIds.dash = setTimeout(() => {
         this.baseSpeed = 0;
       }, dashTime * 1000);
     },
@@ -57,30 +59,38 @@ CommandRunner.prototype.setCommands = function(commands) {
     }].concat(commands[0].args));
   } else {
     this.commands = commands;
-    this.stopCommand();
+    this.stopLoop();
+    this.clearCustomTimeoutIds();
     this.loopMethod(0);
   }
 };
 
-CommandRunner.prototype.stopCommand = function() {
-  if (this.timeoutId !== null) {
-    clearTimeout(this.timeoutId);
-  }
-  if (this.rotateTimeoutId !== null) {
-    clearTimeout(this.rotateTimeoutId);
+CommandRunner.prototype.stopLoop = function() {
+  if (this.loopTimeoutId !== null) {
+    clearTimeout(this.loopTimeoutId);
   }
 };
+
+CommandRunner.prototype.clearCustomTimeoutIds = function() {
+  Object.keys(this.customTimeoutIds).forEach(timeoutIdName => {
+    const timeoutId = this.customTimeoutIds[timeoutIdName];
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+    }
+  });
+}
 
 CommandRunner.prototype.loopMethod = function(index) {
   if (this.commands.length === 0) {
     throw new Error("実行しようとしたcommandsは空でした。: " + this.key);
   }
+  this.clearCustomTimeoutIds();
   const currentCommand = this.commands[index];
   this.commandFunctions[currentCommand.commandName].apply(this, [{
     isBuiltIn: false
   }].concat(currentCommand.args));
   var nextIndex = index + 1 >= this.commands.length ? 0 : index + 1;
-  this.timeoutId = setTimeout(() => {
+  this.loopTimeoutId = setTimeout(() => {
     this.loopMethod(nextIndex);
   }, currentCommand.time * 1000);
 };
