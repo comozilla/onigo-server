@@ -88,11 +88,7 @@ controllerModel.on("named", (key, name, isNewName) => {
 
   client.on("arriveCustomMessage", (messageName, data, mesID) => {
     if (messageName === "commands") {
-      if (typeof data.type === "string" && data.type === "built-in") {
-        controller.commandRunner.setBuiltInCommands(data.command);
-      } else {
-        controller.commandRunner.setCommands(data);
-      }
+      controller.commandRunner.setCommands(data);
     }
   });
   client.on("link", () => {

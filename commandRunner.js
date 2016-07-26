@@ -10,28 +10,39 @@ function CommandRunner(key) {
   this.angle = 0;
   this.timeoutId = null;
   this.dashTimeoutId = null;
-  this.builtInCommands = {
-    rotate: () => {
-      this.clearTimeout();
+  this.rotateTimeoutId = null;
+  this.commandFunctions = {
+    rotate: (config, turn) => {
+      if (config.isBuiltIn) {
+        this.stopCommand();
+      }
       const rotateFunction = () => {
-        this.angle = (this.angle + 45) % 360;
+        this.angle = (this.angle + turn) % 360;
         this.emit("command", "roll", [0, this.angle]);
-        this.timeoutId = setTimeout(rotateFunction, 500);
+        this.rotateTimeoutId = setTimeout(rotateFunction, 500);
       };
       rotateFunction();
     },
-    stop: () => {
-      this.clearTimeout();
+    stop: (config) => {
+      if (config.isBuiltIn) {
+        this.stopCommand();
+      }
       this.emit("command", "roll", [0, this.angle]);
     },
-    dash: () => {
+    dash: (config, baseSpeed, dashTime) => {
       if (this.dashTimeoutId !== null) {
         clearTimeout(this.dashTimeoutId);
       }
-      this.baseSpeed = 50;
+      this.baseSpeed = baseSpeed;
       this.dashTimeoutId = setTimeout(() => {
         this.baseSpeed = 0;
-      }, 1000);
+      }, dashTime * 1000);
+    },
+    roll: (config, speed, degree) => {
+      this.emit("command", "roll", [
+        this.baseSpeed + speed,
+        (360 + degree + this.angle) % 360
+      ]);
     }
   };
 }
@@ -39,21 +50,24 @@ function CommandRunner(key) {
 util.inherits(CommandRunner, EventEmitter);
 
 CommandRunner.prototype.setCommands = function(commands) {
-  this.clearTimeout();
-  this.commands = commands;
-  this.loopMethod(0);
-};
-
-CommandRunner.prototype.setBuiltInCommands = function(builtInCommandsName) {
-  if (typeof this.builtInCommands[builtInCommandsName] !== "function") {
-    throw new Error("built-in command : " + builtInCommandsName + " is not valid.");
+  if (commands.length === 1 && commands[0].time === -1) {
+    // built-in command
+    this.commandFunctions[commands[0].commandName].apply(this, [{
+      isBuiltIn: true
+    }].concat(commands[0].args));
+  } else {
+    this.commands = commands;
+    this.stopCommand();
+    this.loopMethod(0);
   }
-  this.builtInCommands[builtInCommandsName]();
 };
 
-CommandRunner.prototype.clearTimeout = function() {
+CommandRunner.prototype.stopCommand = function() {
   if (this.timeoutId !== null) {
     clearTimeout(this.timeoutId);
+  }
+  if (this.rotateTimeoutId !== null) {
+    clearTimeout(this.rotateTimeoutId);
   }
 };
 
@@ -61,13 +75,10 @@ CommandRunner.prototype.loopMethod = function(index) {
   if (this.commands.length === 0) {
     throw new Error("実行しようとしたcommandsは空でした。: " + this.key);
   }
-  var currentCommand = this.commands[index];
-  var applyArgs = currentCommand.args.slice();
-  if (currentCommand.commandName === "roll") {
-    applyArgs[0] = this.baseSpeed + applyArgs[0];
-    applyArgs[1] = (360 + applyArgs[1] + this.angle) % 360;
-  }
-  this.emit("command", currentCommand.commandName, applyArgs);
+  const currentCommand = this.commands[index];
+  this.commandFunctions[currentCommand.commandName].apply(this, [{
+    isBuiltIn: false
+  }].concat(currentCommand.args));
   var nextIndex = index + 1 >= this.commands.length ? 0 : index + 1;
   this.timeoutId = setTimeout(() => {
     this.loopMethod(nextIndex);
