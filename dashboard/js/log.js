@@ -22,11 +22,13 @@ export default class Log {
       throw new Error("指定されたlogTypeに対する色が見つかりませんでした。logType: " + logType);
     }
     const span = document.createElement("span");
+    const date = new Date();
     span.style.color = logTypeColors[logType];
-    span.innerHTML = "[" + this.getTimeStamp(new Date()) + "] " + logText
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/\n/g, "<br />") + "<br />";
+    span.innerHTML = logText.split("\n").map(line => {
+      return "[" + this.getTimeStamp(date) + "] " +line
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }).join("<br />") + "<br />";
     this.logElement.appendChild(span);
   }
   getTimeStamp(date) {

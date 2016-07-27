@@ -1,7 +1,23 @@
 const originalError = console.error;
 
+let error121Count = 0;
 console.error = function(message) {
-  console.log(/Error: Opening (.+):/.exec(message)[1]);
+  const exec121Error = /Error: Opening \\\\\.\\(.+): Unknown error code 121/.exec(message);
+  if (exec121Error !== null) {
+    if (connector.isConnecting(exec121Error[1])) {
+      error121Count++;
+      if (error121Count < 5) {
+        dashboard.log(`Catched 121 error. Reconnecting... (${error121Count})`, "warning");
+        connector.reconnect(exec121Error[1]);
+      } else {
+        dashboard.log("Catched 121 error. But this is 5th try. Give up.", "warning");
+      }
+    } else {
+      dashboard.log("Catched 121 error. But port is invalid.", "error");
+    }
+  } else {
+    dashboard.log("Catched unknown error: \n" + message.toString(), "error");
+  }
   originalError(message);
 };
 
@@ -14,6 +30,7 @@ import CommandRunner from "./commandRunner";
 import Controller from "./controller";
 import controllerModel from "./controllerModel";
 import RankingMaker from "./rankingMaker";
+import Connector from "./connector";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -35,6 +52,8 @@ let rankingState = "hide";
 let availableCommandsCount = 1;
 
 const rankingMaker = new RankingMaker();
+
+const connector = new Connector();
 
 spheroWS.spheroServer.events.on("addClient", (key, client) => {
   controllerModel.add(key, client);
@@ -174,9 +193,12 @@ dashboard.on("updateLink", (controllerName, orbName) => {
 dashboard.on("addOrb", (name, port) => {
   const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
   if (!isTestMode) {
-    rawOrb.instance.connect(() => {
-      spheroWS.spheroServer.addOrb(rawOrb);
-    });
+    if (!connector.isConnecting(port)) {
+      connector.connect(port, rawOrb.instance).then(() => {
+        error121Count = 0;
+        spheroWS.spheroServer.addOrb(rawOrb);
+      });
+    }
   } else {
     spheroWS.spheroServer.addOrb(rawOrb);
   }
