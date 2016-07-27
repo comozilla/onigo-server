@@ -39,6 +39,7 @@ function Dashboard(port) {
     } else {
       console.log("a dashboard connected.");
       this.socket = socket;
+      this.log("accepted a dashboard.", "success");
       socket.emit(
           "defaultData",
           this.gameState,
@@ -167,6 +168,10 @@ Dashboard.prototype.updateHp = function(controllerKey, hp) {
     this.socket.emit("hp", controllerKey, hp);
   }
 }
+
+Dashboard.prototype.log = function(logText, logType) {
+  this.socket.emit("log", logText, logType);
+};
 
 util.inherits(Dashboard, EventEmitter);
 

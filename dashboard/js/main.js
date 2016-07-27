@@ -10,6 +10,7 @@ import AddOrb from "./addOrb";
 import OrbManager from "./orbManager";
 import CheckBatteryButton from "./checkBatteryButton";
 import UnnamedControllers from "./unnamedControllers";
+import Log from "./log";
 
 document.addEventListener("DOMContentLoaded", () => {
   new ControllerManager(document.getElementById("controllers"));
@@ -23,5 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
   new SocketManager();
   new CheckBatteryButton(document.getElementById("check-battery-button"));
   new UnnamedControllers(document.getElementById("unnamed-controllers"));
+  new Log();
 });
 

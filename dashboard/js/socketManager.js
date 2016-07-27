@@ -41,6 +41,9 @@ function SocketManager() {
   this.socket.on("hp", (key, hp) => {
     emit.call(this, "hp", [key, hp]);
   });
+  this.socket.on("log", (logText, logType) => {
+    emit.call(this, "log", [logText, logType]);
+  });
 
   instance = this;
 }

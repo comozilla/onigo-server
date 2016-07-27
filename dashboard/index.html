@@ -12,46 +12,55 @@
     <button id="game-state-button">INACTIVE</button>
     <button id="show-ranking-button">Show Ranking</button>
   </header>
-  <section>
-    <h2>Available Commands</h2>
-    Count: <input type="number" id="available-commands" min="1" max="6" value="1" />
-    <button id="set-available-commands-button">Set</button>
-  </section>
-  <section>
-    <h2>Unnamed Controllers</h2>
-    <ul id="unnamed-controllers">
-    </ul>
-  </section>
-  <section>
-    <h2>Controllers</h2>
-    <table id="controllers">
-      <tr>
-        <th>Name</th>
-        <th>Key</th>
-        <th>Linked Orb</th>
-        <th>Oni</th>
-        <th>HP</th>
-        <th>Reset HP</th>
-      </tr>
-    </table>
-  </section>
-  <section>
-    <h2>Add Orb</h2>
-    Name: <input type="text" id="new-orb-name" /><br />
-    Port: <input type="text" id="new-orb-port" /><br />
-    <button id="add-orb">Add</button>
-  </section>
-  <section id="sec-orbs">
-    <h2>Orbs <button id="check-battery-button">Check Battery</button></h2>
-    <table id="orbs">
-      <tr>
-        <th>Orb Name</th>
-        <th>Port</th>
-        <th>Battery State</th>
-        <th>Link Status</th>
-        <th>Disconnect</th>
-      </tr>
-    </table>
-  </section>
+  <main>
+    <div id="left-column">
+      <section>
+        <h2>Available Commands</h2>
+        Count: <input type="number" id="available-commands" min="1" max="6" value="1" />
+        <button id="set-available-commands-button">Set</button>
+      </section>
+      <section>
+        <h2>Unnamed Controllers</h2>
+        <ul id="unnamed-controllers">
+        </ul>
+      </section>
+      <section>
+        <h2>Controllers</h2>
+        <table id="controllers">
+          <tr>
+            <th>Name</th>
+            <th>Key</th>
+            <th>Linked Orb</th>
+            <th>Oni</th>
+            <th>HP</th>
+            <th>Reset HP</th>
+          </tr>
+        </table>
+      </section>
+      <section>
+        <h2>Add Orb</h2>
+        Name: <input type="text" id="new-orb-name" /><br />
+        Port: <input type="text" id="new-orb-port" /><br />
+        <button id="add-orb">Add</button>
+      </section>
+      <section id="sec-orbs">
+        <h2>Orbs <button id="check-battery-button">Check Battery</button></h2>
+        <table id="orbs">
+          <tr>
+            <th>Orb Name</th>
+            <th>Port</th>
+            <th>Battery State</th>
+            <th>Link Status</th>
+            <th>Disconnect</th>
+          </tr>
+        </table>
+      </section>
+    </div>
+    <div id="log-column">
+      <h2>Log <button id="clear-log">Clear Log</button></h2>
+      <div id="log-area">
+      </div>
+    </div>
+  </main>
 </body>
 </html>
