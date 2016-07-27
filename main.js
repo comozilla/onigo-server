@@ -198,6 +198,15 @@ dashboard.on("addOrb", (name, port) => {
       connector.connect(port, rawOrb.instance).then(() => {
         error121Count = 0;
         spheroWS.spheroServer.addOrb(rawOrb);
+        rawOrb.instance.streamOdometer();
+        rawOrb.instance.on("odometer", (data) => {
+          const time = new Date();
+          dashboard.streamed(
+            name,
+            ("0" + time.getHours()).slice(-2) + ":" +
+            ("0" + time.getMinutes()).slice(-2) + ":" +
+            ("0" + time.getSeconds()).slice(-2));
+        });
       });
     }
   } else {

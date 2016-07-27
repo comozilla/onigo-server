@@ -35,6 +35,9 @@ export default class OrbManager {
         }
       });
     });
+    eventPublisher.on("streamed", (orbName, time) => {
+      this.updateStreamTime(orbName, time);
+    });
   }
   addRow(orbName) {
     const trElement = document.createElement("tr");
@@ -53,6 +56,9 @@ export default class OrbManager {
     trElement.appendChild(unlinkedTd);
     const pingStatusTd = document.createElement("td");
     trElement.appendChild(pingStatusTd);
+    const streamTimeTd = document.createElement("td");
+    streamTimeTd.textContent = "not streamed";
+    trElement.appendChild(streamTimeTd);
     const disconnectTd = document.createElement("td");
     trElement.appendChild(disconnectTd);
     const disconnectButton = document.createElement("button");
@@ -79,7 +85,7 @@ export default class OrbManager {
     }
     const unlinkedTd = trElement.childNodes[3];
     unlinkedTd.textContent = this.orbMap.get(orbName).link;
-    const disconnectButton = trElement.childNodes[5].childNodes[0];
+    const disconnectButton = trElement.childNodes[6].childNodes[0];
     disconnectButton.disabled = this.orbMap.get(orbName).link === "linked";
   }
   updateBatteryForRow(orbName) {
@@ -104,5 +110,16 @@ export default class OrbManager {
     }
     const pingStateTd = trElement.childNodes[4];
     pingStateTd.textContent = this.orbMap.get(orbName).pingState;
+  }
+  updateStreamTime(orbName, time) {
+    const trElement = document.querySelector(`[data-row-name="${orbName}"]`);
+    if (trElement === null) {
+      throw new Error("updatePingState しようとした Row は存在しませんでした。 : " + orbName);
+    }
+    if (!this.orbMap.has(orbName)) {
+      throw new Error("updatePingState しようとした Orb は存在しませんでした。 : " + orbName);
+    }
+    const streamTimeTd = trElement.childNodes[5];
+    streamTimeTd.textContent = time;
   }
 }

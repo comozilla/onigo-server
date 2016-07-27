@@ -193,6 +193,12 @@ Dashboard.prototype.updatePingState = function(orbName) {
   }
 };
 
+Dashboard.prototype.streamed = function(orbName, time) {
+  if (this.socket !== null) {
+    this.socket.emit("streamed", orbName, time);
+  }
+};
+
 util.inherits(Dashboard, EventEmitter);
 
 module.exports = Dashboard;

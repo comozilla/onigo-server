@@ -45,6 +45,9 @@ function SocketManager() {
   this.socket.on("log", (logText, logType) => {
     emit.call(this, "log", [logText, logType]);
   });
+  this.socket.on("streamed", (orbName, time) => {
+    emit.call(this, "streamed", [orbName, time]);
+  });
 
   instance = this;
 }
