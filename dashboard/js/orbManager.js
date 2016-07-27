@@ -29,6 +29,10 @@ export default class OrbManager {
           this.orbMap.setLink(orbName, afterOrb.link);
           this.updateLinkForRow(orbName);
         }
+        if (beforeOrb.pingState !== afterOrb.pingState) {
+          this.orbMap.setPingState(orbName, afterOrb.pingState);
+          this.updatePingStateForRow(orbName);
+        }
       });
     });
   }
@@ -47,6 +51,8 @@ export default class OrbManager {
     trElement.appendChild(batteryTd);
     const unlinkedTd = document.createElement("td");
     trElement.appendChild(unlinkedTd);
+    const pingStatusTd = document.createElement("td");
+    trElement.appendChild(pingStatusTd);
     const disconnectTd = document.createElement("td");
     trElement.appendChild(disconnectTd);
     const disconnectButton = document.createElement("button");
@@ -57,6 +63,7 @@ export default class OrbManager {
     disconnectTd.appendChild(disconnectButton);
     this.updateLinkForRow(orbName);
     this.updateBatteryForRow(orbName);
+    this.updatePingStateForRow(orbName);
   }
   removeRow(orbName) {
     const row = document.querySelector(`[data-row-name="${orbName}"]`);
@@ -65,11 +72,14 @@ export default class OrbManager {
   updateLinkForRow(orbName) {
     const trElement = document.querySelector(`[data-row-name="${orbName}"]`);
     if (trElement === null) {
-      throw new Error("update しようとした Row は存在しませんでした。 : " + orbName);
+      throw new Error("updateLink しようとした Row は存在しませんでした。 : " + orbName);
+    }
+    if (!this.orbMap.has(orbName)) {
+      throw new Error("updateLink しようとした Orb は存在しませんでした。 : " + orbName);
     }
     const unlinkedTd = trElement.childNodes[3];
     unlinkedTd.textContent = this.orbMap.get(orbName).link;
-    const disconnectButton = trElement.childNodes[4].childNodes[0];
+    const disconnectButton = trElement.childNodes[5].childNodes[0];
     disconnectButton.disabled = this.orbMap.get(orbName).link === "linked";
   }
   updateBatteryForRow(orbName) {
@@ -83,5 +93,16 @@ export default class OrbManager {
     const batteryTd = trElement.childNodes[2];
     batteryTd.textContent =
       this.orbMap.get(orbName).battery === null ? "unchecked" : this.orbMap.get(orbName).battery;
+  }
+  updatePingStateForRow(orbName) {
+    const trElement = document.querySelector(`[data-row-name="${orbName}"]`);
+    if (trElement === null) {
+      throw new Error("updatePingState しようとした Row は存在しませんでした。 : " + orbName);
+    }
+    if (!this.orbMap.has(orbName)) {
+      throw new Error("updatePingState しようとした Orb は存在しませんでした。 : " + orbName);
+    }
+    const pingStateTd = trElement.childNodes[4];
+    pingStateTd.textContent = this.orbMap.get(orbName).pingState;
   }
 }

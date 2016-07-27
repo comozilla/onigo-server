@@ -100,6 +100,7 @@ controllerModel.on("named", (key, name, isNewName) => {
   if (isNewName) {
     controller.commandRunner.on("command", (commandName, args) => {
       const client = controller.client;
+      console.log(client.linkedOrb);
       if (client.linkedOrb !== null) {
         if (!client.linkedOrb.hasCommand(commandName)) {
           throw new Error(`command : ${commandName} is not valid.`);
@@ -223,5 +224,18 @@ dashboard.on("checkBattery", () => {
 });
 dashboard.on("resetHp", name => {
   controllerModel.get(name).setHp(100);
+});
+dashboard.on("pingAll", () => {
+  const orbs = spheroWS.spheroServer.getOrb();
+  Object.keys(orbs).forEach(orbName => {
+    orbs[orbName].instance.ping((err, data) => {
+      if (!err) {
+        dashboard.updatePingState(orbName);
+      } else {
+        console.log(err);
+        dashboard.log("Ping error: \n" + err.toString(), "error");
+      }
+    });
+  });
 });
 

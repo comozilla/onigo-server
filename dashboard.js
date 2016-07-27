@@ -87,6 +87,13 @@ function Dashboard(port) {
       socket.on("resetHp", name => {
         this.emit("resetHp", name);
       });
+      socket.on("pingAll", () => {
+        this.emit("pingAll");
+        Object.keys(this.orbMap.orbs).forEach(orbName => {
+          this.orbMap.setPingState(orbName, "no reply");
+        });
+        socket.emit("updateOrbs", this.orbMap.toArray());
+      });
     }
   });
 
@@ -123,7 +130,8 @@ Dashboard.prototype.addOrb = function(name, port) {
     orbName: name,
     port,
     battery: null,
-    link: "unlinked"
+    link: "unlinked",
+    pingState: "unchecked"
   });
   if (this.socket !== null) {
     this.socket.emit("updateOrbs", this.orbMap.toArray());
@@ -167,10 +175,22 @@ Dashboard.prototype.updateHp = function(controllerKey, hp) {
   if (this.socket !== null) {
     this.socket.emit("hp", controllerKey, hp);
   }
-}
+};
 
 Dashboard.prototype.log = function(logText, logType) {
-  this.socket.emit("log", logText, logType);
+  if (this.socket !== null) {
+    this.socket.emit("log", logText, logType);
+  }
+};
+
+Dashboard.prototype.updatePingState = function(orbName) {
+  if (!this.orbMap.has(orbName)) {
+    throw new Error("updatePingState しようとしましたが、orb が見つかりませんでした。 : " + orbName);
+  }
+  this.orbMap.setPingState(orbName, "reply");
+  if (this.socket !== null) {
+    this.socket.emit("updateOrbs", this.orbMap.toArray());
+  }
 };
 
 util.inherits(Dashboard, EventEmitter);
