@@ -24,7 +24,7 @@ function CommandRunner(key) {
       };
       rotateFunction();
     },
-    stop: (config) => {
+    stop: config => {
       if (config.isBuiltIn) {
         this.stopLoop();
         this.clearCustomTimeoutIds();
