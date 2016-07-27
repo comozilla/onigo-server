@@ -8,30 +8,43 @@ function CommandRunner(key) {
   this.commands = [];
   this.baseSpeed = 0;
   this.angle = 0;
-  this.timeoutId = null;
-  this.dashTimeoutId = null;
-  this.builtInCommands = {
-    rotate: () => {
-      this.clearTimeout();
+  this.loopTimeoutId = null;
+  this.customTimeoutIds = {};
+  this.backgroundTimeoutIds = {};
+  this.commandFunctions = {
+    rotate: (config, turn) => {
+      if (config.isBuiltIn) {
+        this.stopLoop();
+        this.clearCustomTimeoutIds();
+      }
       const rotateFunction = () => {
-        this.angle = (this.angle + 45) % 360;
+        this.angle = (this.angle + turn) % 360;
         this.emit("command", "roll", [0, this.angle]);
-        this.timeoutId = setTimeout(rotateFunction, 500);
+        this.customTimeoutIds.rotate = setTimeout(rotateFunction, 500);
       };
       rotateFunction();
     },
-    stop: () => {
-      this.clearTimeout();
+    stop: config => {
+      if (config.isBuiltIn) {
+        this.stopLoop();
+        this.clearCustomTimeoutIds();
+      }
       this.emit("command", "roll", [0, this.angle]);
     },
-    dash: () => {
-      if (this.dashTimeoutId !== null) {
-        clearTimeout(this.dashTimeoutId);
+    dash: (config, baseSpeed, dashTime) => {
+      if (this.backgroundTimeoutIds.dash !== null) {
+        clearTimeout(this.backgroundTimeoutIds.dash);
       }
-      this.baseSpeed = 50;
-      this.dashTimeoutId = setTimeout(() => {
+      this.baseSpeed = baseSpeed;
+      this.backgroundTimeoutIds.dash = setTimeout(() => {
         this.baseSpeed = 0;
-      }, 1000);
+      }, dashTime * 1000);
+    },
+    roll: (config, speed, degree) => {
+      this.emit("command", "roll", [
+        this.baseSpeed + speed,
+        (360 + degree + this.angle) % 360
+      ]);
     }
   };
 }
@@ -39,40 +52,64 @@ function CommandRunner(key) {
 util.inherits(CommandRunner, EventEmitter);
 
 CommandRunner.prototype.setCommands = function(commands) {
-  this.clearTimeout();
-  this.commands = commands;
-  this.loopMethod(0);
-};
-
-CommandRunner.prototype.setBuiltInCommands = function(builtInCommandsName) {
-  if (typeof this.builtInCommands[builtInCommandsName] !== "function") {
-    throw new Error("built-in command : " + builtInCommandsName + " is not valid.");
-  }
-  this.builtInCommands[builtInCommandsName]();
-};
-
-CommandRunner.prototype.clearTimeout = function() {
-  if (this.timeoutId !== null) {
-    clearTimeout(this.timeoutId);
+  if (commands.length === 1 && commands[0].time === -1) {
+    // built-in command
+    this.commandFunctions[commands[0].commandName].apply(this, [{
+      isBuiltIn: true
+    }].concat(processArguments(commands[0].args)));
+  } else {
+    this.commands = commands;
+    this.stopLoop();
+    this.clearCustomTimeoutIds();
+    this.loopMethod(0);
   }
 };
+
+CommandRunner.prototype.stopLoop = function() {
+  if (this.loopTimeoutId !== null) {
+    clearTimeout(this.loopTimeoutId);
+  }
+};
+
+CommandRunner.prototype.clearCustomTimeoutIds = function() {
+  Object.keys(this.customTimeoutIds).forEach(timeoutIdName => {
+    const timeoutId = this.customTimeoutIds[timeoutIdName];
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+    }
+  });
+}
 
 CommandRunner.prototype.loopMethod = function(index) {
   if (this.commands.length === 0) {
     throw new Error("実行しようとしたcommandsは空でした。: " + this.key);
   }
-  var currentCommand = this.commands[index];
-  var applyArgs = currentCommand.args.slice();
-  if (currentCommand.commandName === "roll") {
-    applyArgs[0] = this.baseSpeed + applyArgs[0];
-    applyArgs[1] = (360 + applyArgs[1] + this.angle) % 360;
-  }
-  this.emit("command", currentCommand.commandName, applyArgs);
+  this.clearCustomTimeoutIds();
+  const currentCommand = this.commands[index];
+  this.commandFunctions[currentCommand.commandName].apply(this, [{
+    isBuiltIn: false
+  }].concat(processArguments(currentCommand.args)));
   var nextIndex = index + 1 >= this.commands.length ? 0 : index + 1;
-  this.timeoutId = setTimeout(() => {
+  this.loopTimeoutId = setTimeout(() => {
     this.loopMethod(nextIndex);
   }, currentCommand.time * 1000);
 };
+
+// コマンドの引数にmotionSpecialDataがあった場合、それを実際の値に変更する
+function processArguments(args) {
+  return args.map(arg => {
+    if (typeof arg === "object" && arg.isMotionSpecialData) {
+      switch (arg.dataName) {
+      case "randomRange":
+        return Math.floor(Math.random() * (arg.args[1] - arg.args[0])) + arg.args[0];
+      case "randomInArray":
+        return arg.args[0][Math.floor(Math.random() * arg.args[0].length)];
+      }
+    } else {
+      return arg;
+    }
+  });
+}
 
 module.exports = CommandRunner;
 
