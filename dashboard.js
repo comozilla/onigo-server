@@ -74,6 +74,10 @@ function Dashboard(port) {
       socket.on("removeOrb", name => {
         this.emit("removeOrb", name);
       });
+      socket.on("orbReconnect", name => {
+        console.log("orbReconnect");
+        this.emit("reconnect", name);
+      });
       socket.on("oni", (name, enable) => {
         this.emit("oni", name, enable);
       });
@@ -196,6 +200,12 @@ Dashboard.prototype.updatePingState = function(orbName) {
 Dashboard.prototype.streamed = function(orbName, time) {
   if (this.socket !== null) {
     this.socket.emit("streamed", orbName, time);
+  }
+};
+
+Dashboard.prototype.successReconnect = function(orbName) {
+  if (this.socket !== null) {
+    this.socket.emit("successReconnect", orbName);
   }
 };
 

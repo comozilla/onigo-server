@@ -10,7 +10,9 @@ console.error = function(message) {
         dashboard.log(`Catched 121 error. Reconnecting... (${error121Count})`, "warning");
         connector.reconnect(exec121Error[1]);
       } else {
+        error121Count = 0;
         dashboard.log("Catched 121 error. But this is 5th try. Give up.", "warning");
+        connector.giveUp(exec121Error[1]);
       }
     } else {
       dashboard.log("Catched 121 error. But port is invalid.", "error");
@@ -195,6 +197,7 @@ dashboard.on("addOrb", (name, port) => {
   const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
   if (!isTestMode) {
     if (!connector.isConnecting(port)) {
+      error121Count = 0;
       connector.connect(port, rawOrb.instance).then(() => {
         error121Count = 0;
         spheroWS.spheroServer.addOrb(rawOrb);
@@ -246,5 +249,18 @@ dashboard.on("pingAll", () => {
       }
     });
   });
+});
+dashboard.on("reconnect", name => {
+  if (!isTestMode) {
+    const orb = spheroWS.spheroServer.getOrb(name);
+    console.log(orb);
+    if (orb !== null && !connector.isConnecting(port)) {
+      error121Count = 0;
+      connector.connect(orb.port, orb.instance).then(() => {
+        error121Count = 0;
+        dashboard.successReconnect(name);
+      });
+    }
+  }
 });
 

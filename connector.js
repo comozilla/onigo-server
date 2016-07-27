@@ -27,6 +27,11 @@ class Connector {
       }
     });
   }
+  giveUp(port) {
+    if (this.isConnecting(port)) {
+      delete this.rawOrbs[port];
+    }
+  }
 }
 
 export default Connector;
