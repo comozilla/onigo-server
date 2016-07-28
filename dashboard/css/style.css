@@ -57,3 +57,7 @@ main > div {
   overflow-y: scroll;
   padding: 2px;
 }
+
+#check-battery-button {
+  margin: 0 2px;
+}

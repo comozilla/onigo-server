@@ -50,16 +50,21 @@ export default class OrbManager {
     portTd.textContent = this.orbMap.get(orbName).port;
     trElement.appendChild(portTd);
     const batteryTd = document.createElement("td");
+    batteryTd.classList.add("td-battery");
     batteryTd.textContent = "unchecked";
     trElement.appendChild(batteryTd);
     const unlinkedTd = document.createElement("td");
+    unlinkedTd.classList.add("td-unlinked");
     trElement.appendChild(unlinkedTd);
     const pingStatusTd = document.createElement("td");
+    pingStatusTd.classList.add("td-ping-status");
     trElement.appendChild(pingStatusTd);
     const streamTimeTd = document.createElement("td");
+    streamTimeTd.classList.add("td-stream-time");
     streamTimeTd.textContent = "not streamed";
     trElement.appendChild(streamTimeTd);
     const disconnectTd = document.createElement("td");
+    disconnectTd.classList.add("td-disconnect");
     trElement.appendChild(disconnectTd);
     const disconnectButton = document.createElement("button");
     disconnectButton.textContent = "Disconnect";
@@ -68,6 +73,7 @@ export default class OrbManager {
     });
     disconnectTd.appendChild(disconnectButton);
     const reconnectTd = document.createElement("td");
+    reconnectTd.classList.add("td-reconnect");
     trElement.appendChild(reconnectTd);
     const reconnectButton = document.createElement("button");
     reconnectButton.textContent = "Reconnect";
@@ -89,9 +95,9 @@ export default class OrbManager {
     if (!this.orbMap.has(orbName)) {
       throw new Error("updateLink しようとした Orb は存在しませんでした。 : " + orbName);
     }
-    const unlinkedTd = trElement.childNodes[3];
+    const unlinkedTd = trElement.querySelector(".td-unlinked");
     unlinkedTd.textContent = this.orbMap.get(orbName).link;
-    const disconnectButton = trElement.childNodes[6].childNodes[0];
+    const disconnectButton = trElement.querySelector(".td-disconnect > button");
     disconnectButton.disabled = this.orbMap.get(orbName).link === "linked";
   }
   updateBatteryForRow(orbName) {
@@ -99,7 +105,7 @@ export default class OrbManager {
     if (!this.orbMap.has(orbName)) {
       throw new Error("updateBattery しようとした Orb は存在しませんでした。 : " + orbName);
     }
-    const batteryTd = trElement.childNodes[2];
+    const batteryTd = trElement.querySelector(".td-battery");
     batteryTd.textContent =
       this.orbMap.get(orbName).battery === null ? "unchecked" : this.orbMap.get(orbName).battery;
   }
@@ -108,20 +114,20 @@ export default class OrbManager {
     if (!this.orbMap.has(orbName)) {
       throw new Error("updatePingState しようとした Orb は存在しませんでした。 : " + orbName);
     }
-    const pingStateTd = trElement.childNodes[4];
-    pingStateTd.textContent = this.orbMap.get(orbName).pingState;
+    const pingStatusTd = trElement.querySelector(".td-ping-status");
+    pingStatusTd.textContent = this.orbMap.get(orbName).pingState;
   }
   updateStreamTime(orbName, time) {
     const trElement = this.getRow(orbName);
     if (!this.orbMap.has(orbName)) {
       throw new Error("updatePingState しようとした Orb は存在しませんでした。 : " + orbName);
     }
-    const streamTimeTd = trElement.childNodes[5];
+    const streamTimeTd = trElement.querySelector(".td-stream-time");
     streamTimeTd.textContent = time;
   }
   enableReconnectButton(orbName) {
     const trElement = this.getRow(orbName);
-    const reconnectButton = trElement.childNodes[7];
+    const reconnectButton = trElement.querySelector(".td-reconnect > button");
     reconnectButton.disabled = false;
   }
   getRow(orbName) {
