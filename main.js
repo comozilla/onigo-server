@@ -2,17 +2,18 @@ const originalError = console.error;
 
 let error121Count = 0;
 console.error = function(message) {
-  const exec121Error = /Error: Opening \\\\\.\\(.+): Unknown error code 121/.exec(message);
+  const exec121Error = /Error: Opening (\\\\\.\\)?(.+): Unknown error code 121/.exec(message);
   if (exec121Error !== null) {
-    if (connector.isConnecting(exec121Error[1])) {
+    const port = exec121Error[2];
+    if (connector.isConnecting(port)) {
       error121Count++;
       if (error121Count < 5) {
         dashboard.log(`Catched 121 error. Reconnecting... (${error121Count})`, "warning");
-        connector.reconnect(exec121Error[1]);
+        connector.reconnect(port);
       } else {
         error121Count = 0;
         dashboard.log("Catched 121 error. But this is 5th try. Give up.", "warning");
-        connector.giveUp(exec121Error[1]);
+        connector.giveUp(port);
       }
     } else {
       dashboard.log("Catched 121 error. But port is invalid.", "error");
