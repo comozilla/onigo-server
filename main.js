@@ -200,10 +200,9 @@ dashboard.on("addOrb", (name, port) => {
     if (!connector.isConnecting(port)) {
       error121Count = 0;
       connector.connect(port, rawOrb.instance).then(() => {
-        error121Count = 0;
         spheroWS.spheroServer.addOrb(rawOrb);
         rawOrb.instance.streamOdometer();
-        rawOrb.instance.on("odometer", (data) => {
+        rawOrb.instance.on("odometer", data => {
           const time = new Date();
           dashboard.streamed(
             name,
@@ -245,7 +244,6 @@ dashboard.on("pingAll", () => {
       if (!err) {
         dashboard.updatePingState(orbName);
       } else {
-        console.log(err);
         dashboard.log("Ping error: \n" + err.toString(), "error");
       }
     });
@@ -259,7 +257,6 @@ dashboard.on("reconnect", name => {
         if (!connector.isConnecting(orb.port)) {
           error121Count = 0;
           connector.connect(orb.port, orb.instance).then(() => {
-            error121Count = 0;
             dashboard.successReconnect(name);
           });
         }
