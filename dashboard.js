@@ -75,7 +75,6 @@ function Dashboard(port) {
         this.emit("removeOrb", name);
       });
       socket.on("orbReconnect", name => {
-        console.log("orbReconnect");
         this.emit("reconnect", name);
       });
       socket.on("oni", (name, enable) => {

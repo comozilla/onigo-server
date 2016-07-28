@@ -10,6 +10,7 @@ class Connector {
       this.rawOrbs[port] = { rawOrb, resolve };
       this.rawOrbs[port].rawOrb.connect(() => {
         resolve();
+        delete this.rawOrbs[port];
       });
     });
   }

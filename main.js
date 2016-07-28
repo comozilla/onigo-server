@@ -253,12 +253,15 @@ dashboard.on("pingAll", () => {
 dashboard.on("reconnect", name => {
   if (!isTestMode) {
     const orb = spheroWS.spheroServer.getOrb(name);
-    console.log(orb);
-    if (orb !== null && !connector.isConnecting(port)) {
-      error121Count = 0;
-      connector.connect(orb.port, orb.instance).then(() => {
-        error121Count = 0;
-        dashboard.successReconnect(name);
+    if (orb !== null) {
+      orb.instance.disconnect(() => {
+        if (!connector.isConnecting(orb.port)) {
+          error121Count = 0;
+          connector.connect(orb.port, orb.instance).then(() => {
+            error121Count = 0;
+            dashboard.successReconnect(name);
+          });
+        }
       });
     }
   }
