@@ -9,7 +9,9 @@ import AvailableCommandsCount from "./availableCommandsCount";
 import AddOrb from "./addOrb";
 import OrbManager from "./orbManager";
 import CheckBatteryButton from "./checkBatteryButton";
+import PingButton from "./pingButton";
 import UnnamedControllers from "./unnamedControllers";
+import Log from "./log";
 
 document.addEventListener("DOMContentLoaded", () => {
   new ControllerManager(document.getElementById("controllers"));
@@ -22,6 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("set-available-commands-button"));
   new SocketManager();
   new CheckBatteryButton(document.getElementById("check-battery-button"));
+  new PingButton(document.getElementById("ping-button"));
   new UnnamedControllers(document.getElementById("unnamed-controllers"));
+  new Log();
 });
 

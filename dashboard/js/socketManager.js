@@ -11,9 +11,11 @@ function SocketManager() {
   eventPublisher.on("link", this.sendLink.bind(this));
   eventPublisher.on("addOrb", this.sendAddOrb.bind(this));
   eventPublisher.on("disconnect", this.sendDisconnect.bind(this));
+  eventPublisher.on("reconnect", this.sendReconnect.bind(this));
   eventPublisher.on("oni", this.sendOni.bind(this));
   eventPublisher.on("checkBattery", this.sendCheckBattery.bind(this));
   eventPublisher.on("resetHp", this.sendResetHp.bind(this));
+  eventPublisher.on("pingAll", this.sendPingAll.bind(this));
 
   this.socket = io();
   this.socket.on("defaultData", (state, count, controllers, orbs, unnameds) => {
@@ -40,6 +42,15 @@ function SocketManager() {
   });
   this.socket.on("hp", (key, hp) => {
     emit.call(this, "hp", [key, hp]);
+  });
+  this.socket.on("log", (logText, logType) => {
+    emit.call(this, "log", [logText, logType]);
+  });
+  this.socket.on("streamed", (orbName, time) => {
+    emit.call(this, "streamed", [orbName, time]);
+  });
+  this.socket.on("successReconnect", orbName => {
+    emit.call(this, "successReconnect", [orbName]);
   });
 
   instance = this;
@@ -69,6 +80,10 @@ SocketManager.prototype.sendDisconnect = function(name) {
   this.socket.emit("removeOrb", name);
 };
 
+SocketManager.prototype.sendReconnect = function(name) {
+  this.socket.emit("orbReconnect", name);
+};
+
 SocketManager.prototype.sendOni = function(controllerName, isEnabled) {
   this.socket.emit("oni", controllerName, isEnabled);
 };
@@ -79,6 +94,10 @@ SocketManager.prototype.sendCheckBattery = function() {
 
 SocketManager.prototype.sendResetHp = function(controllerName) {
   this.socket.emit("resetHp", controllerName);
+};
+
+SocketManager.prototype.sendPingAll = function() {
+  this.socket.emit("pingAll");
 };
 
 // eventPublisher.emit をする。

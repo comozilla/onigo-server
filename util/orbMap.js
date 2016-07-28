@@ -20,6 +20,11 @@ export default class OrbMap {
       this.orbs[orbName].link = link;
     }
   }
+  setPingState(orbName, state) {
+    if (this.has(orbName)) {
+      this.orbs[orbName].pingState = state;
+    }
+  }
   remove(orbName) {
     if (this.has(orbName)) {
       delete this.orbs[orbName];

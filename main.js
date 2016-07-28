@@ -1,3 +1,29 @@
+const originalError = console.error;
+
+let error121Count = 0;
+console.error = function(message) {
+  const exec121Error = /Error: Opening (\\\\\.\\)?(.+): Unknown error code 121/.exec(message);
+  if (exec121Error !== null) {
+    const port = exec121Error[2];
+    if (connector.isConnecting(port)) {
+      error121Count++;
+      if (error121Count < 5) {
+        dashboard.log(`Catched 121 error. Reconnecting... (${error121Count})`, "warning");
+        connector.reconnect(port);
+      } else {
+        error121Count = 0;
+        dashboard.log("Catched 121 error. But this is 5th try. Give up.", "warning");
+        connector.giveUp(port);
+      }
+    } else {
+      dashboard.log("Catched 121 error. But port is invalid.", "error");
+    }
+  } else {
+    dashboard.log("Catched unknown error: \n" + message.toString(), "error");
+  }
+  originalError(message);
+};
+
 import spheroWebSocket from "sphero-websocket";
 import argv from "argv";
 import config from "./config";
@@ -7,6 +33,7 @@ import CommandRunner from "./commandRunner";
 import Controller from "./controller";
 import controllerModel from "./controllerModel";
 import RankingMaker from "./rankingMaker";
+import Connector from "./connector";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -28,6 +55,8 @@ let rankingState = "hide";
 let availableCommandsCount = 1;
 
 const rankingMaker = new RankingMaker();
+
+const connector = new Connector();
 
 spheroWS.spheroServer.events.on("addClient", (key, client) => {
   controllerModel.add(key, client);
@@ -74,6 +103,7 @@ controllerModel.on("named", (key, name, isNewName) => {
   if (isNewName) {
     controller.commandRunner.on("command", (commandName, args) => {
       const client = controller.client;
+      console.log(client.linkedOrb);
       if (client.linkedOrb !== null) {
         if (!client.linkedOrb.hasCommand(commandName)) {
           throw new Error(`command : ${commandName} is not valid.`);
@@ -167,9 +197,21 @@ dashboard.on("updateLink", (controllerName, orbName) => {
 dashboard.on("addOrb", (name, port) => {
   const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
   if (!isTestMode) {
-    rawOrb.instance.connect(() => {
-      spheroWS.spheroServer.addOrb(rawOrb);
-    });
+    if (!connector.isConnecting(port)) {
+      error121Count = 0;
+      connector.connect(port, rawOrb.instance).then(() => {
+        spheroWS.spheroServer.addOrb(rawOrb);
+        rawOrb.instance.streamOdometer();
+        rawOrb.instance.on("odometer", data => {
+          const time = new Date();
+          dashboard.streamed(
+            name,
+            ("0" + time.getHours()).slice(-2) + ":" +
+            ("0" + time.getMinutes()).slice(-2) + ":" +
+            ("0" + time.getSeconds()).slice(-2));
+        });
+      });
+    }
   } else {
     spheroWS.spheroServer.addOrb(rawOrb);
   }
@@ -194,5 +236,32 @@ dashboard.on("checkBattery", () => {
 });
 dashboard.on("resetHp", name => {
   controllerModel.get(name).setHp(100);
+});
+dashboard.on("pingAll", () => {
+  const orbs = spheroWS.spheroServer.getOrb();
+  Object.keys(orbs).forEach(orbName => {
+    orbs[orbName].instance.ping((err, data) => {
+      if (!err) {
+        dashboard.updatePingState(orbName);
+      } else {
+        dashboard.log("Ping error: \n" + err.toString(), "error");
+      }
+    });
+  });
+});
+dashboard.on("reconnect", name => {
+  if (!isTestMode) {
+    const orb = spheroWS.spheroServer.getOrb(name);
+    if (orb !== null) {
+      orb.instance.disconnect(() => {
+        if (!connector.isConnecting(orb.port)) {
+          error121Count = 0;
+          connector.connect(orb.port, orb.instance).then(() => {
+            dashboard.successReconnect(name);
+          });
+        }
+      });
+    }
+  }
 });
 

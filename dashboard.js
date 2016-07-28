@@ -39,6 +39,7 @@ function Dashboard(port) {
     } else {
       console.log("a dashboard connected.");
       this.socket = socket;
+      this.log("accepted a dashboard.", "success");
       socket.emit(
           "defaultData",
           this.gameState,
@@ -73,6 +74,9 @@ function Dashboard(port) {
       socket.on("removeOrb", name => {
         this.emit("removeOrb", name);
       });
+      socket.on("orbReconnect", name => {
+        this.emit("reconnect", name);
+      });
       socket.on("oni", (name, enable) => {
         this.emit("oni", name, enable);
       });
@@ -85,6 +89,13 @@ function Dashboard(port) {
       });
       socket.on("resetHp", name => {
         this.emit("resetHp", name);
+      });
+      socket.on("pingAll", () => {
+        this.emit("pingAll");
+        Object.keys(this.orbMap.orbs).forEach(orbName => {
+          this.orbMap.setPingState(orbName, "no reply");
+        });
+        socket.emit("updateOrbs", this.orbMap.toArray());
       });
     }
   });
@@ -122,7 +133,8 @@ Dashboard.prototype.addOrb = function(name, port) {
     orbName: name,
     port,
     battery: null,
-    link: "unlinked"
+    link: "unlinked",
+    pingState: "unchecked"
   });
   if (this.socket !== null) {
     this.socket.emit("updateOrbs", this.orbMap.toArray());
@@ -166,7 +178,35 @@ Dashboard.prototype.updateHp = function(controllerKey, hp) {
   if (this.socket !== null) {
     this.socket.emit("hp", controllerKey, hp);
   }
-}
+};
+
+Dashboard.prototype.log = function(logText, logType) {
+  if (this.socket !== null) {
+    this.socket.emit("log", logText, logType);
+  }
+};
+
+Dashboard.prototype.updatePingState = function(orbName) {
+  if (!this.orbMap.has(orbName)) {
+    throw new Error("updatePingState しようとしましたが、orb が見つかりませんでした。 : " + orbName);
+  }
+  this.orbMap.setPingState(orbName, "reply");
+  if (this.socket !== null) {
+    this.socket.emit("updateOrbs", this.orbMap.toArray());
+  }
+};
+
+Dashboard.prototype.streamed = function(orbName, time) {
+  if (this.socket !== null) {
+    this.socket.emit("streamed", orbName, time);
+  }
+};
+
+Dashboard.prototype.successReconnect = function(orbName) {
+  if (this.socket !== null) {
+    this.socket.emit("successReconnect", orbName);
+  }
+};
 
 util.inherits(Dashboard, EventEmitter);
 
