@@ -129,6 +129,7 @@ Object.keys(orbs).forEach(orbName => {
 spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
   if (!isTestMode) {
     const rawOrb = orb.instance;
+    rawOrb.color("white");
     rawOrb.detectCollisions();
     rawOrb.on("collision", () => {
       Object.keys(controllerModel.controllers).forEach(controllerName => {
