@@ -27,9 +27,19 @@ export default class Controller extends EventEmitter {
     if (this.client !== null) {
       this.client.sendCustomMessage("oni", this.isOni);
     }
+    this.emit("oni", this.isOni);
   }
-  setLink(orbName) {
-    this.link = orbName;
+  setLink(orb) {
+    // client も持っているが、それに左右されずにするため link は別に持つ必要がある
+    this.linkedOrb = orb !== null ? orb : null;
+    if (this.client !== null) {
+      if (orb === null) {
+        this.client.unlink();
+      } else {
+        this.client.setLinkedOrb(orb);
+      }
+    }
+    updateColor.call(this);
   }
   setClient(client) {
     this.client = client;
@@ -37,17 +47,29 @@ export default class Controller extends EventEmitter {
       this.client.sendCustomMessage("hp", { hp: this.hp });
       this.client.sendCustomMessage("oni", this.isOni);
     }
+    if (this.linkedOrb !== null) {
+      // HPなどの Orb -> Client への伝達で、
+      // client にも linkedOrb を入れておく必要がある。
+      this.client.setLinkedOrb(this.linkedOrb);
+    }
   }
   setColor(color) {
     this.color = color;
+    updateColor.call(this);
   }
   getStates() {
     return {
       hp: this.hp,
       isOni: this.isOni,
-      link: this.link,
+      link: this.linkedOrb !== null ? this.linkedOrb.name : null,
       key: this.client !== null ? this.client.key : null,
       color: this.color
     };
+  }
+}
+
+function updateColor() {
+  if (this.linkedOrb !== null) {
+    this.linkedOrb.command("color", [this.color]);
   }
 }

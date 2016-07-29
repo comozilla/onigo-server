@@ -102,13 +102,11 @@ controllerModel.on("named", (key, name, isNewName) => {
 
   if (isNewName) {
     controller.commandRunner.on("command", (commandName, args) => {
-      const client = controller.client;
-      console.log(client.linkedOrb);
-      if (client.linkedOrb !== null) {
-        if (!client.linkedOrb.hasCommand(commandName)) {
+      if (controller.linkedOrb !== null) {
+        if (!controller.linkedOrb.hasCommand(commandName)) {
           throw new Error(`command : ${commandName} is not valid.`);
         }
-        client.linkedOrb.command(commandName, args);
+        controller.linkedOrb.command(commandName, args);
       }
     });
     controller.on("hp", hp => {
@@ -121,14 +119,6 @@ controllerModel.on("named", (key, name, isNewName) => {
       controller.commandRunner.setCommands(data);
     }
   });
-  client.on("link", () => {
-    dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
-  });
-  if (controller.link !== null) {
-    const orb = spheroWS.spheroServer.getOrb(controller.link);
-    client.setLinkedOrb(orb);
-    orb.command("color", [controller.color]);
-  }
 });
 
 const orbs = spheroWS.spheroServer.getOrb();
@@ -188,13 +178,9 @@ dashboard.on("availableCommandsCount", count => {
   });
 });
 dashboard.on("updateLink", (controllerName, orbName) => {
-  const controller = controllerModel.get(controllerName);
-  if (orbName === null) {
-    controller.client.unlink();
-  } else {
-    controller.client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
-  }
-  controller.setLink(orbName);
+  controllerModel.get(controllerName).setLink(
+    orbName !== null ? spheroWS.spheroServer.getOrb(orbName) : null);
+  dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
 dashboard.on("addOrb", (name, port) => {
   const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
@@ -267,11 +253,6 @@ dashboard.on("reconnect", name => {
   }
 });
 dashboard.on("color", (name, color) => {
-  const controller = controllerModel.get(name);
-  controller.setColor(color);
-  console.log(color);
-  if (controller.client !== null && controller.client.linkedOrb !== null) {
-    controller.client.linkedOrb.command("color", [color]);
-  }
+  controllerModel.get(name).setColor(color);
 });
 
