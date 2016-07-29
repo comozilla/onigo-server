@@ -1,6 +1,15 @@
 import {EventEmitter} from "events";
 
 const unlinkedText = "-- unlinked --";
+const colors = [
+  "red",
+  "coral",
+  "green",
+  "yellow",
+  "blue",
+  "purple",
+  "skyblue"
+];
 
 export default class Controller extends EventEmitter {
   constructor(controllerKey, controllerName, orbs, controllerDetails) {
@@ -58,6 +67,22 @@ export default class Controller extends EventEmitter {
     const resetHpTd = document.createElement("td");
     resetHpTd.appendChild(this.resetHpButton);
     this.element.appendChild(resetHpTd);
+
+    this.colorSelectElement = document.createElement("select");
+    colors.forEach(color => {
+      const item = document.createElement("option");
+      item.value = color;
+      item.textContent = color;
+      this.colorSelectElement.appendChild(item);
+    });
+    this.colorSelectElement.value = controllerDetails.color;
+    this.colorSelectElement.addEventListener("change", () => {
+      this.emit("color", this.colorSelectElement.value);
+    });
+
+    const colorTd = document.createElement("td");
+    colorTd.appendChild(this.colorSelectElement);
+    this.element.appendChild(colorTd);
 
     updateOrbSelect.call(this);
     this.updateHp(controllerDetails.hp);

@@ -95,20 +95,18 @@ controllerModel.on("named", (key, name, isNewName) => {
   const controller = controllerModel.get(name);
   const client = controller.client;
 
-  client.sendCustomMessage("gameState", { gameState: gameState });
+  client.sendCustomMessage("gameState", gameState);
   client.sendCustomMessage("rankingState", rankingState);
-  client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
+  client.sendCustomMessage("availableCommandsCount", availableCommandsCount);
   client.sendCustomMessage("clientKey", key);
 
   if (isNewName) {
     controller.commandRunner.on("command", (commandName, args) => {
-      const client = controller.client;
-      console.log(client.linkedOrb);
-      if (client.linkedOrb !== null) {
-        if (!client.linkedOrb.hasCommand(commandName)) {
+      if (controller.linkedOrb !== null) {
+        if (!controller.linkedOrb.hasCommand(commandName)) {
           throw new Error(`command : ${commandName} is not valid.`);
         }
-        client.linkedOrb.command(commandName, args);
+        controller.linkedOrb.command(commandName, args);
       }
     });
     controller.on("hp", hp => {
@@ -121,12 +119,6 @@ controllerModel.on("named", (key, name, isNewName) => {
       controller.commandRunner.setCommands(data);
     }
   });
-  client.on("link", () => {
-    dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
-  });
-  if (controller.link !== null) {
-    client.setLinkedOrb(spheroWS.spheroServer.getOrb(controller.link));
-  }
 });
 
 const orbs = spheroWS.spheroServer.getOrb();
@@ -137,6 +129,7 @@ Object.keys(orbs).forEach(orbName => {
 spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
   if (!isTestMode) {
     const rawOrb = orb.instance;
+    rawOrb.color("white");
     rawOrb.detectCollisions();
     rawOrb.on("collision", () => {
       Object.keys(controllerModel.controllers).forEach(controllerName => {
@@ -159,7 +152,7 @@ spheroWS.spheroServer.events.on("removeOrb", name => {
 dashboard.on("gameState", state => {
   gameState = state;
   Object.keys(controllerModel.controllers).forEach(key => {
-    controllerModel.get(key).client.sendCustomMessage("gameState", { gameState: gameState });
+    controllerModel.get(key).client.sendCustomMessage("gameState", gameState);
   });
 });
 dashboard.on("rankingState", state => {
@@ -181,18 +174,14 @@ dashboard.on("availableCommandsCount", count => {
   Object.keys(controllerModel.controllers).forEach(name => {
     const client = controllerModel.get(name).client;
     if (client !== null) {
-      client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
+      client.sendCustomMessage("availableCommandsCount", availableCommandsCount);
     }
   });
 });
 dashboard.on("updateLink", (controllerName, orbName) => {
-  const controller = controllerModel.get(controllerName);
-  if (orbName === null) {
-    controller.client.unlink();
-  } else {
-    controller.client.setLinkedOrb(spheroWS.spheroServer.getOrb(orbName));
-  }
-  controller.setLink(orbName);
+  controllerModel.get(controllerName).setLink(
+    orbName !== null ? spheroWS.spheroServer.getOrb(orbName) : null);
+  dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
 dashboard.on("addOrb", (name, port) => {
   const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
@@ -263,5 +252,8 @@ dashboard.on("reconnect", name => {
       });
     }
   }
+});
+dashboard.on("color", (name, color) => {
+  controllerModel.get(name).setColor(color);
 });
 

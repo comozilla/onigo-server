@@ -97,6 +97,9 @@ function Dashboard(port) {
         });
         socket.emit("updateOrbs", this.orbMap.toArray());
       });
+      socket.on("color", (name, color) => {
+        this.emit("color", name, color);
+      });
     }
   });
 
