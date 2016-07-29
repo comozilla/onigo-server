@@ -95,9 +95,9 @@ controllerModel.on("named", (key, name, isNewName) => {
   const controller = controllerModel.get(name);
   const client = controller.client;
 
-  client.sendCustomMessage("gameState", { gameState: gameState });
+  client.sendCustomMessage("gameState", gameState);
   client.sendCustomMessage("rankingState", rankingState);
-  client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
+  client.sendCustomMessage("availableCommandsCount", availableCommandsCount);
   client.sendCustomMessage("clientKey", key);
 
   if (isNewName) {
@@ -151,7 +151,7 @@ spheroWS.spheroServer.events.on("removeOrb", name => {
 dashboard.on("gameState", state => {
   gameState = state;
   Object.keys(controllerModel.controllers).forEach(key => {
-    controllerModel.get(key).client.sendCustomMessage("gameState", { gameState: gameState });
+    controllerModel.get(key).client.sendCustomMessage("gameState", gameState);
   });
 });
 dashboard.on("rankingState", state => {
@@ -173,7 +173,7 @@ dashboard.on("availableCommandsCount", count => {
   Object.keys(controllerModel.controllers).forEach(name => {
     const client = controllerModel.get(name).client;
     if (client !== null) {
-      client.sendCustomMessage("availableCommandsCount", { count: availableCommandsCount });
+      client.sendCustomMessage("availableCommandsCount", availableCommandsCount);
     }
   });
 });

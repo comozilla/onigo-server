@@ -3,6 +3,7 @@ import {EventEmitter} from "events";
 const unlinkedText = "-- unlinked --";
 const colors = [
   "red",
+  "coral",
   "green",
   "yellow",
   "blue",

@@ -18,7 +18,7 @@ export default class Controller extends EventEmitter {
   setHp(hp) {
     this.hp = hp;
     if (this.client !== null) {
-      this.client.sendCustomMessage("hp", { hp: this.hp });
+      this.client.sendCustomMessage("hp", this.hp);
     }
     this.emit("hp", this.hp);
   }
@@ -44,10 +44,11 @@ export default class Controller extends EventEmitter {
   setClient(client) {
     this.client = client;
     if (this.client !== null) {
-      this.client.sendCustomMessage("hp", { hp: this.hp });
+      this.client.sendCustomMessage("hp", this.hp);
       this.client.sendCustomMessage("oni", this.isOni);
+      this.client.sendCustomMessage("color", this.color);
     }
-    if (this.linkedOrb !== null) {
+    if (this.linkedOrb !== null && this.client !== null) {
       // HPなどの Orb -> Client への伝達で、
       // client にも linkedOrb を入れておく必要がある。
       this.client.setLinkedOrb(this.linkedOrb);
@@ -56,6 +57,9 @@ export default class Controller extends EventEmitter {
   setColor(color) {
     this.color = color;
     updateColor.call(this);
+    if (this.client !== null) {
+      this.client.sendCustomMessage("color", this.color);
+    }
   }
   getStates() {
     return {
