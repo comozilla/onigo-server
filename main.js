@@ -125,7 +125,9 @@ controllerModel.on("named", (key, name, isNewName) => {
     dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
   });
   if (controller.link !== null) {
-    client.setLinkedOrb(spheroWS.spheroServer.getOrb(controller.link));
+    const orb = spheroWS.spheroServer.getOrb(controller.link);
+    client.setLinkedOrb(orb);
+    orb.command("color", [controller.color]);
   }
 });
 
@@ -262,6 +264,14 @@ dashboard.on("reconnect", name => {
         }
       });
     }
+  }
+});
+dashboard.on("color", (name, color) => {
+  const controller = controllerModel.get(name);
+  controller.setColor(color);
+  console.log(color);
+  if (controller.client !== null && controller.client.linkedOrb !== null) {
+    controller.client.linkedOrb.command("color", [color]);
   }
 });
 

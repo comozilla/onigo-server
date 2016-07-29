@@ -1,6 +1,7 @@
 import { EventEmitter } from "events";
 
 const defaultHp = 100;
+const defaultColor = "green";
 
 export default class Controller extends EventEmitter {
   constructor(name, commandRunner) {
@@ -12,6 +13,7 @@ export default class Controller extends EventEmitter {
     this.setHp(defaultHp);
     this.setIsOni(false);
     this.setLink(null);
+    this.setColor(defaultColor);
   }
   setHp(hp) {
     this.hp = hp;
@@ -36,12 +38,16 @@ export default class Controller extends EventEmitter {
       this.client.sendCustomMessage("oni", this.isOni);
     }
   }
+  setColor(color) {
+    this.color = color;
+  }
   getStates() {
     return {
       hp: this.hp,
       isOni: this.isOni,
       link: this.link,
-      key: this.client !== null ? this.client.key : null
+      key: this.client !== null ? this.client.key : null,
+      color: this.color
     };
   }
 }

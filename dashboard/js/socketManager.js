@@ -16,6 +16,7 @@ function SocketManager() {
   eventPublisher.on("checkBattery", this.sendCheckBattery.bind(this));
   eventPublisher.on("resetHp", this.sendResetHp.bind(this));
   eventPublisher.on("pingAll", this.sendPingAll.bind(this));
+  eventPublisher.on("color", this.sendColor.bind(this));
 
   this.socket = io();
   this.socket.on("defaultData", (state, count, controllers, orbs, unnameds) => {
@@ -98,6 +99,10 @@ SocketManager.prototype.sendResetHp = function(controllerName) {
 
 SocketManager.prototype.sendPingAll = function() {
   this.socket.emit("pingAll");
+};
+
+SocketManager.prototype.sendColor = function(controllerName, color) {
+  this.socket.emit("color", controllerName, color);
 };
 
 // eventPublisher.emit をする。

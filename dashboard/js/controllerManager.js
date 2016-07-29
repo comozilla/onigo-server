@@ -49,6 +49,9 @@ export default class ControllerManager {
     controller.on("resetHp", () => {
       eventPublisher.emit("resetHp", controllerName);
     });
+    controller.on("color", color => {
+      eventPublisher.emit("color", controllerName, color);
+    });
     this.element.appendChild(controller.element);
     this.controllers.push(controller);
   }
