@@ -29,6 +29,7 @@ import argv from "argv";
 import config from "./config";
 import VirtualSphero from "sphero-ws-virtual-plugin";
 import Dashboard from "./dashboard";
+import Scoreboard from "./scoreboard";
 import CommandRunner from "./commandRunner";
 import Controller from "./controller";
 import controllerModel from "./controllerModel";
@@ -49,6 +50,8 @@ spheroWS.events.on("command", (requestKey, command, args) => {
 
 const dashboard = new Dashboard(config.dashboardPort);
 dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
+
+const scoreboard = new Scoreboard(config.scoreboardPort);
 
 let gameState = "inactive";
 let rankingState = "hide";
