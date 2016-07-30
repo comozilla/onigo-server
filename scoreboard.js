@@ -25,7 +25,7 @@ function Scoreboard(port) {
 
   this.io.on("connection", socket => {
     console.log("a scoreboard connected.");
-    
+
     socket.on("request", () => {
       socket.emit("data", rankingMaker.make(controllerModel.controllers));
     });
