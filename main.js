@@ -245,14 +245,31 @@ dashboard.on("reconnect", name => {
   if (!isTestMode) {
     const orb = spheroWS.spheroServer.getOrb(name);
     if (orb !== null) {
-      orb.instance.disconnect(() => {
-        if (!connector.isConnecting(orb.port)) {
+      const reconnectListener = (disconnectedOrbName) => {
+        console.log("hoge");
+        if (disconnectedOrbName === name) {
+          console.log("fuga");
+          const rawOrb = spheroWS.spheroServer.makeRawOrb(name, orb.port);
           error121Count = 0;
-          connector.connect(orb.port, orb.instance).then(() => {
+          connector.connect(rawOrb.port, rawOrb.instance).then(() => {
+            console.log("piyo");
+            spheroWS.spheroServer.addOrb(rawOrb);
+            rawOrb.instance.streamOdometer();
+            rawOrb.instance.on("odometer", data => {
+              const time = new Date();
+              dashboard.streamed(
+                name,
+                ("0" + time.getHours()).slice(-2) + ":" +
+                ("0" + time.getMinutes()).slice(-2) + ":" +
+                ("0" + time.getSeconds()).slice(-2));
+            });
             dashboard.successReconnect(name);
           });
+          spheroWS.spheroServer.events.removeListener("removeOrb", reconnectListener);
         }
-      });
+      };
+      spheroWS.spheroServer.events.on("removeOrb", reconnectListener);
+      spheroWS.spheroServer.removeOrb(name);
     }
   }
 });
