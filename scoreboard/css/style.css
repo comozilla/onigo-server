@@ -19,14 +19,14 @@ table {
   margin-right: auto;
 }
 
-table td, table tr, table th {
+td, tr, th {
   padding: 10px 15px;
 }
 
-table thead {
+thead {
   border-bottom: solid 3px #ddd;
 }
 
-table tr {
+tr {
   border-bottom: solid 1px #999;
 }
