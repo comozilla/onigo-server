@@ -1,15 +1,11 @@
 import express from "express";
 import io from "socket.io";
-import { EventEmitter } from "events";
-import util from "util";
 import controllerModel from "./controllerModel";
 import RankingMaker from "./rankingMaker";
 
 let scoreboardInstance = null;
 
 function Scoreboard(port) {
-  EventEmitter.call(this);
-
   if (scoreboardInstance !== null) {
     return scoreboardInstance;
   }
