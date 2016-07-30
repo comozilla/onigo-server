@@ -2,7 +2,7 @@ const originalError = console.error;
 
 let error121Count = 0;
 console.error = function(message) {
-  const exec121Error = /Error: Opening (\\\\\.\\)?(.+): Unknown error code 121/.exec(message);
+  const exec121Error = /Error: Opening (\\\\\.\\)?(.+): Unknown error code (121|1167)/.exec(message);
   if (exec121Error !== null) {
     const port = exec121Error[2];
     if (connector.isConnecting(port)) {
