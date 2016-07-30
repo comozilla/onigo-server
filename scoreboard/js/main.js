@@ -3,38 +3,36 @@ var ko = require("knockout");
 
 const interval = 2000;
 
-var Ranking = function () {
-  const self = this;
-  self.orbs = ko.observableArray([]);
+const Ranking = function () {
+  this.orbs = ko.observableArray([]);
 
-  self.setOrbs = function (orbs) {
-    self.orbs.removeAll();
+  this.setOrbs = orbs => {
+    this.orbs.removeAll();
     orbs = ko.utils.arrayMap(orbs, elm => {
       return new Orb(elm);
     });
-    self.orbs.push.apply(self.orbs, orbs);
+    this.orbs.push.apply(this.orbs, orbs);
   }
 }
 
-var Orb = function (obj) {
-  const self = this;
-  self.name = ko.observable(obj.name);
-  self.hp = ko.observable(obj.hp);
-  self.isTie = ko.observable(obj.isTie);
+const Orb = function (obj) {
+  this.name = ko.observable(obj.name);
+  this.hp = ko.observable(obj.hp);
+  this.isTie = ko.observable(obj.isTie);
   
-  self.hpColor = ko.computed(() => {
-    return self.hp() < 10 ? 'red' : 'white';
+  this.hpColor = ko.computed(() => {
+    return this.hp() < 10 ? 'red' : 'white';
   });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const vm = new Ranking();
-  ko.applyBindings(vm);
+  const ranking = new Ranking();
+  ko.applyBindings(ranking);
   
   const socket = io();
   let intervalID = null;
   socket.on("data", data => {
-    vm.setOrbs(data.ranking);
+    ranking.setOrbs(data.ranking);
   });
   
   socket.on("connect", () => {
