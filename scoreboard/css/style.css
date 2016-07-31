@@ -1,0 +1,32 @@
+* {
+  color: #fff;
+}
+
+body {
+  background: #000;
+}
+
+h1 {
+  font-size: 300%;
+  text-align: center;
+  text-shadow: 3px 3px 8px rgba(200, 200, 200, 1);
+}
+
+table {
+  border-collapse: collapse;
+  font-size: 140%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+td, tr, th {
+  padding: 10px 15px;
+}
+
+thead {
+  border-bottom: solid 3px #ddd;
+}
+
+tr {
+  border-bottom: solid 1px #999;
+}

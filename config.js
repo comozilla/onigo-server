@@ -12,5 +12,6 @@ export default {
   virtualSphero: {
     wsPort: 8081
   },
-  dashboardPort: 8082
+  dashboardPort: 8082,
+  scoreboardPort: 8083
 };
