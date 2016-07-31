@@ -192,15 +192,26 @@ dashboard.on("addOrb", (name, port) => {
     if (!connector.isConnecting(port)) {
       error121Count = 0;
       connector.connect(port, rawOrb.instance).then(() => {
-        spheroWS.spheroServer.addOrb(rawOrb);
-        rawOrb.instance.streamOdometer();
-        rawOrb.instance.on("odometer", data => {
-          const time = new Date();
-          dashboard.streamed(
-            name,
-            ("0" + time.getHours()).slice(-2) + ":" +
-            ("0" + time.getMinutes()).slice(-2) + ":" +
-            ("0" + time.getSeconds()).slice(-2));
+        dashboard.log("connected orb.", "success");
+        rawOrb.instance.configureCollisions({
+          meth: 0x01,
+          xt: 0x7A,
+          xs: 0xFF,
+          yt: 0x7A,
+          ys: 0xFF,
+          dead: 100
+        }, () => {
+          dashboard.log("configured orb.", "success");
+          spheroWS.spheroServer.addOrb(rawOrb);
+          rawOrb.instance.streamOdometer();
+          rawOrb.instance.on("odometer", data => {
+            const time = new Date();
+            dashboard.streamed(
+              name,
+              ("0" + time.getHours()).slice(-2) + ":" +
+              ("0" + time.getMinutes()).slice(-2) + ":" +
+              ("0" + time.getSeconds()).slice(-2));
+          });
         });
       });
     }
