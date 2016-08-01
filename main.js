@@ -44,9 +44,6 @@ const isTestMode = argv.option(opts).run().options.test;
 const spheroWS = spheroWebSocket(config.websocket, isTestMode);
 
 const virtualSphero = new VirtualSphero(config.virtualSphero.wsPort);
-spheroWS.events.on("command", (requestKey, command, args) => {
-  virtualSphero.command(command, args);
-});
 
 const dashboard = new Dashboard(config.dashboardPort);
 dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
