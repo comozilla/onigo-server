@@ -23,7 +23,7 @@ function Scoreboard(port) {
   });
 
   this.currentRanking = null;
-  
+
   this.rankingMaker = new RankingMaker();
 
   this.sockets = [];
