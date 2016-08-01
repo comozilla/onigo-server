@@ -19,8 +19,13 @@ export default class RankingMaker {
         isTie: index > 0 && controllers[name].hp === controllers[array[index - 1]].hp
       };
     });
-    // [name, name, ...]
-    const onis = controllerNames.filter(name => controllers[name].isOni);
+    // { name: getStates(), ... }
+    const onis = {};
+    controllerNames.filter(name => {
+      return controllers[name].linkedOrb !== null && controllers[name].isOni
+    }).forEach(name => {
+      onis[name] = controllers[name].getStates();
+    });
     return { ranking, onis };
   }
 }
