@@ -55,7 +55,6 @@ section {
 .hp-zone {
   margin: 0 10px;
   flex: 1;
-  position: relative;
   display: flex;
   justify-content: flex-end;
   flex-direction: column;
