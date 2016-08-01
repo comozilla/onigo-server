@@ -35,6 +35,7 @@ import Controller from "./controller";
 import controllerModel from "./controllerModel";
 import RankingMaker from "./rankingMaker";
 import Connector from "./connector";
+import eventPublisher from "./publisher";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -142,6 +143,7 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
             controller.client !== null &&
             orb.linkedClients.indexOf(controller.client.key) !== -1) {
           controller.setHp(controller.hp - 10);
+          eventPublisher.emit("updatedHp", controller);
         }
       })
     });
@@ -190,6 +192,7 @@ dashboard.on("updateLink", (controllerName, orbName) => {
   controllerModel.get(controllerName).setLink(
     orbName !== null ? spheroWS.spheroServer.getOrb(orbName) : null);
   dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
+  eventPublisher.emit("updateLink", controllerName, orbName);
 });
 dashboard.on("addOrb", (name, port) => {
   const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
@@ -243,7 +246,9 @@ dashboard.on("checkBattery", () => {
   });
 });
 dashboard.on("resetHp", name => {
-  controllerModel.get(name).setHp(100);
+  const controller = controllerModel.get(name);
+  controller.setHp(100);
+  eventPublisher.emit("updatedHp", controller);
 });
 dashboard.on("pingAll", () => {
   const orbs = spheroWS.spheroServer.getOrb();

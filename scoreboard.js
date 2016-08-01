@@ -2,6 +2,7 @@ import express from "express";
 import io from "socket.io";
 import controllerModel from "./controllerModel";
 import RankingMaker from "./rankingMaker";
+import eventPublisher from "./publisher";
 
 let scoreboardInstance = null;
 
@@ -21,15 +22,33 @@ function Scoreboard(port) {
     console.log(`score is listening on port ${port}`);
   });
 
+  this.currentRanking = null;
+  
   const rankingMaker = new RankingMaker();
 
+  this.sockets = [];
   this.io.on("connection", socket => {
     console.log("a scoreboard connected.");
+    this.sockets.push(socket);
+    if (this.currentRanking !== null) {
+      socket.emit("data", this.currentRanking);
+    }
+  });
 
-    socket.on("request", () => {
-      socket.emit("data", rankingMaker.make(controllerModel.controllers));
-    });
+  eventPublisher.on("updatedHp", () => {
+    this.updateRanking();
+  });
+
+  eventPublisher.on("updateLink", () => {
+    this.updateRanking();
   });
 }
+
+Scoreboard.prototype.updateRanking = function() {
+  this.currentRanking = rankingMaker.make(controllerModel.controllers);
+  this.sockets.forEach(socket => {
+    socket.emit("data", this.currentRanking);
+  });
+};
 
 module.exports = Scoreboard;
