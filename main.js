@@ -155,12 +155,16 @@ spheroWS.spheroServer.events.on("removeOrb", name => {
 
 dashboard.on("gameState", state => {
   gameState = state;
-  Object.keys(controllerModel.controllers).forEach(key => {
+  Object.keys(controllerModel.controllers).filter(key => {
+    return controllerModel.get(key).client !== null;
+  }).forEach(key => {
     controllerModel.get(key).client.sendCustomMessage("gameState", gameState);
   });
 });
 dashboard.on("rankingState", state => {
-  const controllerKeys = Object.keys(controllerModel.controllers);
+  const controllerKeys = Object.keys(controllerModel.controllers).filter(key => {
+    return controllerModel.get(key).client !== null;
+  });
   rankingState = state;
   controllerKeys.forEach(key => {
     controllerModel.get(key).client.sendCustomMessage("rankingState", state);
