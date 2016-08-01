@@ -90,7 +90,9 @@ spheroWS.spheroServer.events.on("removeClient", key => {
   if (controllerModel.hasInUnnamedClients(key)) {
     controllerModel.removeFromUnnamedClients(key);
   } else {
-    controllerModel.removeClient(controllerModel.toName(key));
+    const name = controllerModel.toName(key);
+    controllerModel.removeClient(name);
+    virtualSphero.removeSphero(name);
   }
 });
 
@@ -111,11 +113,13 @@ controllerModel.on("named", (key, name, isNewName) => {
         }
         controller.linkedOrb.command(commandName, args);
       }
+      virtualSphero.command(name, commandName, args);
     });
     controller.on("hp", hp => {
       dashboard.updateHp(name, hp);
     });
   }
+  virtualSphero.addSphero(name);
 
   client.on("arriveCustomMessage", (messageName, data, mesID) => {
     if (messageName === "commands") {
