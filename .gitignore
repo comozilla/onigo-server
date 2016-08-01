@@ -1,4 +1,5 @@
 node_modules/
 npm-debug.log
 dashboard/js/build/
+scoreboard/js/build/
 

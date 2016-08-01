@@ -2,7 +2,7 @@ const originalError = console.error;
 
 let error121Count = 0;
 console.error = function(message) {
-  const exec121Error = /Error: Opening (\\\\\.\\)?(.+): Unknown error code 121/.exec(message);
+  const exec121Error = /Error: Opening (\\\\\.\\)?(.+): Unknown error code (121|1167)/.exec(message);
   if (exec121Error !== null) {
     const port = exec121Error[2];
     if (connector.isConnecting(port)) {
@@ -35,6 +35,7 @@ import Controller from "./controller";
 import controllerModel from "./controllerModel";
 import RankingMaker from "./rankingMaker";
 import Connector from "./connector";
+import eventPublisher from "./publisher";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -44,9 +45,6 @@ const isTestMode = argv.option(opts).run().options.test;
 const spheroWS = spheroWebSocket(config.websocket, isTestMode);
 
 const virtualSphero = new VirtualSphero(config.virtualSphero.wsPort);
-spheroWS.events.on("command", (requestKey, command, args) => {
-  virtualSphero.command(command, args);
-});
 
 const dashboard = new Dashboard(config.dashboardPort);
 dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
@@ -90,7 +88,9 @@ spheroWS.spheroServer.events.on("removeClient", key => {
   if (controllerModel.hasInUnnamedClients(key)) {
     controllerModel.removeFromUnnamedClients(key);
   } else {
-    controllerModel.removeClient(controllerModel.toName(key));
+    const name = controllerModel.toName(key);
+    controllerModel.removeClient(name);
+    virtualSphero.removeSphero(name);
   }
 });
 
@@ -111,11 +111,13 @@ controllerModel.on("named", (key, name, isNewName) => {
         }
         controller.linkedOrb.command(commandName, args);
       }
+      virtualSphero.command(name, commandName, args);
     });
     controller.on("hp", hp => {
       dashboard.updateHp(name, hp);
     });
   }
+  virtualSphero.addSphero(name);
 
   client.on("arriveCustomMessage", (messageName, data, mesID) => {
     if (messageName === "commands") {
@@ -141,6 +143,7 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
             controller.client !== null &&
             orb.linkedClients.indexOf(controller.client.key) !== -1) {
           controller.setHp(controller.hp - 10);
+          eventPublisher.emit("updatedHp", controller);
         }
       })
     });
@@ -154,12 +157,16 @@ spheroWS.spheroServer.events.on("removeOrb", name => {
 
 dashboard.on("gameState", state => {
   gameState = state;
-  Object.keys(controllerModel.controllers).forEach(key => {
+  Object.keys(controllerModel.controllers).filter(key => {
+    return controllerModel.get(key).client !== null;
+  }).forEach(key => {
     controllerModel.get(key).client.sendCustomMessage("gameState", gameState);
   });
 });
 dashboard.on("rankingState", state => {
-  const controllerKeys = Object.keys(controllerModel.controllers);
+  const controllerKeys = Object.keys(controllerModel.controllers).filter(key => {
+    return controllerModel.get(key).client !== null;
+  });
   rankingState = state;
   controllerKeys.forEach(key => {
     controllerModel.get(key).client.sendCustomMessage("rankingState", state);
@@ -185,6 +192,7 @@ dashboard.on("updateLink", (controllerName, orbName) => {
   controllerModel.get(controllerName).setLink(
     orbName !== null ? spheroWS.spheroServer.getOrb(orbName) : null);
   dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
+  eventPublisher.emit("updateLink", controllerName, orbName);
 });
 dashboard.on("addOrb", (name, port) => {
   const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
@@ -192,15 +200,26 @@ dashboard.on("addOrb", (name, port) => {
     if (!connector.isConnecting(port)) {
       error121Count = 0;
       connector.connect(port, rawOrb.instance).then(() => {
-        spheroWS.spheroServer.addOrb(rawOrb);
-        rawOrb.instance.streamOdometer();
-        rawOrb.instance.on("odometer", data => {
-          const time = new Date();
-          dashboard.streamed(
-            name,
-            ("0" + time.getHours()).slice(-2) + ":" +
-            ("0" + time.getMinutes()).slice(-2) + ":" +
-            ("0" + time.getSeconds()).slice(-2));
+        dashboard.log("connected orb.", "success");
+        rawOrb.instance.configureCollisions({
+          meth: 0x01,
+          xt: 0x7A,
+          xs: 0xFF,
+          yt: 0x7A,
+          ys: 0xFF,
+          dead: 100
+        }, () => {
+          dashboard.log("configured orb.", "success");
+          spheroWS.spheroServer.addOrb(rawOrb);
+          rawOrb.instance.streamOdometer();
+          rawOrb.instance.on("odometer", data => {
+            const time = new Date();
+            dashboard.streamed(
+              name,
+              ("0" + time.getHours()).slice(-2) + ":" +
+              ("0" + time.getMinutes()).slice(-2) + ":" +
+              ("0" + time.getSeconds()).slice(-2));
+          });
         });
       });
     }
@@ -227,7 +246,9 @@ dashboard.on("checkBattery", () => {
   });
 });
 dashboard.on("resetHp", name => {
-  controllerModel.get(name).setHp(100);
+  const controller = controllerModel.get(name);
+  controller.setHp(100);
+  eventPublisher.emit("updatedHp", controller);
 });
 dashboard.on("pingAll", () => {
   const orbs = spheroWS.spheroServer.getOrb();
@@ -246,11 +267,17 @@ dashboard.on("reconnect", name => {
     const orb = spheroWS.spheroServer.getOrb(name);
     if (orb !== null) {
       orb.instance.disconnect(() => {
+        dashboard.log("(reconnect) disconnected.", "success");
         if (!connector.isConnecting(orb.port)) {
           error121Count = 0;
-          connector.connect(orb.port, orb.instance).then(() => {
-            dashboard.successReconnect(name);
-          });
+          dashboard.log("(reconnect) wait 2 seconds.", "log");
+          setTimeout(() => {
+            dashboard.log("(reconnect) connecting...", "log");
+            connector.connect(orb.port, orb.instance).then(() => {
+              dashboard.log("(reconnect) connected", "success");
+              dashboard.successReconnect(name);
+            });
+          }, 2000);
         }
       });
     }
