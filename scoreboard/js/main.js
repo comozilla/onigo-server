@@ -24,6 +24,9 @@ const Orb = function (obj) {
   this.hpColor = ko.computed(() => {
     return this.hp() < 10 ? 'red' : 'white';
   });
+  this.getHpBarHeight = ko.computed(() => {
+    return this.hp() + "%";
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {

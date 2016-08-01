@@ -38,8 +38,10 @@ function Scoreboard(port) {
   eventPublisher.on("updatedHp", () => {
     this.updateRanking();
   });
-
   eventPublisher.on("updateLink", () => {
+    this.updateRanking();
+  });
+  eventPublisher.on("color", () => {
     this.updateRanking();
   });
 }
