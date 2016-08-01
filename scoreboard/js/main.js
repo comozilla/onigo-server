@@ -1,5 +1,5 @@
 import "../css/style.css";
-var ko = require("knockout");
+import ko from "knockout";
 
 const interval = 2000;
 
