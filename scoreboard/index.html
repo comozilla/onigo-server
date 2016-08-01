@@ -16,6 +16,7 @@
         <tr>
           <th>順位</th>
           <th>名前</th>
+          <th>色</th>
           <th>HP</th>
         </tr>
       </thead>
@@ -23,6 +24,7 @@
         <tr>
           <td data-bind="text: $index() + 1">
           <td data-bind="text: name"></td>
+          <td data-bind="text: color, style: {backgroundColor: color}"></td>
           <td data-bind="text: hp, style: {color: hpColor()}"></td>
         </tr>
       </tbody>
