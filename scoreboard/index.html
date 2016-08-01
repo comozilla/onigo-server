@@ -10,23 +10,15 @@
   <header>
     <h1>Onigo Scoreboard</h1>
   </header>
-  <main role="main">
-    <table id="score-table">
-      <thead>
-        <tr>
-          <th>順位</th>
-          <th>名前</th>
-          <th>HP</th>
-        </tr>
-      </thead>
-      <tbody data-bind="foreach: orbs">
-        <tr>
-          <td data-bind="text: $index() + 1">
-          <td data-bind="text: name"></td>
-          <td data-bind="text: hp, style: {color: hpColor()}"></td>
-        </tr>
-      </tbody>
-    </table>
+  <main role="main" data-bind="foreach: orbs">
+    <section>
+      <div class="hp-zone">
+        <div class="hp-text" data-bind="text: hp, style: {color: hpColor()}"></div>
+        <div class="hp-bar" data-bind="style: {height: getHpBarHeight(), backgroundColor: color}">
+        </div>
+      </div>
+      <div class="name-zone" data-bind="text: name"></div>
+    </section>
   </main>
 </body>
 </html>

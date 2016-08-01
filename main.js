@@ -285,5 +285,6 @@ dashboard.on("reconnect", name => {
 });
 dashboard.on("color", (name, color) => {
   controllerModel.get(name).setColor(color);
+  eventPublisher.emit("color", name, color);
 });
 

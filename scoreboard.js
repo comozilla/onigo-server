@@ -23,8 +23,8 @@ function Scoreboard(port) {
   });
 
   this.currentRanking = null;
-  
-  const rankingMaker = new RankingMaker();
+
+  this.rankingMaker = new RankingMaker();
 
   this.sockets = [];
   this.io.on("connection", socket => {
@@ -38,14 +38,16 @@ function Scoreboard(port) {
   eventPublisher.on("updatedHp", () => {
     this.updateRanking();
   });
-
   eventPublisher.on("updateLink", () => {
+    this.updateRanking();
+  });
+  eventPublisher.on("color", () => {
     this.updateRanking();
   });
 }
 
 Scoreboard.prototype.updateRanking = function() {
-  this.currentRanking = rankingMaker.make(controllerModel.controllers);
+  this.currentRanking = this.rankingMaker.make(controllerModel.controllers);
   this.sockets.forEach(socket => {
     socket.emit("data", this.currentRanking);
   });

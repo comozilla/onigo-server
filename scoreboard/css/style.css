@@ -2,8 +2,16 @@
   color: #fff;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   background: #000;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
 }
 
 h1 {
@@ -30,3 +38,30 @@ thead {
 tr {
   border-bottom: solid 1px #999;
 }
+
+main {
+  flex: 1;
+  display: flex;
+}
+
+section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  font-size: 25px;
+}
+
+.hp-zone {
+  margin: 0 10px;
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: column;
+}
+
+.name-zone {
+  border-top: 1px solid white;
+  padding: 5px 0;
+}
+
