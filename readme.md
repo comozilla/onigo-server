@@ -1,11 +1,11 @@
-# sphero-joystick
+# onigo-server
 
-![](https://docs.google.com/drawings/d/1izzy4NO9N6wnBPxxaT6xdnkyV2dwE7FlXRnXC9kviX4/pub?w=700&h=366)
+![](https://docs.google.com/drawings/d/11UkOxTHAYCFONLhi49WRn1hCaDZz25plo-yaG18Q2cc/pub?w=854&h=579)
 
 ## About
-SpheroをJoystickで動かします。  
+[onigo-controller](https://github.com/comozilla/onigo-controller/) の server 部分です。  
 sphero-websocket を使用しています。  
-node.js サーバーとWebSocketで通信し、信号を送っています。
+node.js サーバーで Bluetooth で通信し、信号を送っています。
 
 ## 準備
 
@@ -14,26 +14,12 @@ node.js サーバーとWebSocketで通信し、信号を送っています。
 $ npm install
 ```
 
-### Spheroのシリアルポートを取得し、設定を書き替える
-
-sphero-ws-config.js 内
+### モジュールをビルド
 ```
-wsPort: <ポート名>
+$ npm run build
 ```
 
-### Sphero サーバーを起動
+### サーバーを起動
 ```
-$ npm run server
+$ npm start
 ```
-
-テストモード（実際に接続はせず、ログ出力のみ）でもできます。
-```
-$ npm run server-test
-```
-
-### Browser-sync サーバーを起動
-
-```
-$ npm run browser-sync
-```
-
