@@ -1,16 +1,21 @@
-const observeFunctions = {};
-
-export function subscribe(subjectName, observeFunction) {
-  if (typeof observeFunctions[subjectName] === "undefined") {
-    observeFunctions[subjectName] = [];
+export class EventPublisher {
+  constructor() {
+    this.observeFunctions = {};
   }
-  observeFunctions[subjectName].push(observeFunction);
+  subscribe(subjectName, observeFunction) {
+    if (typeof this.observeFunctions[subjectName] === "undefined") {
+      this.observeFunctions[subjectName] = [];
+    }
+    this.observeFunctions[subjectName].push(observeFunction);
+  }
+
+  publish(author, subjectName, ...data) {
+    if (typeof this.observeFunctions[subjectName] !== "undefined") {
+      this.observeFunctions[subjectName].forEach(observeFunction => {
+        observeFunction(author, ...data);
+      });
+    }
+  }
 }
 
-export function publish(author, subjectName, ...data) {
-  if (typeof observeFunctions[subjectName] !== "undefined") {
-    observeFunctions[subjectName].forEach(observeFunction => {
-      observeFunction(author, ...data);
-    });
-  }
-}
+export default new EventPublisher();
