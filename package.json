@@ -47,7 +47,9 @@
     "knockout": "^3.4.0",
     "socket.io": "^1.4.8",
     "sphero": "github:orbotix/sphero.js#master",
-    "sphero-websocket": "^0.5.10",
     "sphero-ws-virtual-plugin": "1.1.2"
+  },
+  "optionalDependencies": {
+    "sphero-websocket": "^0.5.10"
   }
 }
