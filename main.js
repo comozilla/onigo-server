@@ -36,6 +36,7 @@ import controllerModel from "./controllerModel";
 import RankingMaker from "./rankingMaker";
 import Connector from "./connector";
 import eventPublisher from "./publisher";
+import UUIDManager from "./uuidManager";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -58,6 +59,7 @@ let availableCommandsCount = 1;
 const rankingMaker = new RankingMaker();
 
 const connector = new Connector();
+const uuidManager = new UUIDManager();
 
 spheroWS.spheroServer.events.on("addClient", (key, client) => {
   controllerModel.add(key, client);
@@ -195,11 +197,18 @@ dashboard.on("updateLink", (controllerName, orbName) => {
   eventPublisher.emit("updateLink", controllerName, orbName);
 });
 dashboard.on("addOrb", (name, port) => {
+  if (uuidManager.contains(name)) {
+    port = uuidManager.getUUID(name);
+    console.log("changed!", port);
+  }
   const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
   if (!isTestMode) {
     if (!connector.isConnecting(port)) {
       error121Count = 0;
       connector.connect(port, rawOrb.instance).then(() => {
+        rawOrb.instance.setInactivityTimeout(9999999, function(err, data) {
+          console.log(err | "data: " + data);
+        });
         dashboard.log("connected orb.", "success");
         rawOrb.instance.configureCollisions({
           meth: 0x01,
@@ -228,6 +237,7 @@ dashboard.on("addOrb", (name, port) => {
   }
 });
 dashboard.on("removeOrb", name => {
+  console.log("removing...");
   spheroWS.spheroServer.removeOrb(name);
 });
 dashboard.on("oni", (name, enable) => {
@@ -266,7 +276,9 @@ dashboard.on("reconnect", name => {
   if (!isTestMode) {
     const orb = spheroWS.spheroServer.getOrb(name);
     if (orb !== null) {
+      console.log("disconnecting...");
       orb.instance.disconnect(() => {
+        console.log("disconnected!");
         dashboard.log("(reconnect) disconnected.", "success");
         if (!connector.isConnecting(orb.port)) {
           error121Count = 0;
@@ -287,4 +299,3 @@ dashboard.on("color", (name, color) => {
   controllerModel.get(name).setColor(color);
   eventPublisher.emit("color", name, color);
 });
-
