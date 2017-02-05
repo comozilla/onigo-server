@@ -4,6 +4,12 @@ export default class UUIDManager {
   constructor() {
     this.nameAndUUIDs = {};
 
+    noble.on("stateChange", state => {
+      if (state === "poweredOn") {
+        noble.startScanning();
+      }
+    });
+
     noble.on("discover", peripheral => {
       this.setName(peripheral.uuid, peripheral.advertisement.localName);
     });
