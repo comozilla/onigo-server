@@ -46,7 +46,9 @@
     "express": "^4.14.0",
     "knockout": "^3.4.0",
     "socket.io": "^1.4.8",
-    "sphero-websocket": "^0.5.10",
     "sphero-ws-virtual-plugin": "1.1.2"
+  },
+  "optionalDependencies": {
+    "sphero-websocket": "^0.5.10"
   }
 }
