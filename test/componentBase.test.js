@@ -5,35 +5,29 @@ import ComponentBase from "../componentBase";
 describe("ComponentBase", () => {
   describe("#publish()", () => {
     const component = new ComponentBase();
-    let isCorrectAuthor = false;
-    let isCorrectData = false;
     publisher.subscribe("test1", (author, data) => {
-      isCorrectAuthor = author === component;
-      isCorrectData = data === "test-data";
+      it("should publish author", () => {
+        assert(author === component);
+      });
+      it("should publish correct data", () => {
+        assert(data === "test-data");
+      });
     });
     component.publish("test1", "test-data");
-    it("should publish author", () => {
-      assert(isCorrectAuthor);
-    });
-    it("should publish correct data", () => {
-      assert(isCorrectData);
-    });
   });
   describe("#subscribe()", () => {
     const component = new ComponentBase();
-    let isCorrectData = false;
     component.subscribe("test2", data => {
-      isCorrectData = data === "test-data-2";
+      it("should call function", () => {
+        assert(data === "test-data-2");
+      });
     });
-    it("should call function", () => {
-      isCorrectData = false;
-      publisher.publish(this, "test2", "test-data-2");
-      assert(isCorrectData);
+    publisher.publish(this, "test2", "test-data-2");
+    component.subscribe("test3", data => {
+      it("should not call function when author is same", () => {
+        assert(data === "test-data-3");
+      });
     });
-    it("should not call function when author is same", () => {
-      isCorrectData = false;
-      publisher.publish(component, "test2", "test-data-2");
-      assert(!isCorrectData);
-    });
+    publisher.publish(component, "test3", "test-data-3");
   });
 });
