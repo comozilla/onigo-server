@@ -36,6 +36,7 @@ import controllerModel from "./controllerModel";
 import RankingMaker from "./rankingMaker";
 import Connector from "./connector";
 import UUIDManager from "./uuidManager";
+import publisher from "./publisher";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -145,7 +146,7 @@ spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
             orb.linkedClients.indexOf(controller.client.key) !== -1) {
           controller.setHp(controller.hp - 10);
         }
-      })
+      });
     });
   }
   dashboard.addOrb(name, orb.port);
@@ -155,7 +156,7 @@ spheroWS.spheroServer.events.on("removeOrb", name => {
   dashboard.removeOrb(name);
 });
 
-dashboard.on("gameState", state => {
+publisher.subscribe("gameState", (author, state) => {
   gameState = state;
   Object.keys(controllerModel.controllers).filter(key => {
     return controllerModel.get(key).client !== null;
@@ -163,7 +164,7 @@ dashboard.on("gameState", state => {
     controllerModel.get(key).client.sendCustomMessage("gameState", gameState);
   });
 });
-dashboard.on("rankingState", state => {
+publisher.subscribe("rankingState", (author, state) => {
   const controllerKeys = Object.keys(controllerModel.controllers).filter(key => {
     return controllerModel.get(key).client !== null;
   });
@@ -179,7 +180,7 @@ dashboard.on("rankingState", state => {
   }
 });
 
-dashboard.on("availableCommandsCount", count => {
+publisher.subscribe("availableCommandsCount", (author, count) => {
   availableCommandsCount = count;
   Object.keys(controllerModel.controllers).forEach(name => {
     const client = controllerModel.get(name).client;
@@ -188,12 +189,12 @@ dashboard.on("availableCommandsCount", count => {
     }
   });
 });
-dashboard.on("updateLink", (controllerName, orbName) => {
+publisher.subscribe("updateLink", (author, controllerName, orbName) => {
   controllerModel.get(controllerName).setLink(
     orbName !== null ? spheroWS.spheroServer.getOrb(orbName) : null);
   dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
-dashboard.on("addOrb", (name, port) => {
+publisher.subscribe("addOrb", (author, name, port) => {
   if (uuidManager.contains(name)) {
     port = uuidManager.getUUID(name);
     console.log("changed!", port);
@@ -233,14 +234,14 @@ dashboard.on("addOrb", (name, port) => {
     spheroWS.spheroServer.addOrb(rawOrb);
   }
 });
-dashboard.on("removeOrb", name => {
+publisher.subscribe("removeOrb", (author, name) => {
   console.log("removing...");
   spheroWS.spheroServer.removeOrb(name);
 });
-dashboard.on("oni", (name, enable) => {
+publisher.subscribe("oni", (author, name, enable) => {
   controllerModel.get(name).setIsOni(enable);
 });
-dashboard.on("checkBattery", () => {
+publisher.subscribe("checkBattery", () => {
   const orbs = spheroWS.spheroServer.getOrb();
   Object.keys(orbs).forEach(orbName => {
     orbs[orbName].instance.getPowerState((error, data) => {
@@ -252,11 +253,11 @@ dashboard.on("checkBattery", () => {
     });
   });
 });
-dashboard.on("resetHp", name => {
+publisher.subscribe("resetHp", (author, name) => {
   const controller = controllerModel.get(name);
   controller.setHp(100);
 });
-dashboard.on("pingAll", () => {
+publisher.subscribe("pingAll", () => {
   const orbs = spheroWS.spheroServer.getOrb();
   Object.keys(orbs).forEach(orbName => {
     orbs[orbName].instance.ping((err, data) => {
@@ -268,7 +269,7 @@ dashboard.on("pingAll", () => {
     });
   });
 });
-dashboard.on("reconnect", name => {
+publisher.subscribe("reconnect", (author, name) => {
   if (!isTestMode) {
     const orb = spheroWS.spheroServer.getOrb(name);
     if (orb !== null) {
@@ -291,6 +292,6 @@ dashboard.on("reconnect", name => {
     }
   }
 });
-dashboard.on("color", (name, color) => {
+publisher.subscribe("color", (author, name, color) => {
   controllerModel.get(name).setColor(color);
 });
