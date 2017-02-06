@@ -6,42 +6,34 @@ describe("Dashboard", function() {
   describe("#initializeConnection()", function() {
     const dashboard = new Dashboard(8082);
     let registeredListener = null;
-    let isRegisterPingAll = false;
     dashboard.initializeConnection({
       on(subjectName, listener) {
         if (subjectName === "gameState") {
-          registeredListener = listener;
+          it("should register listener to the socket", () => {
+            registeredListener = listener;
+            assert(typeof listener === "function");
+          });
         }
-        if (subjectName === "pingAll" &&
-            listener.toString() === dashboard.publishPingAll.bind(dashboard).toString()) {
-          isRegisterPingAll = true;
-        }
+        it("should register publishPingAll", () => {
+          assert(subjectName === "pingAll" &&
+                 listener.toString() === dashboard.publishPingAll.bind(dashboard).toString());
+        });
       },
       emit() {}
     });
-    it("should register listener to the socket", () => {
-      assert(typeof registeredListener === "function");
-    });
-    it("should publish to eventPublisher", () => {
-      let isCalled = false;
-      publisher.subscribe("gameState", (author, state) => {
-        if (state === "active") {
-          isCalled = true;
-        }
+
+    publisher.subscribe("gameState", (author, state) => {
+      it("should publish to eventPublisher", () => {
+        assert(state === "active");
       });
-      registeredListener("active");
-      assert(isCalled);
     });
-    it("should register publishPingAll", () => {
-      assert(isRegisterPingAll);
-    });
-    it("should publish pingAll to eventPublisher", () => {
-      let isCalled = false;
-      publisher.subscribe("pingAll", author => {
-        isCalled = true;
+    registeredListener("active");
+
+    publisher.subscribe("pingAll", author => {
+      it("should publish pingAll to eventPublisher", () => {
+        assert(true);
       });
-      dashboard.publishPingAll();
-      assert(isCalled);
     });
+    dashboard.publishPingAll();
   });
 });
