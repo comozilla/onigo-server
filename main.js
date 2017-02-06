@@ -37,6 +37,7 @@ import RankingMaker from "./rankingMaker";
 import Connector from "./connector";
 import UUIDManager from "./uuidManager";
 import publisher from "./publisher";
+import SpheroServerManager from "./spheroServerManager";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -52,6 +53,8 @@ dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 
 const scoreboard = new Scoreboard(config.scoreboardPort);
 
+new SpheroServerManager();
+
 let gameState = "inactive";
 let rankingState = "hide";
 let availableCommandsCount = 1;
@@ -61,39 +64,9 @@ const rankingMaker = new RankingMaker();
 const connector = new Connector();
 const uuidManager = new UUIDManager();
 
-spheroWS.spheroServer.events.on("addClient", (key, client) => {
-  controllerModel.add(key, client);
-  client.on("arriveCustomMessage", (name, data, mesID) => {
-    // Nameが同じなら、clientKeyが別でもHPなどが引き継がれる、と実装するため、
-    // requestNameとuseDefinedNameを分けている。
-    // requestName ・・ 新しい名前を使う。もしその名前が既に使われていたらrejectする。
-    // useDefinedName ・・既存の名前を使う。もしその名前がなければrejectする。
-    if (name === "requestName") {
-      if (controllerModel.has(data)) {
-        client.sendCustomMessage("rejectName", null);
-      } else {
-        controllerModel.setName(key, data);
-        client.sendCustomMessage("acceptName", data);
-      }
-    } else if (name === "useDefinedName") {
-      if (!controllerModel.has(data)) {
-        client.sendCustomMessage("rejectName", null);
-      } else {
-        controllerModel.setName(key, data);
-        client.sendCustomMessage("acceptName", data);
-      }
-    }
-  });
-});
-
-spheroWS.spheroServer.events.on("removeClient", key => {
-  if (controllerModel.hasInUnnamedClients(key)) {
-    controllerModel.removeFromUnnamedClients(key);
-  } else {
-    const name = controllerModel.toName(key);
-    controllerModel.removeClient(name);
-    virtualSphero.removeSphero(name);
-  }
+publisher.subscribe("removedController", (author, key) => {
+  const name = controllerModel.toName(key);
+  virtualSphero.removeSphero(name);
 });
 
 controllerModel.on("named", (key, name, isNewName) => {
@@ -133,26 +106,19 @@ Object.keys(orbs).forEach(orbName => {
   dashboard.addOrb(orbName, orbs[orbName].port);
 });
 
-spheroWS.spheroServer.events.on("addOrb", (name, orb) => {
-  if (!isTestMode) {
-    const rawOrb = orb.instance;
-    rawOrb.color("white");
-    rawOrb.detectCollisions();
-    rawOrb.on("collision", () => {
-      Object.keys(controllerModel.controllers).forEach(controllerName => {
-        const controller = controllerModel.get(controllerName);
-        if (gameState === "active" && !controller.isOni &&
-            controller.client !== null &&
-            orb.linkedClients.indexOf(controller.client.key) !== -1) {
-          controller.setHp(controller.hp - 10);
-        }
-      });
-    });
-  }
-  dashboard.addOrb(name, orb.port);
-  dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
+
+publisher.subscribe("collision", (author, orb) => {
+  Object.keys(controllerModel.controllers).forEach(controllerName => {
+    const controller = controllerModel.get(controllerName);
+    if (gameState === "active" && !controller.isOni &&
+        controller.client !== null &&
+        orb.linkedClients.indexOf(controller.client.key) !== -1) {
+      controller.setHp(controller.hp - 10);
+    }
+  });
 });
-spheroWS.spheroServer.events.on("removeOrb", name => {
+
+publisher.subscribe("removeOrb", (author, name) => {
   dashboard.removeOrb(name);
 });
 
@@ -192,6 +158,10 @@ publisher.subscribe("availableCommandsCount", (author, count) => {
 publisher.subscribe("updateLink", (author, controllerName, orbName) => {
   controllerModel.get(controllerName).setLink(
     orbName !== null ? spheroWS.spheroServer.getOrb(orbName) : null);
+  dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
+});
+publisher.subscribe("addedOrb", (name, orb) => {
+  dashboard.addOrb(name, orb.port);
   dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
 publisher.subscribe("addOrb", (author, name, port) => {
