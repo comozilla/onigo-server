@@ -2,10 +2,12 @@ import express from "express";
 import io from "socket.io";
 import controllerModel from "./controllerModel";
 import RankingMaker from "./rankingMaker";
-import eventPublisher from "./publisher";
+import ComponentBase from "./componentBase";
 
-export default class Scoreboard {
+export default class Scoreboard extends ComponentBase {
   constructor(port) {
+    super();
+
     this.app = express();
     this.server = require("http").Server(this.app);
     this.io = require("socket.io")(this.server);
@@ -29,9 +31,9 @@ export default class Scoreboard {
       }
     });
 
-    eventPublisher.subscribe("updatedHp", this.updateRanking.bind(this));
-    eventPublisher.subscribe("updatedLink", this.updateRanking.bind(this));
-    eventPublisher.subscribe("updatedColor", this.updateRanking.bind(this));
+    this.subscribe("updatedHp", this.updateRanking.bind(this));
+    this.subscribe("updatedLink", this.updateRanking.bind(this));
+    this.subscribe("updatedColor", this.updateRanking.bind(this));
   }
 
   updateRanking() {

@@ -5,7 +5,7 @@ import OrbMap from "./util/orbMap";
 import controllerModel from "./controllerModel";
 import { Server as createServer } from "http";
 import socketIO from "socket.io";
-import publisher from "./publisher";
+import ComponentBase from "./componentBase";
 
 const socketSubjects = [
   "gameState",
@@ -22,8 +22,10 @@ const socketSubjects = [
   "color"
 ];
 
-export default class Dashboard {
+export default class Dashboard extends ComponentBase {
   constructor(port) {
+    super();
+
     this.app = express();
     this.server = createServer(this.app);
     this.io = socketIO(this.server);
@@ -81,7 +83,7 @@ export default class Dashboard {
         controllerModel.getUnnamedKeys());
       socketSubjects.forEach(subjectName => {
         this.socket.on(subjectName, (...data) => {
-          publisher.publish(this, subjectName, ...data);
+          this.publish(subjectName, ...data);
         });
       });
       this.socket.on("pingAll", this.publishPingAll.bind(this));
@@ -93,7 +95,7 @@ export default class Dashboard {
     }
   }
   publishPingAll() {
-    publisher.publish(this, "pingAll");
+    this.publish("pingAll");
     Object.keys(this.orbMap.orbs).forEach(orbName => {
       this.orbMap.setPingState(orbName, "no reply");
     });
