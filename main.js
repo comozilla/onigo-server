@@ -76,14 +76,13 @@ publisher.subscribe("named", (author, key, name, isNewName) => {
   client.sendCustomMessage("clientKey", key);
 
   if (isNewName) {
-    controller.commandRunner.on("command", (commandName, args) => {
+    publisher.subscribe("command", (author, key, commandName, args) => {
       if (controller.linkedOrb !== null) {
         if (!controller.linkedOrb.hasCommand(commandName)) {
           throw new Error(`command : ${commandName} is not valid.`);
         }
         controller.linkedOrb.command(commandName, args);
       }
-      publisher.publish("command", name, commandName, args);
     });
     controller.on("hp", hp => {
       dashboard.updateHp(name, hp);

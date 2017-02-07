@@ -21,7 +21,8 @@ export default class VirtualSpheroManager extends ComponentBase {
     this.virtualSphero.removeSphero(name);
   }
 
-  command(name, commandName, args) {
+  command(key, commandName, args) {
+    const name = controllerModel.toName(key);
     this.virtualSphero.command(name, commandName, args);
   }
 }
