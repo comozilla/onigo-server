@@ -1,6 +1,6 @@
 import express from "express";
 import io from "socket.io";
-import controllerModel from "./controllerModel";
+import controllerModel from "./model/controllerModel";
 import RankingMaker from "./rankingMaker";
 import ComponentBase from "./componentBase";
 

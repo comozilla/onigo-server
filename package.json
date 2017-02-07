@@ -38,6 +38,7 @@
     "minimist": "^1.2.0",
     "mocha": "^3.2.0",
     "noble": "^1.7.0",
+    "sinon": "^1.17.7",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1"
   },

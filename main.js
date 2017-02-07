@@ -31,13 +31,14 @@ import Dashboard from "./dashboard";
 import Scoreboard from "./scoreboard";
 import CommandRunner from "./commandRunner";
 import Controller from "./controller";
-import controllerModel from "./controllerModel";
+import controllerModel from "./model/controllerModel";
 import RankingMaker from "./rankingMaker";
 import Connector from "./connector";
 import UUIDManager from "./uuidManager";
 import publisher from "./publisher";
 import SpheroServerManager from "./spheroServerManager";
 import VirtualSpheroManager from "./virtualSpheroManager";
+import ControllerManager from "./controllerManager";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -54,6 +55,7 @@ dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 const scoreboard = new Scoreboard(config.scoreboardPort);
 
 new SpheroServerManager(spheroWS);
+new ControllerManager();
 
 let gameState = "inactive";
 let rankingState = "hide";
@@ -64,7 +66,7 @@ const rankingMaker = new RankingMaker();
 const connector = new Connector();
 const uuidManager = new UUIDManager();
 
-controllerModel.on("named", (key, name, isNewName) => {
+publisher.subscribe("named", (author, key, name, isNewName) => {
   const controller = controllerModel.get(name);
   const client = controller.client;
 
@@ -194,9 +196,6 @@ publisher.subscribe("addOrb", (author, name, port) => {
     spheroWS.spheroServer.addOrb(rawOrb);
   }
 });
-publisher.subscribe("oni", (author, name, enable) => {
-  controllerModel.get(name).setIsOni(enable);
-});
 publisher.subscribe("checkBattery", () => {
   const orbs = spheroWS.spheroServer.getOrb();
   Object.keys(orbs).forEach(orbName => {
@@ -208,10 +207,6 @@ publisher.subscribe("checkBattery", () => {
       }
     });
   });
-});
-publisher.subscribe("resetHp", (author, name) => {
-  const controller = controllerModel.get(name);
-  controller.setHp(100);
 });
 publisher.subscribe("pingAll", () => {
   const orbs = spheroWS.spheroServer.getOrb();
@@ -248,6 +243,4 @@ publisher.subscribe("reconnect", (author, name) => {
     }
   }
 });
-publisher.subscribe("color", (author, name, color) => {
-  controllerModel.get(name).setColor(color);
-});
+
