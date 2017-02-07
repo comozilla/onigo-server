@@ -9,15 +9,16 @@ describe("Dashboard", function() {
     dashboard.initializeConnection({
       on(subjectName, listener) {
         if (subjectName === "gameState") {
+          registeredListener = listener;
           it("should register listener to the socket", () => {
-            registeredListener = listener;
             assert(typeof listener === "function");
           });
         }
-        it("should register publishPingAll", () => {
-          assert(subjectName === "pingAll" &&
-                 listener.toString() === dashboard.publishPingAll.bind(dashboard).toString());
-        });
+        if (subjectName === "pingAll") {
+          it("should register publishPingAll", () => {
+            assert(listener.toString() === dashboard.publishPingAll.bind(dashboard).toString());
+          });
+        }
       },
       emit() {}
     });

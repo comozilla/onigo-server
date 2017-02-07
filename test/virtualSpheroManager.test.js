@@ -1,9 +1,10 @@
+import assert from "assert";
 import VirtualSpheroManager from "../virtualSpheroManager";
 import VirtualSphero from "sphero-ws-virtual-plugin";
 
 describe("VirtualSpheroManager", () => {
   describe("#constructor()", () => {
-    const virtualSpheroManager = new VirtualSpheroManager();
+    const virtualSpheroManager = new VirtualSpheroManager(8081);
     it("should initialize virtualSphero", () => {
       assert(typeof virtualSpheroManager === "object" &&
              virtualSpheroManager.virtualSphero instanceof VirtualSphero);
