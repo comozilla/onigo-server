@@ -27,7 +27,6 @@ console.error = function(message) {
 import spheroWebSocket from "sphero-websocket";
 import argv from "argv";
 import config from "./config";
-import VirtualSphero from "sphero-ws-virtual-plugin";
 import Dashboard from "./dashboard";
 import Scoreboard from "./scoreboard";
 import CommandRunner from "./commandRunner";
@@ -38,6 +37,7 @@ import Connector from "./connector";
 import UUIDManager from "./uuidManager";
 import publisher from "./publisher";
 import SpheroServerManager from "./spheroServerManager";
+import VirtualSpheroManager from "./virtualSpheroManager";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -46,7 +46,7 @@ const isTestMode = argv.option(opts).run().options.test;
 
 const spheroWS = spheroWebSocket(config.websocket, isTestMode);
 
-const virtualSphero = new VirtualSphero(config.virtualSphero.wsPort);
+new VirtualSpheroManager(config.virtualSphero.wsPort);
 
 const dashboard = new Dashboard(config.dashboardPort);
 dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
@@ -63,11 +63,6 @@ const rankingMaker = new RankingMaker();
 
 const connector = new Connector();
 const uuidManager = new UUIDManager();
-
-publisher.subscribe("removedController", (author, key) => {
-  const name = controllerModel.toName(key);
-  virtualSphero.removeSphero(name);
-});
 
 controllerModel.on("named", (key, name, isNewName) => {
   const controller = controllerModel.get(name);
