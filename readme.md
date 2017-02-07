@@ -1,5 +1,7 @@
 # onigo-server
 
+[![Build Status](https://api.travis-ci.org/shundroid/onigo-server.svg?branch=test)](https://travis-ci.org/shundroid/onigo-server)
+
 ![](https://docs.google.com/drawings/d/11UkOxTHAYCFONLhi49WRn1hCaDZz25plo-yaG18Q2cc/pub?w=854&h=579)
 
 ## About
