@@ -7,11 +7,21 @@ export default class VirtualSpheroManager extends ComponentBase {
     super();
     this.virtualSphero = new VirtualSphero(port);
 
+    this.subscribe("named", this.addSphero);
     this.subscribe("removedController", this.removeSphero);
+    this.subscribe("command", this.command);
+  }
+
+  addSphero(key, name, isNewName) {
+    this.virtualSphero.addSphero(name);
   }
 
   removeSphero(key) {
     const name = controllerModel.toName(key);
     this.virtualSphero.removeSphero(name);
+  }
+
+  command(name, commandName, args) {
+    this.virtualSphero.command(name, commandName, args);
   }
 }

@@ -83,13 +83,12 @@ publisher.subscribe("named", (author, key, name, isNewName) => {
         }
         controller.linkedOrb.command(commandName, args);
       }
-      virtualSphero.command(name, commandName, args);
+      publisher.publish("command", name, commandName, args);
     });
     controller.on("hp", hp => {
       dashboard.updateHp(name, hp);
     });
   }
-  virtualSphero.addSphero(name);
 
   client.on("arriveCustomMessage", (messageName, data, mesID) => {
     if (messageName === "commands") {
