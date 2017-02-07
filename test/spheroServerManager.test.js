@@ -1,12 +1,12 @@
 import assert from "assert";
-import SpheroServerManager from "../spheroServerManager";
+//import SpheroServerManager from "../spheroServerManager";
 import publisher from "../publisher";
 
 // test には sphero-websocket が必要で、その際ネイティブ依存のモジュールも必要になるので、
 // テストできない。テストするには、sphero-websocket の testMode 時にネイティブ依存モジュールを使わないよう
 // 改善しなければならない
 
-
+/*
 describe("SpheroServerManager", () => {
   const spheroServerManager = new SpheroServerManager({
     wsPort: 8080,
@@ -33,4 +33,4 @@ describe("SpheroServerManager", () => {
     spheroServerManager.publishAddedOrb("orb1", "orb");
   });
 });
-
+*/
