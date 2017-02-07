@@ -53,7 +53,7 @@ dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 
 const scoreboard = new Scoreboard(config.scoreboardPort);
 
-new SpheroServerManager();
+new SpheroServerManager(spheroWS);
 
 let gameState = "inactive";
 let rankingState = "hide";
@@ -113,10 +113,6 @@ publisher.subscribe("collision", (author, orb) => {
   });
 });
 
-publisher.subscribe("removeOrb", (author, name) => {
-  dashboard.removeOrb(name);
-});
-
 publisher.subscribe("gameState", (author, state) => {
   gameState = state;
   Object.keys(controllerModel.controllers).filter(key => {
@@ -156,7 +152,6 @@ publisher.subscribe("updateLink", (author, controllerName, orbName) => {
   dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
 publisher.subscribe("addedOrb", (name, orb) => {
-  dashboard.addOrb(name, orb.port);
   dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 });
 publisher.subscribe("addOrb", (author, name, port) => {
@@ -198,10 +193,6 @@ publisher.subscribe("addOrb", (author, name, port) => {
   } else {
     spheroWS.spheroServer.addOrb(rawOrb);
   }
-});
-publisher.subscribe("removeOrb", (author, name) => {
-  console.log("removing...");
-  spheroWS.spheroServer.removeOrb(name);
 });
 publisher.subscribe("oni", (author, name, enable) => {
   controllerModel.get(name).setIsOni(enable);

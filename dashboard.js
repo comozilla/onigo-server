@@ -65,6 +65,9 @@ export default class Dashboard extends ComponentBase {
         this.socket.emit("removeClient", name);
       }
     });
+
+    this.subscribe("addedOrb", this.addOrb);
+    this.subscribe("removedOrb", this.removeOrb);
   }
   initializeConnection(socket) {
     if (this.socket !== null) {
@@ -100,13 +103,13 @@ export default class Dashboard extends ComponentBase {
       this.orbMap.setPingState(orbName, "no reply");
     });
   }
-  addOrb(name, port) {
+  addOrb(name, orb) {
     if (this.orbMap.has(name)) {
       throw new Error(`追加しようとしたOrbは既に存在します。 : ${name}`);
     }
     this.orbMap.set(name, {
       orbName: name,
-      port,
+      port: orb.port,
       battery: null,
       link: "unlinked",
       pingState: "unchecked"
