@@ -3,17 +3,19 @@ import spheroWebSocket from "sphero-websocket";
 import ComponentBase from "./componentBase";
 
 export default class SpheroServerManager extends ComponentBase {
-  constructor(websocket, isTestMode) {
+  constructor(spheroWS, isTestMode) {
     super();
 
     this.isTestMode = isTestMode;
-    this.spheroWS = spheroWebSocket(websocket, isTestMode);
+    this.spheroWS = spheroWS;
     this.spheroServer = this.spheroWS.spheroServer;
 
     this.spheroServer.events.on("addClient", this.addClient.bind(this));
     this.spheroServer.events.on("removeClient", this.removeClient.bind(this));
     this.spheroServer.events.on("addOrb", this.publishAddedOrb.bind(this));
     this.spheroServer.events.on("removeOrb", this.publishRemovedOrb.bind(this));
+
+    this.subscribe("removeOrb", this.removeOrb);
   }
 
   addClient(key, client) {
@@ -74,5 +76,10 @@ export default class SpheroServerManager extends ComponentBase {
 
   publishCollision(orb) {
     this.publish("collision", orb);
+  }
+
+  removeOrb(name) {
+    console.log("removing...");
+    this.spheroServer.removeOrb(name);
   }
 }
