@@ -2,7 +2,7 @@ import express from "express";
 import io from "socket.io";
 import util from "util";
 import OrbMap from "./util/orbMap";
-import controllerModel from "./controllerModel";
+import controllerModel from "./model/controllerModel";
 import { Server as createServer } from "http";
 import socketIO from "socket.io";
 import ComponentBase from "./componentBase";
@@ -45,22 +45,23 @@ export default class Dashboard extends ComponentBase {
     });
 
     this.io.on("connection", this.initializeConnection.bind(this));
-    controllerModel.on("add", (key, client) => {
+
+    this.subscribe("addedUnnamed", (key, client) => {
       if (this.socket !== null) {
         this.socket.emit("addUnnamed", key);
       }
     });
-    controllerModel.on("named", (key, name) => {
+    this.subscribe("named", (key, name) => {
       if (this.socket !== null) {
         this.socket.emit("named", key, name, controllerModel.get(name).getStates());
       }
     });
-    controllerModel.on("removeUnnamed", key => {
+    this.subscribe("removedUnnamed", key => {
       if (this.socket !== null) {
         this.socket.emit("removeUnnamed", key);
       }
     });
-    controllerModel.on("remove", name => {
+    this.subscribe("removedClient", name => {
       if (this.socket !== null) {
         this.socket.emit("removeClient", name);
       }

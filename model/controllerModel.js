@@ -1,8 +1,9 @@
-import Controller from "./controller";
-import CommandRunner from "./commandRunner";
-import { EventEmitter } from "events";
+import Controller from "../controller";
+import CommandRunner from "../commandRunner";
+import publisher from "../publisher";
+import ComponentBase from "../componentBase";
 
-class ControllerModel extends EventEmitter {
+class ControllerModel extends ComponentBase {
   constructor() {
     super();
 
@@ -17,7 +18,7 @@ class ControllerModel extends EventEmitter {
   }
   add(key, client) {
     this.unnamedClients[key] = client;
-    this.emit("add", key, client);
+    this.publish("addedUnnamed", key, client);
   }
   setName(key, name) {
     if (typeof this.unnamedClients[key] === "undefined") {
@@ -31,18 +32,18 @@ class ControllerModel extends EventEmitter {
     }
     this.controllers[name].setClient(this.unnamedClients[key]);
     delete this.unnamedClients[key];
-    this.emit("named", key, name, isNewName);
+    this.publish("named", key, name, isNewName);
   }
   removeFromUnnamedClients(key) {
     if (this.hasInUnnamedClients(key)) {
       delete this.unnamedClients[key];
-      this.emit("removeUnnamed", key);
+      this.publish("removedUnnamed", key);
     }
   }
   removeClient(name) {
     if (this.has(name)) {
       this.controllers[name].setClient(null);
-      this.emit("remove", name);
+      this.publish("removedClient", name);
     }
   }
   hasInUnnamedClients(key) {

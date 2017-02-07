@@ -1,6 +1,6 @@
 import ComponentBase from "./componentBase";
 import VirtualSphero from "sphero-ws-virtual-plugin";
-import controllerModel from "./controllerModel";
+import controllerModel from "./model/controllerModel";
 
 export default class VirtualSpheroManager extends ComponentBase {
   constructor(port) {
