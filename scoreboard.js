@@ -31,9 +31,9 @@ export default class Scoreboard extends ComponentBase {
       }
     });
 
-    this.subscribe("updatedHp", this.updateRanking.bind(this));
-    this.subscribe("updatedLink", this.updateRanking.bind(this));
-    this.subscribe("updatedColor", this.updateRanking.bind(this));
+    this.subscribe("updatedHp", this.updateRanking);
+    this.subscribe("updatedLink", this.updateRanking);
+    this.subscribe("updatedColor", this.updateRanking);
   }
 
   updateRanking() {
