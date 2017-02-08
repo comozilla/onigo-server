@@ -1,6 +1,7 @@
 import assert from "assert";
 import ControllerManager from "../controllerManager";
 import controllerModel from "../model/controllerModel";
+import appModel from "../model/appModel";
 import publisher from "../publisher";
 import sinon from "sinon";
 
@@ -9,7 +10,8 @@ describe("ControllerManager", () => {
   const testKey = "key-test";
   const testName = "name-test";
   controllerModel.add(testKey, {
-    sendCustomMessage() {}
+    sendCustomMessage() {},
+    key: testKey
   });
   controllerModel.setName(testKey, testName);
 
@@ -25,6 +27,9 @@ describe("ControllerManager", () => {
     it("should call setIsOni of controller", () => {
       assert(setIsOniSpy.withArgs(true).called);
     });
+
+    changeIsOniSpy.restore();
+    setIsOniSpy.restore();
   });
 
   describe("#resetHp", () => {
@@ -39,6 +44,9 @@ describe("ControllerManager", () => {
     it("should call setHp of controller", () => {
       assert(setHpSpy.withArgs(100).called);
     });
+
+    resetHpSpy.restore();
+    setHpSpy.restore();
   });
 
   describe("#changeColor", () => {
@@ -53,5 +61,69 @@ describe("ControllerManager", () => {
     it("should call setColor of controller", () => {
       assert(setColorSpy.withArgs("red").called);
     });
+
+    changeColorSpy.restore();
+    setColorSpy.restore();
+  });
+
+  describe("#updateGameState", () => {
+    const updateGameStateSpy = sinon.spy(controllerManager, "updateGameState");
+    const sendCustomMessageSpy = sinon.spy(controllerModel.get(testName).client, "sendCustomMessage");
+    controllerManager.updateGameState("active");
+
+    it("should be called", () => {
+      assert(updateGameStateSpy.withArgs("active").called);
+    });
+
+    it("should send gameState to client", () => {
+      assert(sendCustomMessageSpy.withArgs("gameState", "active").called);
+    });
+
+    updateGameStateSpy.restore();
+    sendCustomMessageSpy.restore();
+  });
+
+  describe("#damage", () => {
+    const controller = controllerModel.get(testName);
+    controller.hp = 100;
+    controller.isOni = false;
+    appModel.gameState = "active";
+
+    const damageSpy = sinon.spy(controllerManager, "damage");
+    const setHpSpy = sinon.spy(controller, "setHp");
+    const testOrb = {
+      linkedClients: [testKey]
+    };
+    controllerManager.damage(testOrb);
+
+    it("should be called", () => {
+      assert(damageSpy.withArgs(testOrb).called);
+    });
+
+    it("should call setHp", () => {
+      assert(setHpSpy.withArgs(90).called);
+    });
+
+    damageSpy.restore();
+    setHpSpy.restore();
+  });
+
+  describe("#updateAvailableCommandsCount", () => {
+    const controller = controllerModel.get(testName);
+    const updateSpy = sinon.spy(controllerManager, "updateAvailableCommandsCount");
+    const sendCustomMessageSpy = sinon.spy(controller.client, "sendCustomMessage");
+
+    controllerManager.updateAvailableCommandsCount(4);
+
+    it("should be called", () => {
+      assert(updateSpy.withArgs(4).called);
+    });
+
+    it("should call sendCustomMessage", () => {
+      assert(sendCustomMessageSpy.withArgs("availableCommandsCount", 4).called);
+    });
+
+    updateSpy.restore();
+    sendCustomMessageSpy.restore();
   });
 });

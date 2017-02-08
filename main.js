@@ -39,6 +39,7 @@ import publisher from "./publisher";
 import SpheroServerManager from "./spheroServerManager";
 import VirtualSpheroManager from "./virtualSpheroManager";
 import ControllerManager from "./controllerManager";
+import appModel from "./appModel";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -57,10 +58,6 @@ const scoreboard = new Scoreboard(config.scoreboardPort);
 new SpheroServerManager(spheroWS);
 new ControllerManager();
 
-let gameState = "inactive";
-let rankingState = "hide";
-let availableCommandsCount = 1;
-
 const rankingMaker = new RankingMaker();
 
 const connector = new Connector();
@@ -70,9 +67,9 @@ publisher.subscribe("named", (author, key, name, isNewName) => {
   const controller = controllerModel.get(name);
   const client = controller.client;
 
-  client.sendCustomMessage("gameState", gameState);
-  client.sendCustomMessage("rankingState", rankingState);
-  client.sendCustomMessage("availableCommandsCount", availableCommandsCount);
+  client.sendCustomMessage("gameState", appModel.gameState);
+  client.sendCustomMessage("rankingState", appModel.rankingState);
+  client.sendCustomMessage("availableCommandsCount", appModel.availableCommandsCount);
   client.sendCustomMessage("clientKey", key);
 
   if (isNewName) {
@@ -102,30 +99,10 @@ Object.keys(orbs).forEach(orbName => {
 });
 
 
-publisher.subscribe("collision", (author, orb) => {
-  Object.keys(controllerModel.controllers).forEach(controllerName => {
-    const controller = controllerModel.get(controllerName);
-    if (gameState === "active" && !controller.isOni &&
-        controller.client !== null &&
-        orb.linkedClients.indexOf(controller.client.key) !== -1) {
-      controller.setHp(controller.hp - 10);
-    }
-  });
-});
-
-publisher.subscribe("gameState", (author, state) => {
-  gameState = state;
-  Object.keys(controllerModel.controllers).filter(key => {
-    return controllerModel.get(key).client !== null;
-  }).forEach(key => {
-    controllerModel.get(key).client.sendCustomMessage("gameState", gameState);
-  });
-});
 publisher.subscribe("rankingState", (author, state) => {
   const controllerKeys = Object.keys(controllerModel.controllers).filter(key => {
     return controllerModel.get(key).client !== null;
   });
-  rankingState = state;
   controllerKeys.forEach(key => {
     controllerModel.get(key).client.sendCustomMessage("rankingState", state);
   });
@@ -137,15 +114,6 @@ publisher.subscribe("rankingState", (author, state) => {
   }
 });
 
-publisher.subscribe("availableCommandsCount", (author, count) => {
-  availableCommandsCount = count;
-  Object.keys(controllerModel.controllers).forEach(name => {
-    const client = controllerModel.get(name).client;
-    if (client !== null) {
-      client.sendCustomMessage("availableCommandsCount", availableCommandsCount);
-    }
-  });
-});
 publisher.subscribe("updateLink", (author, controllerName, orbName) => {
   controllerModel.get(controllerName).setLink(
     orbName !== null ? spheroWS.spheroServer.getOrb(orbName) : null);
