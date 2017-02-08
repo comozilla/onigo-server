@@ -7,7 +7,7 @@ export default class ComponentBase {
   subscribe(subjectName, observeFunction) {
     publisher.subscribe(subjectName, (author, ...data) => {
       if (author !== this) {
-        observeFunction(...data);
+        observeFunction.apply(this, data);
       }
     });
   }

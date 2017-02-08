@@ -1,4 +1,5 @@
 import controllerModel from "./model/controllerModel";
+import appModel from "./model/appModel";
 import ComponentBase from "./componentBase";
 
 export default class ControllerManager extends ComponentBase {
@@ -9,6 +10,9 @@ export default class ControllerManager extends ComponentBase {
     this.subscribe("resetHp", this.resetHp);
     this.subscribe("addClient", this.addClient);
     this.subscribe("removeClient", this.removeClient);
+    this.subscribe("gameState", this.updateGameState);
+    this.subscribe("collision", this.damage);
+    this.subscribe("availableCommandsCount", this.updateAvailableCommandsCount);
   }
   changeIsOni(name, isEnabled) {
     controllerModel.get(name).setIsOni(isEnabled);
@@ -53,4 +57,30 @@ export default class ControllerManager extends ComponentBase {
       controllerModel.removeClient(name);
     }
   }
+  updateGameState(state) {
+    Object.keys(controllerModel.controllers).filter(key => {
+      return controllerModel.get(key).client !== null;
+    }).forEach(key => {
+      controllerModel.get(key).client.sendCustomMessage("gameState", state);
+    });
+  }
+  damage(orb) {
+    Object.keys(controllerModel.controllers).forEach(controllerName => {
+      const controller = controllerModel.get(controllerName);
+      if (appModel.gameState === "active" && !controller.isOni &&
+          controller.client !== null &&
+          orb.linkedClients.indexOf(controller.client.key) !== -1) {
+        controller.setHp(controller.hp - 10);
+      }
+    });
+  }
+  updateAvailableCommandsCount(count) {
+    Object.keys(controllerModel.controllers).forEach(name => {
+      const client = controllerModel.get(name).client;
+      if (client !== null) {
+        client.sendCustomMessage("availableCommandsCount", count);
+      }
+    });
+  }
 }
+

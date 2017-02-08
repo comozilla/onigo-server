@@ -3,6 +3,7 @@ import io from "socket.io";
 import util from "util";
 import OrbMap from "./util/orbMap";
 import controllerModel from "./model/controllerModel";
+import appModel from "./model/appModel";
 import { Server as createServer } from "http";
 import socketIO from "socket.io";
 import ComponentBase from "./componentBase";
@@ -32,10 +33,6 @@ export default class Dashboard extends ComponentBase {
     this.io.origins(`localhost:${port}`);
 
     this.socket = null;
-
-    this.gameState = "inactive";
-    this.rankingState = "hide";
-    this.availableCommandsCount = 1;
 
     this.orbMap = new OrbMap();
 
@@ -80,16 +77,18 @@ export default class Dashboard extends ComponentBase {
       this.log("accepted a dashboard.", "success");
       socket.emit(
         "defaultData",
-        this.gameState,
-        this.availableCommandsCount,
+        appModel.gameState,
+        appModel.availableCommandsCount,
         controllerModel.getAllStates(),
         this.orbMap.toArray(),
         controllerModel.getUnnamedKeys());
+
       socketSubjects.forEach(subjectName => {
         this.socket.on(subjectName, (...data) => {
           this.publish(subjectName, ...data);
         });
       });
+
       this.socket.on("pingAll", this.publishPingAll.bind(this));
       socket.emit("updateOrbs", this.orbMap.toArray());
       socket.on("disconnect", () => {
