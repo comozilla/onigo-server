@@ -66,6 +66,7 @@ export default class CommandRunner extends ComponentBase {
   stopLoop() {
     if (this.loopTimeoutId !== null) {
       clearTimeout(this.loopTimeoutId);
+      this.loopTimeoutId = null;
     }
   }
 
@@ -74,6 +75,7 @@ export default class CommandRunner extends ComponentBase {
       const timeoutId = this.customTimeoutIds[timeoutIdName];
       if (timeoutId !== null) {
         clearTimeout(timeoutId);
+        delete this.customTimeoutIds[timeoutIdName];
       }
     });
   }
