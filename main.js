@@ -169,7 +169,7 @@ publisher.subscribe("checkBattery", () => {
       if (error) {
         throw new Error(error);
       } else {
-        dashboard.updateBattery(orbName, data.batteryState);
+        publisher.publish(this, "updateBattery", orbName, data.batteryState);
       }
     });
   });
@@ -179,7 +179,7 @@ publisher.subscribe("pingAll", () => {
   Object.keys(orbs).forEach(orbName => {
     orbs[orbName].instance.ping((err, data) => {
       if (!err) {
-        dashboard.updatePingState(orbName);
+        publisher.publish(this, "replyPing", orbName);
       } else {
         dashboard.log("Ping error: \n" + err.toString(), "error");
       }

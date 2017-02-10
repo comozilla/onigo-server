@@ -1,9 +1,9 @@
 import express from "express";
 import io from "socket.io";
 import util from "util";
-import OrbMap from "./util/orbMap";
 import controllerModel from "./model/controllerModel";
 import appModel from "./model/appModel";
+import orbModel from "./model/orbModel";
 import { Server as createServer } from "http";
 import socketIO from "socket.io";
 import ComponentBase from "./componentBase";
@@ -34,7 +34,6 @@ export default class Dashboard extends ComponentBase {
 
     this.socket = null;
 
-    this.orbMap = new OrbMap();
 
     this.app.use(express.static("dashboard"));
     this.server.listen(port, () => {
@@ -66,6 +65,8 @@ export default class Dashboard extends ComponentBase {
 
     this.subscribe("addedOrb", this.addOrb);
     this.subscribe("removedOrb", this.removeOrb);
+    this.subscribe("updateBattery", this.updateBattery);
+    this.subscribe("replyPing", this.updatePingState);
   }
   initializeConnection(socket) {
     if (this.socket !== null) {
@@ -80,7 +81,7 @@ export default class Dashboard extends ComponentBase {
         appModel.gameState,
         appModel.availableCommandsCount,
         controllerModel.getAllStates(),
-        this.orbMap.toArray(),
+        orbModel.toArray(),
         controllerModel.getUnnamedKeys());
 
       socketSubjects.forEach(subjectName => {
@@ -90,7 +91,7 @@ export default class Dashboard extends ComponentBase {
       });
 
       this.socket.on("pingAll", this.publishPingAll.bind(this));
-      socket.emit("updateOrbs", this.orbMap.toArray());
+      socket.emit("updateOrbs", orbModel.toArray());
       socket.on("disconnect", () => {
         console.log("a dashboard removed.");
         this.socket = null;
@@ -99,55 +100,35 @@ export default class Dashboard extends ComponentBase {
   }
   publishPingAll() {
     this.publish("pingAll");
-    Object.keys(this.orbMap.orbs).forEach(orbName => {
-      this.orbMap.setPingState(orbName, "no reply");
-    });
   }
   addOrb(name, orb) {
-    if (this.orbMap.has(name)) {
-      throw new Error(`追加しようとしたOrbは既に存在します。 : ${name}`);
-    }
-    this.orbMap.set(name, {
-      orbName: name,
-      port: orb.port,
-      battery: null,
-      link: "unlinked",
-      pingState: "unchecked"
-    });
     if (this.socket !== null) {
-      this.socket.emit("updateOrbs", this.orbMap.toArray());
+      this.socket.emit("updateOrbs", orbModel.toArray());
     }
   }
 
   removeOrb(name) {
-    if (!this.orbMap.has(name)) {
-      throw new Error(`削除しようとしたOrbは存在しません。 : ${name}`);
-    }
-    this.orbMap.remove(name);
     if (this.socket !== null) {
-      this.socket.emit("updateOrbs", this.orbMap.toArray());
+      this.socket.emit("updateOrbs", orbModel.toArray());
     }
   }
 
   updateUnlinkedOrbs(unlinkedOrbs) {
+    // タイミングがいろいろ難しいので、修正は後回し
     const unlinkedOrbNames = Object.keys(unlinkedOrbs);
-    this.orbMap.getNames().forEach(orbName => {
-      this.orbMap.setLink(
+    orbModel.getNames().forEach(orbName => {
+      orbModel.setLink(
         orbName,
         unlinkedOrbNames.indexOf(orbName) >= 0 ? "unlinked" : "linked");
     });
     if (this.socket !== null) {
-      this.socket.emit("updateOrbs", this.orbMap.toArray());
+      this.socket.emit("updateOrbs", orbModel.toArray());
     }
   }
-  updateBattery(orbName, batteryState) {
-    const orbNameItem = this.orbMap.get(orbName);
-    if (typeof orbNameItem === "undefined") {
-      throw new Error("updateBattery しようとしましたが、orb が見つかりませんでした。 : " + orbName);
-    }
-    orbNameItem.battery = batteryState;
+
+  updateBattery() {
     if (this.socket !== null) {
-      this.socket.emit("updateOrbs", this.orbMap.toArray());
+      this.socket.emit("updateOrbs", orbModel.toArray());
     }
   }
   updateHp(controllerKey, hp) {
@@ -161,12 +142,11 @@ export default class Dashboard extends ComponentBase {
     }
   }
   updatePingState(orbName) {
-    if (!this.orbMap.has(orbName)) {
+    if (!orbModel.has(orbName)) {
       throw new Error("updatePingState しようとしましたが、orb が見つかりませんでした。 : " + orbName);
     }
-    this.orbMap.setPingState(orbName, "reply");
     if (this.socket !== null) {
-      this.socket.emit("updateOrbs", this.orbMap.toArray());
+      this.socket.emit("updateOrbs", orbModel.toArray());
     }
   }
   streamed(orbName, time) {

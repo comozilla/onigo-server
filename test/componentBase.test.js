@@ -18,16 +18,35 @@ describe("ComponentBase", () => {
   describe("#subscribe()", () => {
     const component = new ComponentBase();
     component.subscribe("test2", data => {
-      it("should call function", () => {
+      it("should be called", () => {
         assert(data === "test-data-2");
       });
     });
     publisher.publish(this, "test2", "test-data-2");
-    component.subscribe("test3", data => {
-      it("should not call function when author is same", () => {
-        assert(data === "test-data-3");
+    it("should not call function when author is same", () => {
+      let isCalled = false;
+      component.subscribe("test3", data => {
+        isCalled = data === "test-data-3";
       });
+      assert(!isCalled);
     });
     publisher.publish(component, "test3", "test-data-3");
+  });
+  describe("#subscribe()", () => {
+    const component = new ComponentBase();
+    component.subscribeModel("test4", data => {
+      it("should be called", () => {
+        assert(data === "test-data-4");
+      });
+    });
+    publisher.publish(this, "test4", "test-data-4");
+    it("should not call function when author is same", () => {
+      let isCalled = false;
+      component.subscribeModel("test5", data => {
+        isCalled = data === "test-data-5";
+      });
+      assert(!isCalled);
+    });
+    publisher.publish(component, "test5", "test-data-5");
   });
 });
