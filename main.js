@@ -133,7 +133,10 @@ publisher.subscribe("addOrb", (author, name, port) => {
       error121Count = 0;
       connector.connect(port, rawOrb.instance).then(() => {
         rawOrb.instance.setInactivityTimeout(9999999, function(err, data) {
-          console.log(err | "data: " + data);
+          if (err) {
+            console.error(err);
+          }
+          console.log("data: " + data);
         });
         dashboard.log("connected orb.", "success");
         rawOrb.instance.configureCollisions({
