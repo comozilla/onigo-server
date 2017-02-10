@@ -1,6 +1,7 @@
 import assert from "assert";
 //import SpheroServerManager from "../spheroServerManager";
 import publisher from "../publisher";
+import config from "../config";
 
 // test には sphero-websocket が必要で、その際ネイティブ依存のモジュールも必要になるので、
 // テストできない。テストするには、sphero-websocket の testMode 時にネイティブ依存モジュールを使わないよう
@@ -14,7 +15,7 @@ describe("SpheroServerManager", () => {
     sphero: [],
     checkSignal: true,
     linkMode: "manual"
-  }, false);
+  }, false, config.defaultColor);
   describe("#publishAddedOrb", () => {
     it("should publish addedOrb", () => {
       publisher.subscribe("addedOrb", (author, name, orb) => {
