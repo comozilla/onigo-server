@@ -6,8 +6,8 @@ describe("VirtualSpheroManager", () => {
   describe("#constructor()", () => {
     const virtualSpheroManager = new VirtualSpheroManager(8081);
     it("should initialize virtualSphero", () => {
-      assert(typeof virtualSpheroManager === "object" &&
-             virtualSpheroManager.virtualSphero instanceof VirtualSphero);
+      assert(typeof virtualSpheroManager === "object");
+      assert(virtualSpheroManager.virtualSphero instanceof VirtualSphero);
     });
   });
   describe("#removeSphero", () => {
