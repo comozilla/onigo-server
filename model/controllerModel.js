@@ -21,10 +21,10 @@ class ControllerModel extends ComponentBase {
     this.publish("addedUnnamed", key, client);
   }
   setName(key, name) {
-    if (typeof this.unnamedClients[key] === "undefined") {
+    if (!this.unnamedClients[key]) {
       throw new Error("setNameしようとしたところ、keyに対するclientが見つかりませんでした。 key: " + key);
     }
-    let isNewName = typeof this.controllers[name] === "undefined";
+    let isNewName = !this.controllers[name];
     if (isNewName) {
       this.controllers[name] = new Controller(name, new CommandRunner(key));
     } else if (this.controllers[name].client !== null) {
