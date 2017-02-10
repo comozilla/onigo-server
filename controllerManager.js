@@ -82,6 +82,8 @@ export default class ControllerManager extends ComponentBase {
       const client = controllerModel.get(name).client;
       if (client !== null) {
         client.sendCustomMessage("availableCommandsCount", count);
+      } else {
+        console.warn("Tryed to update availableCommandsCount but client is null.");
       }
     });
   }
