@@ -15,5 +15,6 @@ export default {
   dashboardPort: 8082,
   scoreboardPort: 8083,
   defaultHp: 100,
-  damage: 10
+  damage: 10,
+  defaultColor: "white"
 };
