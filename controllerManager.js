@@ -3,8 +3,11 @@ import appModel from "./model/appModel";
 import ComponentBase from "./componentBase";
 
 export default class ControllerManager extends ComponentBase {
-  constructor() {
+  constructor(defaultHp, damage) {
     super();
+
+    this.defaultHp = defaultHp;
+    this.damageHp = damage;
 
     this.subscribe("oni", this.changeIsOni);
     this.subscribe("resetHp", this.resetHp);
@@ -18,7 +21,7 @@ export default class ControllerManager extends ComponentBase {
     controllerModel.get(name).setIsOni(isEnabled);
   }
   resetHp(name) {
-    controllerModel.get(name).setHp(100);
+    controllerModel.get(name).setHp(this.defaultHp);
   }
   changeColor(name, color) {
     controllerModel.get(name).setColor(color);
@@ -70,7 +73,7 @@ export default class ControllerManager extends ComponentBase {
       if (appModel.gameState === "active" && !controller.isOni &&
           controller.client !== null &&
           orb.linkedClients.indexOf(controller.client.key) !== -1) {
-        controller.setHp(controller.hp - 10);
+        controller.setHp(controller.hp - this.damageHp);
       }
     });
   }

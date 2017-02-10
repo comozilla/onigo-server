@@ -4,9 +4,10 @@ import controllerModel from "../model/controllerModel";
 import appModel from "../model/appModel";
 import publisher from "../publisher";
 import sinon from "sinon";
+import config from "../config";
 
 describe("ControllerManager", () => {
-  const controllerManager = new ControllerManager();
+  const controllerManager = new ControllerManager(config.defaultHp, config.damage);
   const testKey = "key-test";
   const testName = "name-test";
   controllerModel.add(testKey, {
@@ -42,7 +43,7 @@ describe("ControllerManager", () => {
     });
 
     it("should call setHp of controller", () => {
-      assert(setHpSpy.withArgs(100).called);
+      assert(setHpSpy.withArgs(config.defaultHp).called);
     });
 
     resetHpSpy.restore();
@@ -101,7 +102,7 @@ describe("ControllerManager", () => {
     });
 
     it("should call setHp", () => {
-      assert(setHpSpy.withArgs(90).called);
+      assert(setHpSpy.withArgs(config.defaultHp - config.damage).called);
     });
 
     damageSpy.restore();

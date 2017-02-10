@@ -56,7 +56,7 @@ dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 const scoreboard = new Scoreboard(config.scoreboardPort);
 
 new SpheroServerManager(spheroWS);
-new ControllerManager();
+new ControllerManager(config.defaultHp, config.damage);
 
 const rankingMaker = new RankingMaker();
 
