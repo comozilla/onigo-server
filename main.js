@@ -1,17 +1,18 @@
 const originalError = console.error;
 
-let error121Count = 0;
-console.error = function(message) {
+import appModel from "./appModel";
+
+console.error = (message) => {
   const exec121Error = /Error: Opening (\\\\\.\\)?(.+): Unknown error code (121|1167)/.exec(message);
   if (exec121Error !== null) {
     const port = exec121Error[2];
     if (connector.isConnecting(port)) {
-      error121Count++;
-      if (error121Count < 5) {
-        dashboard.log(`Catched 121 error. Reconnecting... (${error121Count})`, "warning");
+      appModel.incrementError121Count();
+      if (appModel.error121Count < 5) {
+        dashboard.log(`Catched 121 error. Reconnecting... (${appModel.error121Count})`, "warning");
         connector.reconnect(port);
       } else {
-        error121Count = 0;
+        appModel.resetError121Count();
         dashboard.log("Catched 121 error. But this is 5th try. Give up.", "warning");
         connector.giveUp(port);
       }
@@ -39,12 +40,13 @@ import publisher from "./publisher";
 import SpheroServerManager from "./spheroServerManager";
 import VirtualSpheroManager from "./virtualSpheroManager";
 import ControllerManager from "./controllerManager";
-import appModel from "./appModel";
+import OrbController from "./orbController";
 
 const opts = [
   { name: "test", type: "boolean" }
 ];
 const isTestMode = argv.option(opts).run().options.test;
+appModel.isTestMode = isTestMode;
 
 const spheroWS = spheroWebSocket(config.websocket, isTestMode);
 
@@ -55,13 +57,14 @@ dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
 
 const scoreboard = new Scoreboard(config.scoreboardPort);
 
-new SpheroServerManager(spheroWS, isTestMode, config.defaultColor);
+new SpheroServerManager(spheroWS, config.defaultColor);
 new ControllerManager(config.defaultHp, config.damage);
 
 const rankingMaker = new RankingMaker();
 
 const connector = new Connector();
 const uuidManager = new UUIDManager();
+new OrbController(connector, spheroWS, uuidManager);
 
 publisher.subscribe("named", (author, key, name, isNewName) => {
   const controller = controllerModel.get(name);
@@ -121,49 +124,6 @@ publisher.subscribe("updateLink", (author, controllerName, orbName) => {
 });
 publisher.subscribe("addedOrb", (name, orb) => {
   dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
-});
-publisher.subscribe("addOrb", (author, name, port) => {
-  if (uuidManager.contains(name)) {
-    port = uuidManager.getUUID(name);
-    console.log("changed!", port);
-  }
-  const rawOrb = spheroWS.spheroServer.makeRawOrb(name, port);
-  if (!isTestMode) {
-    if (!connector.isConnecting(port)) {
-      error121Count = 0;
-      connector.connect(port, rawOrb.instance).then(() => {
-        rawOrb.instance.setInactivityTimeout(9999999, function(err, data) {
-          if (err) {
-            console.error(err);
-          }
-          console.log("data: " + data);
-        });
-        dashboard.log("connected orb.", "success");
-        rawOrb.instance.configureCollisions({
-          meth: 0x01,
-          xt: 0x7A,
-          xs: 0xFF,
-          yt: 0x7A,
-          ys: 0xFF,
-          dead: 100
-        }, () => {
-          dashboard.log("configured orb.", "success");
-          spheroWS.spheroServer.addOrb(rawOrb);
-          rawOrb.instance.streamOdometer();
-          rawOrb.instance.on("odometer", data => {
-            const time = new Date();
-            dashboard.streamed(
-              name,
-              ("0" + time.getHours()).slice(-2) + ":" +
-              ("0" + time.getMinutes()).slice(-2) + ":" +
-              ("0" + time.getSeconds()).slice(-2));
-          });
-        });
-      });
-    }
-  } else {
-    spheroWS.spheroServer.addOrb(rawOrb);
-  }
 });
 publisher.subscribe("checkBattery", () => {
   const orbs = spheroWS.spheroServer.getOrb();

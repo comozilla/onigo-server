@@ -3,10 +3,9 @@ import spheroWebSocket from "sphero-websocket";
 import ComponentBase from "./componentBase";
 
 export default class SpheroServerManager extends ComponentBase {
-  constructor(spheroWS, isTestMode, defaultColor) {
+  constructor(spheroWS, defaultColor) {
     super();
 
-    this.isTestMode = isTestMode;
     this.spheroWS = spheroWS;
     this.spheroServer = this.spheroWS.spheroServer;
     this.defaultColor = defaultColor;
@@ -16,7 +15,6 @@ export default class SpheroServerManager extends ComponentBase {
     this.spheroServer.events.on("addOrb", this.publishAddedOrb.bind(this));
     this.spheroServer.events.on("removeOrb", this.publishRemovedOrb.bind(this));
 
-    this.subscribe("removeOrb", this.removeOrb);
   }
 
   publishAddClient(key, client) {
@@ -27,19 +25,7 @@ export default class SpheroServerManager extends ComponentBase {
     this.publish("removeClient", key);
   }
 
-  initializeOrb(orb) {
-    const rawOrb = orb.instance;
-    rawOrb.color(this.defaultColor);
-    rawOrb.detectCollisions();
-    rawOrb.on("collision", () => {
-      this.publishCollision(orb);
-    });
-  }
-
   publishAddedOrb(name, orb) {
-    if (!this.isTestMode) {
-      this.initializeOrb(orb);
-    }
     this.publish("addedOrb", name, orb);
   }
 
@@ -51,8 +37,4 @@ export default class SpheroServerManager extends ComponentBase {
     this.publish("collision", orb);
   }
 
-  removeOrb(name) {
-    console.log("removing...");
-    this.spheroServer.removeOrb(name);
-  }
 }

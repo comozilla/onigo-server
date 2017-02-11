@@ -3,8 +3,8 @@ import Dashboard from "../dashboard";
 import publisher from "../publisher";
 
 describe("Dashboard", function() {
+  const dashboard = new Dashboard(8082);
   describe("#initializeConnection()", function() {
-    const dashboard = new Dashboard(8082);
     let registeredListener = null;
     dashboard.initializeConnection({
       on(subjectName, listener) {
@@ -36,5 +36,24 @@ describe("Dashboard", function() {
       });
     });
     dashboard.publishPingAll();
+  });
+
+  describe("#formatTime()", () => {
+    const date = new Date();
+    const formattedTime = dashboard.formatTime(date);
+
+    it("should format correctly", () => {
+      const nums = formattedTime.split(":");
+      assert.equal(nums.length, 3);
+
+      assert.equal(nums[0].length, 2);
+      assert.equal(parseInt(nums[0]), date.getHours());
+
+      assert.equal(nums[1].length, 2);
+      assert.equal(parseInt(nums[1]), date.getMinutes());
+
+      assert.equal(nums[2].length, 2);
+      assert.equal(parseInt(nums[2]), date.getSeconds());
+    });
   });
 });
