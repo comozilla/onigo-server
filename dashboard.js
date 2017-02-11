@@ -67,6 +67,8 @@ export default class Dashboard extends ComponentBase {
     this.subscribe("removedOrb", this.removeOrb);
     this.subscribe("updateBattery", this.updateBattery);
     this.subscribe("replyPing", this.updatePingState);
+    this.subscribe("log", this.log);
+    this.subscribe("streamed", this.streamed);
   }
   initializeConnection(socket) {
     if (this.socket !== null) {
@@ -151,12 +153,17 @@ export default class Dashboard extends ComponentBase {
   }
   streamed(orbName, time) {
     if (this.socket !== null) {
-      this.socket.emit("streamed", orbName, time);
+      this.socket.emit("streamed", orbName, this.formatTime(time));
     }
   }
   successReconnect(orbName) {
     if (this.socket !== null) {
       this.socket.emit("successReconnect", orbName);
     }
+  }
+  formatTime(time) {
+    return ("0" + time.getHours()).slice(-2) + ":" +
+      ("0" + time.getMinutes()).slice(-2) + ":" +
+      ("0" + time.getSeconds()).slice(-2);
   }
 }

@@ -1,18 +1,26 @@
 import ComponentBase from "./componentBase";
 import orbModel from "./model/orbModel";
+import appModel from "./model/appModel";
 
 export default class OrbController extends ComponentBase {
-  constructor() {
+  constructor(connector, spheroWS, uuidManager) {
     super();
 
-    this.subscribeModel("addedOrb", this.addOrb);
-    this.subscribeModel("removedOrb", this.removeOrb);
+    this.spheroWS = spheroWS;
+    this.connector = connector;
+    this.uuidManager = uuidManager;
+
+    this.subscribeModel("addedOrb", this.addOrbToModel);
+    this.subscribeModel("removedOrb", this.removeOrbFromModel);
     this.subscribeModel("pingAll", this.setPingStateAll);
     this.subscribeModel("updateBattery", this.updateBattery);
     this.subscribeModel("replyPing", this.updatePingState);
+    this.subscribeModel("checkBattery", this.checkBattery);
+    this.subscribeModel("addOrb", this.addOrb);
+    this.subscribeModel("removeOrb", this.removeOrb);
   }
 
-  addOrb(name, orb) {
+  addOrbToModel(name, orb) {
     if (orbModel.has(name)) {
       throw new Error(`追加しようとしたOrbは既に存在します。 : ${name}`);
     }
@@ -23,9 +31,10 @@ export default class OrbController extends ComponentBase {
       link: "unlinked",
       pingState: "unchecked"
     });
+    this.initializeOrb();
   }
 
-  removeOrb(name) {
+  removeOrbFromModel(name) {
     if (!orbModel.has(name)) {
       throw new Error(`削除しようとしたOrbは存在しません。 : ${name}`);
     }
@@ -50,5 +59,83 @@ export default class OrbController extends ComponentBase {
       throw new Error("updatePingState しようとしましたが、orb が見つかりませんでした。 : " + name);
     }
     orbModel.setPingState(name, "reply");
+  }
+
+  checkBattery() {
+    const orbs = this.spheroWS.spheroServer.getOrb();
+    Object.keys(orbs).forEach(orbName => {
+      if (!appModel.isTestMode) {
+        orbs[orbName].instance.getPowerState((error, data) => {
+          if (error) {
+            throw new Error(error);
+          } else {
+            this.publish("updateBattery", orbName, data.batteryState);
+          }
+        });
+      } else {
+        this.publish("updateBattery", orbName, "test-battery");
+      }
+    });
+  }
+
+  initializeOrb(orb) {
+    if (!appModel.isTestMode) {
+      const rawOrb = orb.instance;
+      rawOrb.color(this.defaultColor);
+      rawOrb.detectCollisions();
+      rawOrb.on("collision", () => {
+        this.publishCollision(orb);
+      });
+    }
+  }
+
+  addOrb(name, port) {
+    if (this.uuidManager.contains(name)) {
+      port = this.uuidManager.getUUID(name);
+      console.log("changed!", port);
+    }
+    const rawOrb = this.spheroWS.spheroServer.makeRawOrb(name, port);
+    if (!appModel.isTestMode) {
+      if (!this.connector.isConnecting(port)) {
+        appModel.resetError121Count();
+        this.connector.connect(port, rawOrb.instance).then(() => {
+          rawOrb.instance.setInactivityTimeout(9999999, function(err, data) {
+            if (err) {
+              console.error(err);
+            }
+            console.log("data: " + data);
+          });
+
+          this.publish("log", "connected orb.", "success");
+
+          rawOrb.instance.configureCollisions({
+            meth: 0x01,
+            xt: 0x7A,
+            xs: 0xFF,
+            yt: 0x7A,
+            ys: 0xFF,
+            dead: 100
+          }, () => {
+            this.publish("log", "configured orb.", "success");
+            this.spheroWS.spheroServer.addOrb(rawOrb);
+            rawOrb.instance.streamOdometer();
+            rawOrb.instance.on("odometer", data => {
+              this.publish("streamed", name, new Date());
+            });
+          });
+        });
+      } else {
+        console.warn("Tryed to connect but a orb is connecting.");
+      }
+    } else {
+      this.spheroWS.spheroServer.addOrb(rawOrb);
+    }
+  }
+
+  removeOrb(name) {
+    if (!appModel.isTestMode) {
+      console.log("removing...");
+      this.spheroWS.spheroServer.removeOrb(name);
+    }
   }
 }

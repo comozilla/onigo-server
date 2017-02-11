@@ -15,7 +15,7 @@ describe("SpheroServerManager", () => {
     sphero: [],
     checkSignal: true,
     linkMode: "manual"
-  }, false, config.defaultColor);
+  }, config.defaultColor);
   describe("#publishAddedOrb", () => {
     it("should publish addedOrb", () => {
       publisher.subscribe("addedOrb", (author, name, orb) => {

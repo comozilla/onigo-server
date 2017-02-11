@@ -1,12 +1,14 @@
 import assert from "assert";
 import orbModel from "../model/orbModel";
+import appModel from "../model/appModel";
 import OrbController from "../orbController";
 
 describe("OrbController", () => {
+  appModel.isTestMode = true;
   const orbController = new OrbController();
   const testName = "name-test";
   beforeEach(done => {
-    orbController.addOrb(testName, {
+    orbController.addOrbToModel(testName, {
       port: "test"
     });
     done();
@@ -15,7 +17,7 @@ describe("OrbController", () => {
     orbModel.orbs = {};
     done();
   });
-  describe("#addOrb()", () => {
+  describe("#addOrbToModel()", () => {
     it("should add onto orbModel", () => {
       assert(orbModel.has(testName));
       const orb = orbModel.get(testName);
@@ -26,10 +28,10 @@ describe("OrbController", () => {
       assert.equal(orb.pingState, "unchecked");
     });
   });
-  describe("#removeOrb()", () => {
+  describe("#removeOrbFromModel()", () => {
     it("should remove from orbModel", () => {
       assert(orbModel.has(testName));
-      orbController.removeOrb(testName);
+      orbController.removeOrbFromModel(testName);
       assert(!orbModel.has(testName));
     });
   });
