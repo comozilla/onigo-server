@@ -18,6 +18,7 @@ export default class OrbController extends ComponentBase {
     this.subscribeModel("checkBattery", this.checkBattery);
     this.subscribeModel("addOrb", this.addOrb);
     this.subscribeModel("removeOrb", this.removeOrb);
+    this.subscribeModel("pingAll", this.pingAll);
   }
 
   addOrbToModel(name, orb) {
@@ -75,6 +76,19 @@ export default class OrbController extends ComponentBase {
       } else {
         this.publish("updateBattery", orbName, "test-battery");
       }
+    });
+  }
+
+  pingAll() {
+    const orbs = this.spheroWS.spheroServer.getOrb();
+    Object.keys(orbs).forEach(orbName => {
+      orbs[orbName].instance.ping((err, data) => {
+        if (!err) {
+          this.publish("replyPing", orbName);
+        } else {
+          this.publish("log", "Ping error: \n" + err.toString(), "error");
+        }
+      });
     });
   }
 

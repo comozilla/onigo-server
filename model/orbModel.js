@@ -1,8 +1,10 @@
 import ComponentBase from "../componentBase";
 
 export class OrbModel extends ComponentBase {
-  constructor() {
+  constructor(spheroWS) {
     super();
+
+    this.spheroWS = spheroWS;
 
     this.orbs = {};
   }
@@ -53,6 +55,14 @@ export class OrbModel extends ComponentBase {
   }
   toArray() {
     return Object.keys(this.orbs).map(orbName => this.orbs[orbName]);
+  }
+
+  getUnlinkedOrbs() {
+    return this.spheroWS.spheroServer.getUnlinkedOrbs();
+  }
+
+  getOrbFromSpheroWS() {
+    return this.spheroWS.spheroServer.getOrb();
   }
 }
 

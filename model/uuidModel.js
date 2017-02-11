@@ -1,6 +1,6 @@
-import ComponentBase from "./componentBase.js";
-import noble from "noble";
-import appModel from "./model/appModel.js";
+import ComponentBase from "../componentBase";
+//import noble from "noble";
+import appModel from "./appModel";
 
 export class UUIDModel extends ComponentBase {
   constructor() {
@@ -9,7 +9,7 @@ export class UUIDModel extends ComponentBase {
     this.nameAndUUIDs = {};
 
     if (!appModel.isTestMode) {
-      noble.on("stateChange", state => {
+ /*     noble.on("stateChange", state => {
         if (state === "poweredOn") {
           noble.startScanning();
         }
@@ -17,7 +17,7 @@ export class UUIDModel extends ComponentBase {
 
       noble.on("discover", peripheral => {
         this.setName(peripheral.uuid, peripheral.advertisement.localName);
-      });
+      }); */
     }
   }
   setName(uuid, name) {

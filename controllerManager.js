@@ -1,5 +1,6 @@
 import controllerModel from "./model/controllerModel";
 import appModel from "./model/appModel";
+import orbModel from "./model/orbModel";
 import ComponentBase from "./componentBase";
 
 export default class ControllerManager extends ComponentBase {
@@ -16,6 +17,7 @@ export default class ControllerManager extends ComponentBase {
     this.subscribe("gameState", this.updateGameState);
     this.subscribe("collision", this.damage);
     this.subscribe("availableCommandsCount", this.updateAvailableCommandsCount);
+    this.subscribe("updateLink", this.updateLink);
   }
   changeIsOni(name, isEnabled) {
     controllerModel.get(name).setIsOni(isEnabled);
@@ -86,6 +88,10 @@ export default class ControllerManager extends ComponentBase {
         console.warn("Tryed to update availableCommandsCount but client is null.");
       }
     });
+  }
+  updateLink(controllerName, orbName) {
+    controllerModel.get(controllerName).setLink(
+      orbName !== null ? orbModel.getOrbFromSpheroWS(orbName) : null);
   }
 }
 

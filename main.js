@@ -99,7 +99,6 @@ Object.keys(orbs).forEach(orbName => {
   dashboard.addOrb(orbName, orbs[orbName].port);
 });
 
-
 publisher.subscribe("rankingState", (author, state) => {
   const controllerKeys = Object.keys(controllerModel.controllers).filter(key => {
     return controllerModel.get(key).client !== null;
@@ -115,38 +114,6 @@ publisher.subscribe("rankingState", (author, state) => {
   }
 });
 
-publisher.subscribe("updateLink", (author, controllerName, orbName) => {
-  controllerModel.get(controllerName).setLink(
-    orbName !== null ? spheroWS.spheroServer.getOrb(orbName) : null);
-  dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
-});
-publisher.subscribe("addedOrb", (name, orb) => {
-  dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
-});
-publisher.subscribe("checkBattery", () => {
-  const orbs = spheroWS.spheroServer.getOrb();
-  Object.keys(orbs).forEach(orbName => {
-    orbs[orbName].instance.getPowerState((error, data) => {
-      if (error) {
-        throw new Error(error);
-      } else {
-        publisher.publish(this, "updateBattery", orbName, data.batteryState);
-      }
-    });
-  });
-});
-publisher.subscribe("pingAll", () => {
-  const orbs = spheroWS.spheroServer.getOrb();
-  Object.keys(orbs).forEach(orbName => {
-    orbs[orbName].instance.ping((err, data) => {
-      if (!err) {
-        publisher.publish(this, "replyPing", orbName);
-      } else {
-        dashboard.log("Ping error: \n" + err.toString(), "error");
-      }
-    });
-  });
-});
 publisher.subscribe("reconnect", (author, name) => {
   if (!isTestMode) {
     const orb = spheroWS.spheroServer.getOrb(name);

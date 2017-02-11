@@ -69,6 +69,8 @@ export default class Dashboard extends ComponentBase {
     this.subscribe("replyPing", this.updatePingState);
     this.subscribe("log", this.log);
     this.subscribe("streamed", this.streamed);
+    this.subscribe("updateLink", this.updateUnlinkedOrbs);
+    this.subscribe("addOrb", this.updateUnlinkedOrbs);
   }
   initializeConnection(socket) {
     if (this.socket !== null) {
@@ -115,8 +117,8 @@ export default class Dashboard extends ComponentBase {
     }
   }
 
-  updateUnlinkedOrbs(unlinkedOrbs) {
-    // タイミングがいろいろ難しいので、修正は後回し
+  updateUnlinkedOrbs() {
+    const unlinkedOrbs = orbModel.getUnlinkedOrbs();
     const unlinkedOrbNames = Object.keys(unlinkedOrbs);
     orbModel.getNames().forEach(orbName => {
       orbModel.setLink(
