@@ -35,7 +35,6 @@ import Controller from "./controller";
 import controllerModel from "./model/controllerModel";
 import RankingMaker from "./rankingMaker";
 import Connector from "./connector";
-import UUIDManager from "./uuidManager";
 import publisher from "./publisher";
 import SpheroServerManager from "./spheroServerManager";
 import VirtualSpheroManager from "./virtualSpheroManager";
@@ -63,8 +62,7 @@ new ControllerManager(config.defaultHp, config.damage);
 const rankingMaker = new RankingMaker();
 
 const connector = new Connector();
-const uuidManager = new UUIDManager();
-new OrbController(connector, spheroWS, uuidManager);
+new OrbController(connector, spheroWS);
 
 publisher.subscribe("named", (author, key, name, isNewName) => {
   const controller = controllerModel.get(name);
