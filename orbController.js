@@ -1,14 +1,14 @@
 import ComponentBase from "./componentBase";
 import orbModel from "./model/orbModel";
 import appModel from "./model/appModel";
+import uuidModel from "./model/uuidModel";
 
 export default class OrbController extends ComponentBase {
-  constructor(connector, spheroWS, uuidManager) {
+  constructor(connector, spheroWS) {
     super();
 
     this.spheroWS = spheroWS;
     this.connector = connector;
-    this.uuidManager = uuidManager;
 
     this.subscribeModel("addedOrb", this.addOrbToModel);
     this.subscribeModel("removedOrb", this.removeOrbFromModel);
@@ -90,8 +90,8 @@ export default class OrbController extends ComponentBase {
   }
 
   addOrb(name, port) {
-    if (this.uuidManager.contains(name)) {
-      port = this.uuidManager.getUUID(name);
+    if (uuidModel.contains(name)) {
+      port = uuidModel.getUUID(name);
       console.log("changed!", port);
     }
     const rawOrb = this.spheroWS.spheroServer.makeRawOrb(name, port);
@@ -133,9 +133,7 @@ export default class OrbController extends ComponentBase {
   }
 
   removeOrb(name) {
-    if (!appModel.isTestMode) {
-      console.log("removing...");
-      this.spheroWS.spheroServer.removeOrb(name);
-    }
+    console.log("removing...");
+    this.spheroWS.spheroServer.removeOrb(name);
   }
 }
