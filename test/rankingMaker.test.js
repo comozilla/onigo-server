@@ -7,6 +7,7 @@ import publisher from "../publisher";
 describe("RankingMaker", () => {
   describe("#make", () => {
     const rankingMaker = new RankingMaker();
+    const beforeControllers = controllerModel.controllers;
     controllerModel.controllers = {
       controller1: {
         linkedOrb: "orb1",
@@ -64,5 +65,6 @@ describe("RankingMaker", () => {
     });
 
     makeSpy.restore();
+    controllerModel.controllers = beforeControllers;
   });
 });

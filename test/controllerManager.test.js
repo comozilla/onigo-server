@@ -12,9 +12,14 @@ describe("ControllerManager", () => {
   const testName = "name-test";
   controllerModel.add(testKey, {
     sendCustomMessage() {},
-    key: testKey
+    key: testKey,
+    on() {}
   });
   controllerModel.setName(testKey, testName);
+  controllerModel.get(testName).linkedOrb = {
+    command() {},
+    hasCommand() { return true; }
+  };
 
   describe("#changeIsOni", () => {
     const changeIsOniSpy = sinon.spy(controllerManager, "changeIsOni");
@@ -162,4 +167,77 @@ describe("ControllerManager", () => {
     sendCustomMessageSpy.restore();
   });
 
+  describe("#initializeController", () => {
+    const controller = controllerModel.get(testName);
+    const initializeControllerSpy = sinon.spy(controllerManager, "initializeController");
+    const sendCustomMessageSpy = sinon.spy(controller.client, "sendCustomMessage");
+
+    controllerManager.initializeController(testKey, testName, true);
+
+    it("should be called", () => {
+      assert(initializeControllerSpy.withArgs(testKey, testName, true));
+    });
+
+    it("should send default datas", () => {
+      assert(sendCustomMessageSpy.withArgs("gameState", appModel.gameState).called);
+      assert(sendCustomMessageSpy.withArgs("rankingState", appModel.rankingState).called);
+      assert(sendCustomMessageSpy.withArgs("availableCommandsCount", appModel.availableCommandsCount).called);
+      assert(sendCustomMessageSpy.withArgs("clientKey", testKey).called);
+    });
+
+    publisher.subscribe((author, name, hp) => {
+      it("should publish hp when controller emitted hp", () => {
+        assert.equal(author, controllerManager);
+        assert.equal(name, testName);
+        assert.equal(hp, 80);
+      });
+    });
+
+    controller.emit("hp", testName, 80);
+
+    initializeControllerSpy.restore();
+    sendCustomMessageSpy.restore();
+  });
+
+  describe("#setCommands", () => {
+    const controller = controllerModel.get(testName);
+    const setCommandsSpy = sinon.spy(controllerManager, "setCommands");
+    const setCommandsInCommandRunnerSpy = sinon.spy(controller.commandRunner, "setCommands");
+
+    const commands = [
+      { commandName: "roll", args: [80, 80] }
+    ];
+
+    controllerManager.setCommands(testName, commands);
+
+    it("should be called", () => {
+      assert(setCommandsSpy.withArgs(testName).called);
+    });
+
+    it("should call setCommands in commandRunner", () => {
+      assert(setCommandsInCommandRunnerSpy.withArgs("commands"));
+    });
+
+    setCommandsSpy.restore();
+    setCommandsInCommandRunnerSpy.restore();
+  });
+
+  describe("#command", () => {
+    const controller = controllerModel.get(testName);
+    const commandSpy = sinon.spy(controllerManager, "command");
+    const commandInOrbSpy = sinon.spy(controller.linkedOrb, "command");
+
+    controllerManager.command(testKey, "roll", "args");
+
+    it("should be called", () => {
+      assert(commandSpy.withArgs(testKey, "roll", "args").called);
+    });
+
+    it("should call setCommands in commandRunner", () => {
+      assert(commandInOrbSpy.withArgs("roll", "args"));
+    });
+
+    commandSpy.restore();
+    commandInOrbSpy.restore();
+  });
 });
