@@ -71,6 +71,7 @@ export default class Dashboard extends ComponentBase {
     this.subscribe("streamed", this.streamed);
     this.subscribe("updateLink", this.updateUnlinkedOrbs);
     this.subscribe("addOrb", this.updateUnlinkedOrbs);
+    this.subscribe("hp", this.updateHp);
   }
   initializeConnection(socket) {
     if (this.socket !== null) {
@@ -135,9 +136,9 @@ export default class Dashboard extends ComponentBase {
       this.socket.emit("updateOrbs", orbModel.toArray());
     }
   }
-  updateHp(controllerKey, hp) {
+  updateHp(name, hp) {
     if (this.socket !== null) {
-      this.socket.emit("hp", controllerKey, hp);
+      this.socket.emit("hp", name, hp);
     }
   }
   log(logText, logType) {

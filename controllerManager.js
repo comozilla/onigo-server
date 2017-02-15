@@ -19,6 +19,9 @@ export default class ControllerManager extends ComponentBase {
     this.subscribe("availableCommandsCount", this.updateAvailableCommandsCount);
     this.subscribe("updateLink", this.updateLink);
     this.subscribe("rankingState", this.updateRankingState);
+    this.subscribe("named", this.initializeController);
+    this.subscribe("setCommands", this.setCommands);
+    this.subscribe("command", this.command);
   }
   changeIsOni(name, isEnabled) {
     controllerModel.get(name).setIsOni(isEnabled);
@@ -107,6 +110,40 @@ export default class ControllerManager extends ComponentBase {
   updateLink(controllerName, orbName) {
     controllerModel.get(controllerName).setLink(
       orbName !== null ? orbModel.getOrbFromSpheroWS(orbName) : null);
+  }
+  initializeController(key, name, isNewName) {
+    const controller = controllerModel.get(name);
+    const client = controller.client;
+
+    client.sendCustomMessage("gameState", appModel.gameState);
+    client.sendCustomMessage("rankingState", appModel.rankingState);
+    client.sendCustomMessage("availableCommandsCount", appModel.availableCommandsCount);
+    client.sendCustomMessage("clientKey", key);
+
+    client.on("arriveCustomMessage", (messageName, data, mesID) => {
+      if (messageName === "commands") {
+        this.publish("setCommands", name, data);
+      }
+    });
+
+    if (isNewName) {
+      controller.on("hp", hp => {
+        this.publish("hp", name, hp);
+      });
+    }
+  }
+  setCommands(name, commands) {
+    const controller = controllerModel.get(name);
+    controller.commandRunner.setCommands(commands);
+  }
+  command(key, commandName, args) {
+    const controller = controllerModel.get(controllerModel.toName(key));
+    if (controller.linkedOrb !== null) {
+      if (!controller.linkedOrb.hasCommand(commandName)) {
+        throw new Error(`command : ${commandName} is not valid.`);
+      }
+      controller.linkedOrb.command(commandName, args);
+    }
   }
 }
 

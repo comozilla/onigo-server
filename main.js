@@ -64,36 +64,6 @@ const rankingMaker = new RankingMaker();
 const connector = new Connector();
 new OrbController(connector, spheroWS);
 
-publisher.subscribe("named", (author, key, name, isNewName) => {
-  const controller = controllerModel.get(name);
-  const client = controller.client;
-
-  client.sendCustomMessage("gameState", appModel.gameState);
-  client.sendCustomMessage("rankingState", appModel.rankingState);
-  client.sendCustomMessage("availableCommandsCount", appModel.availableCommandsCount);
-  client.sendCustomMessage("clientKey", key);
-
-  if (isNewName) {
-    publisher.subscribe("command", (author, key, commandName, args) => {
-      if (controller.linkedOrb !== null) {
-        if (!controller.linkedOrb.hasCommand(commandName)) {
-          throw new Error(`command : ${commandName} is not valid.`);
-        }
-        controller.linkedOrb.command(commandName, args);
-      }
-    });
-    controller.on("hp", hp => {
-      dashboard.updateHp(name, hp);
-    });
-  }
-
-  client.on("arriveCustomMessage", (messageName, data, mesID) => {
-    if (messageName === "commands") {
-      controller.commandRunner.setCommands(data);
-    }
-  });
-});
-
 const orbs = spheroWS.spheroServer.getOrb();
 Object.keys(orbs).forEach(orbName => {
   dashboard.addOrb(orbName, orbs[orbName].port);
