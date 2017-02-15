@@ -18,6 +18,7 @@ export default class ControllerManager extends ComponentBase {
     this.subscribe("collision", this.damage);
     this.subscribe("availableCommandsCount", this.updateAvailableCommandsCount);
     this.subscribe("updateLink", this.updateLink);
+    this.subscribe("rankingState", this.updateRankingState);
   }
   changeIsOni(name, isEnabled) {
     controllerModel.get(name).setIsOni(isEnabled);
@@ -69,6 +70,20 @@ export default class ControllerManager extends ComponentBase {
       controllerModel.get(key).client.sendCustomMessage("gameState", state);
     });
   }
+  updateRankingState(state) {
+    Object.keys(controllerModel.controllers).filter(key => {
+      return controllerModel.get(key).client !== null;
+    }).forEach(key => {
+      controllerModel.get(key).client.sendCustomMessage("rankingState", state);
+    });
+  };
+  updateRanking(ranking) {
+    Object.keys(controllerModel.controllers).filter(key => {
+      return controllerModel.get(key).client !== null;
+    }).forEach(key => {
+      controllerModel.get(key).client.sendCustomMessage("ranking", ranking);
+    });
+  }
   damage(orb) {
     Object.keys(controllerModel.controllers).forEach(controllerName => {
       const controller = controllerModel.get(controllerName);
@@ -85,7 +100,7 @@ export default class ControllerManager extends ComponentBase {
       if (client !== null) {
         client.sendCustomMessage("availableCommandsCount", count);
       } else {
-        console.warn("Tryed to update availableCommandsCount but client is null.");
+        console.warn("Tryed to update availableCommandsCount but client is null. name: " + name);
       }
     });
   }

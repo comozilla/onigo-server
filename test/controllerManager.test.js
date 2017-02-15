@@ -84,6 +84,40 @@ describe("ControllerManager", () => {
     sendCustomMessageSpy.restore();
   });
 
+  describe("#updateRankingState", () => {
+    const updateGameStateSpy = sinon.spy(controllerManager, "updateRankingState");
+    const sendCustomMessageSpy = sinon.spy(controllerModel.get(testName).client, "sendCustomMessage");
+    controllerManager.updateRankingState("show");
+
+    it("should be called", () => {
+      assert(updateGameStateSpy.withArgs("show").called);
+    });
+
+    it("should send gameState to client", () => {
+      assert(sendCustomMessageSpy.withArgs("rankingState", "show").called);
+    });
+
+    updateGameStateSpy.restore();
+    sendCustomMessageSpy.restore();
+  });
+
+  describe("#updateRanking", () => {
+    const updateGameStateSpy = sinon.spy(controllerManager, "updateRanking");
+    const sendCustomMessageSpy = sinon.spy(controllerModel.get(testName).client, "sendCustomMessage");
+    controllerManager.updateRanking("test-ranking");
+
+    it("should be called", () => {
+      assert(updateGameStateSpy.withArgs("test-ranking").called);
+    });
+
+    it("should send gameState to client", () => {
+      assert(sendCustomMessageSpy.withArgs("ranking", "test-ranking").called);
+    });
+
+    updateGameStateSpy.restore();
+    sendCustomMessageSpy.restore();
+  });
+
   describe("#damage", () => {
     const controller = controllerModel.get(testName);
     controller.hp = 100;
@@ -127,4 +161,5 @@ describe("ControllerManager", () => {
     updateSpy.restore();
     sendCustomMessageSpy.restore();
   });
+
 });
