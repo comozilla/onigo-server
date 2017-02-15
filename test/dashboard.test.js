@@ -19,6 +19,11 @@ describe("Dashboard", function() {
             assert(listener.toString() === dashboard.publishPingAll.bind(dashboard).toString());
           });
         }
+        if (subjectName === "link") {
+          it("should register publishLink", () => {
+            assert(listener.toString() === dashboard.publishUpdateLink.bind(dashboard).toString());
+          });
+        }
       },
       emit() {}
     });
@@ -30,12 +35,24 @@ describe("Dashboard", function() {
     });
     registeredListener("active");
 
+  });
+
+  describe("#publishPingAll()", () => {
     publisher.subscribe("pingAll", author => {
       it("should publish pingAll to eventPublisher", () => {
-        assert(true);
+        assert.equal(author, dashboard);
       });
     });
     dashboard.publishPingAll();
+  });
+
+  describe("#publishUpdateLink", () => {
+    publisher.subscribe("updateLink", author => {
+      it("should publish updateLink to eventPublisher", () => {
+        assert.equal(author, dashboard);
+      });
+    });
+    dashboard.publishUpdateLink("contrllerName", "orbName");
   });
 
   describe("#formatTime()", () => {

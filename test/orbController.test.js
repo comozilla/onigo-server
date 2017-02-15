@@ -5,7 +5,7 @@ import OrbController from "../orbController";
 
 describe("OrbController", () => {
   appModel.isTestMode = true;
-  const orbController = new OrbController();
+  const orbController = new OrbController({}, {}, "white");
   const testName = "name-test";
   beforeEach(done => {
     orbController.addOrbToModel(testName, {
