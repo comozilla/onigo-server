@@ -99,21 +99,6 @@ Object.keys(orbs).forEach(orbName => {
   dashboard.addOrb(orbName, orbs[orbName].port);
 });
 
-publisher.subscribe("rankingState", (author, state) => {
-  const controllerKeys = Object.keys(controllerModel.controllers).filter(key => {
-    return controllerModel.get(key).client !== null;
-  });
-  controllerKeys.forEach(key => {
-    controllerModel.get(key).client.sendCustomMessage("rankingState", state);
-  });
-  if (state === "show") {
-    const ranking = rankingMaker.make(controllerModel.controllers);
-    controllerKeys.forEach(key => {
-      controllerModel.get(key).client.sendCustomMessage("ranking", ranking);
-    });
-  }
-});
-
 publisher.subscribe("reconnect", (author, name) => {
   if (!isTestMode) {
     const orb = spheroWS.spheroServer.getOrb(name);

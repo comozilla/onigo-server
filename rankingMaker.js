@@ -1,7 +1,17 @@
-export default class RankingMaker {
+import ComponentBase from "./componentBase";
+import controllerModel from "./model/controllerModel";
+
+export default class RankingMaker extends ComponentBase {
   constructor() {
+    super();
+
+    this.subscribe("rankingState", this.make);
   }
-  make(controllers) {
+
+  make(rankingState) {
+    if (rankingState === "hide") return;
+
+    const controllers = controllerModel.controllers;
     const controllerNames = Object.keys(controllers);
     // indexが順位となっている
     // [ { hp: 100, name: "xxx" }, { hp: 80, name: "xxx" }, ...]
@@ -22,10 +32,11 @@ export default class RankingMaker {
     // { name: getStates(), ... }
     const onis = {};
     controllerNames.filter(name => {
-      return controllers[name].linkedOrb !== null && controllers[name].isOni
+      return controllers[name].linkedOrb !== null && controllers[name].isOni;
     }).forEach(name => {
       onis[name] = controllers[name].getStates();
     });
-    return { ranking, onis };
+
+    this.publish("ranking", { ranking, onis });
   }
 }
