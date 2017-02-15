@@ -1,6 +1,6 @@
 const originalError = console.error;
 
-import appModel from "./appModel";
+import appModel from "./model/appModel";
 
 console.error = (message) => {
   const exec121Error = /Error: Opening (\\\\\.\\)?(.+): Unknown error code (121|1167)/.exec(message);
@@ -49,23 +49,13 @@ appModel.isTestMode = isTestMode;
 
 const spheroWS = spheroWebSocket(config.websocket, isTestMode);
 
-new VirtualSpheroManager(config.virtualSphero.wsPort);
-
 const dashboard = new Dashboard(config.dashboardPort);
-dashboard.updateUnlinkedOrbs(spheroWS.spheroServer.getUnlinkedOrbs());
+const connector = new Connector();
 
-const scoreboard = new Scoreboard(config.scoreboardPort);
-
+new VirtualSpheroManager(config.virtualSphero.wsPort);
+new Scoreboard(config.scoreboardPort);
 new SpheroServerManager(spheroWS, config.defaultColor);
 new ControllerManager(config.defaultHp, config.damage);
-
-const rankingMaker = new RankingMaker();
-
-const connector = new Connector();
+new RankingMaker();
 new OrbController(connector, spheroWS);
-
-const orbs = spheroWS.spheroServer.getOrb();
-Object.keys(orbs).forEach(orbName => {
-  dashboard.addOrb(orbName, orbs[orbName].port);
-});
 
