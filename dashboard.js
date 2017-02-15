@@ -12,7 +12,6 @@ const socketSubjects = [
   "gameState",
   "rankingState",
   "availableCommandsCount",
-  "link",
   "addOrb",
   "removeOrb",
   "oni",
@@ -95,6 +94,9 @@ export default class Dashboard extends ComponentBase {
       });
 
       this.socket.on("pingAll", this.publishPingAll.bind(this));
+      this.socket.on("link", (...data) => {
+        this.publish("updateLink", ...data);
+      });
       socket.emit("updateOrbs", orbModel.toArray());
       socket.on("disconnect", () => {
         console.log("a dashboard removed.");
