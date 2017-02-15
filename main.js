@@ -40,6 +40,7 @@ import SpheroServerManager from "./spheroServerManager";
 import VirtualSpheroManager from "./virtualSpheroManager";
 import ControllerManager from "./controllerManager";
 import OrbController from "./orbController";
+import orbModel from "./model/orbModel";
 
 const opts = [
   { name: "test", type: "boolean" }
@@ -48,14 +49,15 @@ const isTestMode = argv.option(opts).run().options.test;
 appModel.isTestMode = isTestMode;
 
 const spheroWS = spheroWebSocket(config.websocket, isTestMode);
+orbModel.setSpheroWS(spheroWS);
 
 const dashboard = new Dashboard(config.dashboardPort);
 const connector = new Connector();
 
 new VirtualSpheroManager(config.virtualSphero.wsPort);
 new Scoreboard(config.scoreboardPort);
-new SpheroServerManager(spheroWS, config.defaultColor);
+new SpheroServerManager(spheroWS);
 new ControllerManager(config.defaultHp, config.damage);
 new RankingMaker();
-new OrbController(connector, spheroWS);
+new OrbController(connector, spheroWS, config.defaultColor);
 
