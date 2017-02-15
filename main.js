@@ -69,27 +69,3 @@ Object.keys(orbs).forEach(orbName => {
   dashboard.addOrb(orbName, orbs[orbName].port);
 });
 
-publisher.subscribe("reconnect", (author, name) => {
-  if (!isTestMode) {
-    const orb = spheroWS.spheroServer.getOrb(name);
-    if (orb !== null) {
-      console.log("disconnecting...");
-      orb.instance.disconnect(() => {
-        console.log("disconnected!");
-        dashboard.log("(reconnect) disconnected.", "success");
-        if (!connector.isConnecting(orb.port)) {
-          error121Count = 0;
-          dashboard.log("(reconnect) wait 2 seconds.", "log");
-          setTimeout(() => {
-            dashboard.log("(reconnect) connecting...", "log");
-            connector.connect(orb.port, orb.instance).then(() => {
-              dashboard.log("(reconnect) connected", "success");
-              dashboard.successReconnect(name);
-            });
-          }, 2000);
-        }
-      });
-    }
-  }
-});
-

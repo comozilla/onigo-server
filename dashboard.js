@@ -15,7 +15,6 @@ const socketSubjects = [
   "link",
   "addOrb",
   "removeOrb",
-  "orbReconnect",
   "oni",
   "checkBattery",
   "resetHp",
@@ -157,11 +156,6 @@ export default class Dashboard extends ComponentBase {
   streamed(orbName, time) {
     if (this.socket !== null) {
       this.socket.emit("streamed", orbName, this.formatTime(time));
-    }
-  }
-  successReconnect(orbName) {
-    if (this.socket !== null) {
-      this.socket.emit("successReconnect", orbName);
     }
   }
   formatTime(time) {
