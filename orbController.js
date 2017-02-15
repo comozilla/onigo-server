@@ -4,11 +4,12 @@ import appModel from "./model/appModel";
 import uuidModel from "./model/uuidModel";
 
 export default class OrbController extends ComponentBase {
-  constructor(connector, spheroWS) {
+  constructor(connector, spheroWS, defaultColor) {
     super();
 
     this.spheroWS = spheroWS;
     this.connector = connector;
+    this.defaultColor = defaultColor;
 
     this.subscribeModel("addedOrb", this.addOrbToModel);
     this.subscribeModel("removedOrb", this.removeOrbFromModel);
@@ -32,7 +33,7 @@ export default class OrbController extends ComponentBase {
       link: "unlinked",
       pingState: "unchecked"
     });
-    this.initializeOrb();
+    this.initializeOrb(orb);
   }
 
   removeOrbFromModel(name) {
@@ -147,7 +148,11 @@ export default class OrbController extends ComponentBase {
   }
 
   removeOrb(name) {
-    console.log("removing...");
+    console.log("removing... : " + name);
     this.spheroWS.spheroServer.removeOrb(name);
+  }
+
+  publishCollision(orb) {
+    this.publish("collision", orb);
   }
 }
