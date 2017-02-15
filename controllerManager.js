@@ -12,6 +12,7 @@ export default class ControllerManager extends ComponentBase {
 
     this.subscribe("oni", this.changeIsOni);
     this.subscribe("resetHp", this.resetHp);
+    this.subscribe("color", this.changeColor);
     this.subscribe("addClient", this.addClient);
     this.subscribe("removeClient", this.removeClient);
     this.subscribe("gameState", this.updateGameState);
