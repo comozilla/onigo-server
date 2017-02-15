@@ -1,12 +1,14 @@
 import ComponentBase from "../componentBase";
 
 export class OrbModel extends ComponentBase {
-  constructor(spheroWS) {
+  constructor() {
     super();
 
-    this.spheroWS = spheroWS;
-
+    this.spheroWS = null;
     this.orbs = {};
+  }
+  setSpheroWS(spheroWS) {
+    this.spheroWS = spheroWS;
   }
   add(orbName, orb) {
     this.orbs[orbName] = orb;
@@ -58,11 +60,17 @@ export class OrbModel extends ComponentBase {
   }
 
   getUnlinkedOrbs() {
+    if (this.spheroWS === null) {
+      throw new Error("spheroWS is null.");
+    }
     return this.spheroWS.spheroServer.getUnlinkedOrbs();
   }
 
-  getOrbFromSpheroWS() {
-    return this.spheroWS.spheroServer.getOrb();
+  getOrbFromSpheroWS(orbName) {
+    if (this.spheroWS === null) {
+      throw new Error("spheroWS is null.");
+    }
+    return this.spheroWS.spheroServer.getOrb(orbName);
   }
 }
 
