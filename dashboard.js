@@ -94,9 +94,7 @@ export default class Dashboard extends ComponentBase {
       });
 
       this.socket.on("pingAll", this.publishPingAll.bind(this));
-      this.socket.on("link", (...data) => {
-        this.publish("updateLink", ...data);
-      });
+      this.socket.on("link", this.publishUpdateLink.bind(this));
       socket.emit("updateOrbs", orbModel.toArray());
       socket.on("disconnect", () => {
         console.log("a dashboard removed.");
@@ -164,5 +162,8 @@ export default class Dashboard extends ComponentBase {
     return ("0" + time.getHours()).slice(-2) + ":" +
       ("0" + time.getMinutes()).slice(-2) + ":" +
       ("0" + time.getSeconds()).slice(-2);
+  }
+  publishUpdateLink(controllerName, orbName) {
+    this.publish("updateLink", controllerName, orbName);
   }
 }
