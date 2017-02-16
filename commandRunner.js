@@ -1,10 +1,10 @@
 import ComponentBase from "./componentBase";
 
 export default class CommandRunner extends ComponentBase {
-  constructor(key) {
+  constructor(name) {
     super();
 
-    this.key = key;
+    this.name = name;
     this.commands = [];
     this.baseSpeed = 0;
     this.angle = 0;
@@ -19,7 +19,7 @@ export default class CommandRunner extends ComponentBase {
         }
         const rotateFunction = () => {
           this.angle = (this.angle + turn) % 360;
-          this.publish("command", key, "roll", [0, this.angle]);
+          this.publish("command", name, "roll", [0, this.angle]);
           this.customTimeoutIds.rotate = setTimeout(rotateFunction, 500);
         };
         rotateFunction();
@@ -29,7 +29,7 @@ export default class CommandRunner extends ComponentBase {
           this.stopLoop();
           this.clearCustomTimeoutIds();
         }
-        this.publish("command", key, "roll", [0, this.angle]);
+        this.publish("command", name, "roll", [0, this.angle]);
       },
       dash: (config, baseSpeed, dashTime) => {
         if (this.backgroundTimeoutIds.dash) {
@@ -41,7 +41,7 @@ export default class CommandRunner extends ComponentBase {
         }, dashTime * 1000);
       },
       roll: (config, speed, degree) => {
-        this.publish("command", key, "roll", [
+        this.publish("command", name, "roll", [
           this.baseSpeed + speed,
           (360 + degree + this.angle) % 360
         ]);
@@ -82,7 +82,7 @@ export default class CommandRunner extends ComponentBase {
 
   loopMethod(index) {
     if (this.commands.length === 0) {
-      throw new Error("実行しようとしたcommandsは空でした。: " + this.key);
+      throw new Error("実行しようとしたcommandsは空でした。: " + this.name);
     }
     this.clearCustomTimeoutIds();
     const currentCommand = this.commands[index];
