@@ -227,7 +227,7 @@ describe("ControllerManager", () => {
     const commandSpy = sinon.spy(controllerManager, "command");
     const commandInOrbSpy = sinon.spy(controller.linkedOrb, "command");
 
-    controllerManager.command(testKey, "roll", "args");
+    controllerManager.command(testName, "roll", "args");
 
     it("should be called", () => {
       assert(commandSpy.withArgs(testKey, "roll", "args").called);
