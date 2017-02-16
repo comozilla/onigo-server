@@ -1,17 +1,23 @@
 import ComponentBase from "./componentBase";
-import controllerModel from "./model/controllerModel";
 
 export default class RankingMaker extends ComponentBase {
-  constructor() {
-    super();
+  constructor(models) {
+    super(models);
 
-    this.subscribe("rankingState", this.make);
+    this.subscribe("rankingState", this.updateRankingState);
+    this.subscribe("updatedHp", this.make);
+    this.subscribe("updatedLink", this.make);
+    this.subscribe("updatedColor", this.make);
   }
 
-  make(rankingState) {
-    if (rankingState === "hide") return;
+  updateRankingState(state) {
+    if (state === "show") {
+      this.make();
+    }
+  }
 
-    const controllers = controllerModel.controllers;
+  make() {
+    const controllers = this.controllerModel.controllers;
     const controllerNames = Object.keys(controllers);
     // indexが順位となっている
     // [ { hp: 100, name: "xxx" }, { hp: 80, name: "xxx" }, ...]

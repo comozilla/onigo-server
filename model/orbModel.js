@@ -1,6 +1,6 @@
 import ComponentBase from "../componentBase";
 
-export class OrbModel extends ComponentBase {
+export default class OrbModel extends ComponentBase {
   constructor() {
     super();
 
@@ -74,4 +74,3 @@ export class OrbModel extends ComponentBase {
   }
 }
 
-export default new OrbModel();

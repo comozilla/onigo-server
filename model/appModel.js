@@ -1,6 +1,6 @@
 import ComponentBase from "../componentBase";
 
-export class AppModel extends ComponentBase {
+export default class AppModel extends ComponentBase {
   constructor() {
     super();
 
@@ -9,10 +9,12 @@ export class AppModel extends ComponentBase {
     this.availableCommandsCount = 1;
     this.isTestMode = false;
     this.error121Count = 0;
+    this.ranking = null;
 
-    this.subscribe("gameState", this.updateGameState);
-    this.subscribe("rankingState", this.updateRankingState);
-    this.subscribe("availableCommandsCount", this.updateAvailableCommandsCount);
+    this.subscribeModel("gameState", this.updateGameState);
+    this.subscribeModel("rankingState", this.updateRankingState);
+    this.subscribeModel("availableCommandsCount", this.updateAvailableCommandsCount);
+    this.subscribeModel("ranking", this.updateRanking);
   }
   updateGameState(state) {
     this.gameState = state;
@@ -29,6 +31,8 @@ export class AppModel extends ComponentBase {
   incrementError121Count() {
     this.error121Count++;
   }
+  updateRanking(ranking) {
+    this.ranking = ranking;
+  }
 }
 
-export default new AppModel();

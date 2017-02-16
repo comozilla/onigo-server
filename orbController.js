@@ -1,11 +1,8 @@
 import ComponentBase from "./componentBase";
-import orbModel from "./model/orbModel";
-import appModel from "./model/appModel";
-import uuidModel from "./model/uuidModel";
 
 export default class OrbController extends ComponentBase {
-  constructor(connector, spheroWS, defaultColor, collisionConfig) {
-    super();
+  constructor(models, connector, spheroWS, defaultColor, collisionConfig) {
+    super(models);
 
     this.spheroWS = spheroWS;
     this.connector = connector;
@@ -24,10 +21,10 @@ export default class OrbController extends ComponentBase {
   }
 
   addOrbToModel(name, orb) {
-    if (orbModel.has(name)) {
+    if (this.orbModel.has(name)) {
       throw new Error(`追加しようとしたOrbは既に存在します。 : ${name}`);
     }
-    orbModel.add(name, {
+    this.orbModel.add(name, {
       orbName: name,
       port: orb.port,
       battery: null,
@@ -38,36 +35,36 @@ export default class OrbController extends ComponentBase {
   }
 
   removeOrbFromModel(name) {
-    if (!orbModel.has(name)) {
+    if (!this.orbModel.has(name)) {
       throw new Error(`削除しようとしたOrbは存在しません。 : ${name}`);
     }
-    orbModel.remove(name);
+    this.orbModel.remove(name);
   }
 
   setPingStateAll() {
-    Object.keys(orbModel.orbs).forEach(orbName => {
-      orbModel.setPingState(orbName, "no reply");
+    Object.keys(this.orbModel.orbs).forEach(orbName => {
+      this.orbModel.setPingState(orbName, "no reply");
     });
   }
 
   updateBattery(name, batteryState) {
-    if (!orbModel.has(name)) {
+    if (!this.orbModel.has(name)) {
       throw new Error("updateBattery しようとしましたが、orb が見つかりませんでした。 : " + name);
     }
-    orbModel.setBattery(name, batteryState);
+    this.orbModel.setBattery(name, batteryState);
   }
 
   updatePingState(name) {
-    if (!orbModel.has(name)) {
+    if (!this.orbModel.has(name)) {
       throw new Error("updatePingState しようとしましたが、orb が見つかりませんでした。 : " + name);
     }
-    orbModel.setPingState(name, "reply");
+    this.orbModel.setPingState(name, "reply");
   }
 
   checkBattery() {
     const orbs = this.spheroWS.spheroServer.getOrb();
     Object.keys(orbs).forEach(orbName => {
-      if (!appModel.isTestMode) {
+      if (!this.appModel.isTestMode) {
         orbs[orbName].instance.getPowerState((error, data) => {
           if (error) {
             throw new Error(error);
@@ -95,7 +92,7 @@ export default class OrbController extends ComponentBase {
   }
 
   initializeOrb(orb) {
-    if (!appModel.isTestMode) {
+    if (!this.appModel.isTestMode) {
       const rawOrb = orb.instance;
       rawOrb.color(this.defaultColor);
       rawOrb.detectCollisions();
@@ -106,14 +103,14 @@ export default class OrbController extends ComponentBase {
   }
 
   addOrb(name, port) {
-    if (uuidModel.contains(name)) {
-      port = uuidModel.getUUID(name);
+    if (this.uuidModel.contains(name)) {
+      port = this.uuidModel.getUUID(name);
       console.log("changed!", port);
     }
     const rawOrb = this.spheroWS.spheroServer.makeRawOrb(name, port);
-    if (!appModel.isTestMode) {
+    if (!this.appModel.isTestMode) {
       if (!this.connector.isConnecting(port)) {
-        appModel.resetError121Count();
+        this.appModel.resetError121Count();
         this.connector.connect(port, rawOrb.instance).then(() => {
           rawOrb.instance.setInactivityTimeout(9999999, function(err, data) {
             if (err) {

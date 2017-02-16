@@ -1,14 +1,15 @@
 import assert from "assert";
 /*
-import { UUIDModel } from "../../model/uuidModel";
-import appModel from "../../model/appModel";
+import UUIDModel from "../../model/uuidModel";
+import AppModel from "../../model/appModel";
 
 
 describe("UUIDModel", () =>{
   appModel.isTestMode = true;
 
   describe("#constructor()", () => {
-    const uuidModel = new UUIDModel();
+    const appModel = new AppModel();
+    const uuidModel = new UUIDModel({ appModel });
     it("should initialize nameAndUUIDs", () => {
       assert.deepEqual(uuidModel.nameAndUUIDs, {});
     });

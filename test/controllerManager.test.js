@@ -1,15 +1,18 @@
 import assert from "assert";
 import ControllerManager from "../controllerManager";
-import controllerModel from "../model/controllerModel";
-import appModel from "../model/appModel";
+import ControllerModel from "../model/controllerModel";
+import AppModel from "../model/appModel";
 import publisher from "../publisher";
 import sinon from "sinon";
 import config from "../config";
 
 describe("ControllerManager", () => {
-  const controllerManager = new ControllerManager(config.defaultHp, config.damage);
+  const appModel = new AppModel();
+  const controllerModel = new ControllerModel();
+
   const testKey = "key-test";
   const testName = "name-test";
+
   controllerModel.add(testKey, {
     sendCustomMessage() {},
     key: testKey,
@@ -21,6 +24,7 @@ describe("ControllerManager", () => {
     hasCommand() { return true; }
   };
 
+  let controllerManager = new ControllerManager({ appModel, controllerModel }, config.defaultHp, config.damage);
   describe("#changeIsOni", () => {
     const changeIsOniSpy = sinon.spy(controllerManager, "changeIsOni");
     const setIsOniSpy = sinon.spy(controllerModel.get(testName), "setIsOni");

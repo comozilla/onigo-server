@@ -1,13 +1,12 @@
 import assert from "assert";
 import RankingMaker from "../rankingMaker";
-import controllerModel from "../model/controllerModel";
+import ControllerModel from "../model/controllerModel";
 import sinon from "sinon";
 import publisher from "../publisher";
 
 describe("RankingMaker", () => {
   describe("#make", () => {
-    const rankingMaker = new RankingMaker();
-    const beforeControllers = controllerModel.controllers;
+    const controllerModel = new ControllerModel();
     controllerModel.controllers = {
       controller1: {
         linkedOrb: "orb1",
@@ -35,6 +34,7 @@ describe("RankingMaker", () => {
       }
     };
 
+    const rankingMaker = new RankingMaker({ controllerModel });
     const makeSpy = sinon.spy(rankingMaker, "make");
     let rankingDetails;
     publisher.subscribe("ranking", (author, ranking) => {
@@ -65,6 +65,5 @@ describe("RankingMaker", () => {
     });
 
     makeSpy.restore();
-    controllerModel.controllers = beforeControllers;
   });
 });

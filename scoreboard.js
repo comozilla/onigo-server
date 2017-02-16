@@ -1,16 +1,15 @@
 import express from "express";
 import io from "socket.io";
-import controllerModel from "./model/controllerModel";
-import RankingMaker from "./rankingMaker";
 import ComponentBase from "./componentBase";
+import { Server as createServer } from "http";
 
 export default class Scoreboard extends ComponentBase {
-  constructor(port) {
-    super();
+  constructor(models, port) {
+    super(models);
 
     this.app = express();
-    this.server = require("http").Server(this.app);
-    this.io = require("socket.io")(this.server);
+    this.server = createServer(this.app);
+    this.io = io(this.server);
     this.io.origins(`localhost:${port}`);
 
     this.app.use(express.static("scoreboard"));
@@ -20,26 +19,21 @@ export default class Scoreboard extends ComponentBase {
 
     this.currentRanking = null;
 
-    this.rankingMaker = new RankingMaker();
-
     this.sockets = [];
     this.io.on("connection", socket => {
       console.log("a scoreboard connected.");
       this.sockets.push(socket);
-      if (this.currentRanking !== null) {
-        socket.emit("data", this.currentRanking);
+      if (this.appModel.ranking !== null) {
+        socket.emit("data", this.appModel.ranking);
       }
     });
 
-    this.subscribe("updatedHp", this.updateRanking);
-    this.subscribe("updatedLink", this.updateRanking);
-    this.subscribe("updatedColor", this.updateRanking);
+    this.subscribe("ranking", this.updateRanking);
   }
 
-  updateRanking() {
-    this.currentRanking = this.rankingMaker.make(controllerModel.controllers);
+  updateRanking(ranking) {
     this.sockets.forEach(socket => {
-      socket.emit("data", this.currentRanking);
+      socket.emit("data", ranking);
     });
   }
 }

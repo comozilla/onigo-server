@@ -1,10 +1,9 @@
-import controllerModel from "./model/controllerModel";
 import spheroWebSocket from "sphero-websocket";
 import ComponentBase from "./componentBase";
 
 export default class SpheroServerManager extends ComponentBase {
-  constructor(spheroWS) {
-    super();
+  constructor(models, spheroWS) {
+    super(models);
 
     this.spheroWS = spheroWS;
     this.spheroServer = this.spheroWS.spheroServer;

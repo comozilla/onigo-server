@@ -1,9 +1,6 @@
 import express from "express";
 import io from "socket.io";
 import util from "util";
-import controllerModel from "./model/controllerModel";
-import appModel from "./model/appModel";
-import orbModel from "./model/orbModel";
 import { Server as createServer } from "http";
 import socketIO from "socket.io";
 import ComponentBase from "./componentBase";
@@ -22,8 +19,8 @@ const socketSubjects = [
 ];
 
 export default class Dashboard extends ComponentBase {
-  constructor(port) {
-    super();
+  constructor(models, port) {
+    super(models);
 
     this.app = express();
     this.server = createServer(this.app);
@@ -47,7 +44,7 @@ export default class Dashboard extends ComponentBase {
     });
     this.subscribe("named", (key, name) => {
       if (this.socket !== null) {
-        this.socket.emit("named", key, name, controllerModel.get(name).getStates());
+        this.socket.emit("named", key, name, this.controllerModel.get(name).getStates());
       }
     });
     this.subscribe("removedUnnamed", key => {
@@ -81,11 +78,11 @@ export default class Dashboard extends ComponentBase {
       this.log("accepted a dashboard.", "success");
       socket.emit(
         "defaultData",
-        appModel.gameState,
-        appModel.availableCommandsCount,
-        controllerModel.getAllStates(),
-        orbModel.toArray(),
-        controllerModel.getUnnamedKeys());
+        this.appModel.gameState,
+        this.appModel.availableCommandsCount,
+        this.controllerModel.getAllStates(),
+        this.orbModel.toArray(),
+        this.controllerModel.getUnnamedKeys());
 
       socketSubjects.forEach(subjectName => {
         this.socket.on(subjectName, (...data) => {
@@ -95,7 +92,7 @@ export default class Dashboard extends ComponentBase {
 
       this.socket.on("pingAll", this.publishPingAll.bind(this));
       this.socket.on("link", this.publishUpdateLink.bind(this));
-      socket.emit("updateOrbs", orbModel.toArray());
+      socket.emit("updateOrbs", this.orbModel.toArray());
       socket.on("disconnect", () => {
         console.log("a dashboard removed.");
         this.socket = null;
@@ -107,32 +104,32 @@ export default class Dashboard extends ComponentBase {
   }
   addOrb(name, orb) {
     if (this.socket !== null) {
-      this.socket.emit("updateOrbs", orbModel.toArray());
+      this.socket.emit("updateOrbs", this.orbModel.toArray());
     }
   }
 
   removeOrb(name) {
     if (this.socket !== null) {
-      this.socket.emit("updateOrbs", orbModel.toArray());
+      this.socket.emit("updateOrbs", this.orbModel.toArray());
     }
   }
 
   updateUnlinkedOrbs() {
-    const unlinkedOrbs = orbModel.getUnlinkedOrbs();
+    const unlinkedOrbs = this.orbModel.getUnlinkedOrbs();
     const unlinkedOrbNames = Object.keys(unlinkedOrbs);
-    orbModel.getNames().forEach(orbName => {
-      orbModel.setLink(
+    this.orbModel.getNames().forEach(orbName => {
+      this.orbModel.setLink(
         orbName,
         unlinkedOrbNames.indexOf(orbName) >= 0 ? "unlinked" : "linked");
     });
     if (this.socket !== null) {
-      this.socket.emit("updateOrbs", orbModel.toArray());
+      this.socket.emit("updateOrbs", this.orbModel.toArray());
     }
   }
 
   updateBattery() {
     if (this.socket !== null) {
-      this.socket.emit("updateOrbs", orbModel.toArray());
+      this.socket.emit("updateOrbs", this.orbModel.toArray());
     }
   }
   updateHp(name, hp) {
@@ -146,11 +143,11 @@ export default class Dashboard extends ComponentBase {
     }
   }
   updatePingState(orbName) {
-    if (!orbModel.has(orbName)) {
+    if (!this.orbModel.has(orbName)) {
       throw new Error("updatePingState しようとしましたが、orb が見つかりませんでした。 : " + orbName);
     }
     if (this.socket !== null) {
-      this.socket.emit("updateOrbs", orbModel.toArray());
+      this.socket.emit("updateOrbs", this.orbModel.toArray());
     }
   }
   streamed(orbName, time) {
