@@ -32,7 +32,7 @@ export default class CommandRunner extends ComponentBase {
         this.publish("command", key, "roll", [0, this.angle]);
       },
       dash: (config, baseSpeed, dashTime) => {
-        if (this.backgroundTimeoutIds.dash !== null) {
+        if (this.backgroundTimeoutIds.dash) {
           clearTimeout(this.backgroundTimeoutIds.dash);
         }
         this.baseSpeed = baseSpeed;
@@ -64,7 +64,7 @@ export default class CommandRunner extends ComponentBase {
   }
 
   stopLoop() {
-    if (this.loopTimeoutId !== null) {
+    if (this.loopTimeoutId) {
       clearTimeout(this.loopTimeoutId);
       this.loopTimeoutId = null;
     }
@@ -73,7 +73,7 @@ export default class CommandRunner extends ComponentBase {
   clearCustomTimeoutIds() {
     Object.keys(this.customTimeoutIds).forEach(timeoutIdName => {
       const timeoutId = this.customTimeoutIds[timeoutIdName];
-      if (timeoutId !== null) {
+      if (timeoutId) {
         clearTimeout(timeoutId);
         delete this.customTimeoutIds[timeoutIdName];
       }
