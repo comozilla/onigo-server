@@ -1,11 +1,13 @@
 import assert from "assert";
-import orbModel from "../model/orbModel";
-import appModel from "../model/appModel";
+import AppModel from "../model/appModel";
+import OrbModel from "../model/orbModel";
 import OrbController from "../orbController";
 
 describe("OrbController", () => {
   appModel.isTestMode = true;
-  const orbController = new OrbController({}, {}, "white", null);
+  const appModel = new AppModel();
+  const orbModel = new OrbModel();
+  const orbController = new OrbController({ appModel, orbModel }{}, {}, "white", null);
   const testName = "name-test";
   beforeEach(done => {
     orbController.addOrbToModel(testName, {

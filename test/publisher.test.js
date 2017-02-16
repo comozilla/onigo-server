@@ -1,5 +1,5 @@
 import assert from "assert";
-import { EventPublisher } from "../publisher";
+import EventPublisher from "../publisher";
 
 describe("Publisher", function() {
   describe("#constructor()", function() {
@@ -32,7 +32,6 @@ describe("Publisher", function() {
   });
   describe("#publish", function() {
     const publisher = new EventPublisher();
-    let isEqualsData = false;
     let isCalledModel = false;
     const callbackInModel = function() {
       isCalledModel = true;
@@ -45,10 +44,12 @@ describe("Publisher", function() {
         assert(isCalledModel);
       });
       it("should equal author", () => {
-        assert(author === "hello-author");
+        assert.equal(author, "hello-author");
       });
       it("should equal data", () => {
-        assert(data === "data-test" && data2 === 100 && data3 === true);
+        assert.equal(data, "data-test");
+        assert.equal(data2, 100);
+        assert.equal(data3, true);
       });
     };
     publisher.subscribe("a", callback);

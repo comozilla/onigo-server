@@ -3,6 +3,15 @@ import publisher from "../publisher";
 import ComponentBase from "../componentBase";
 
 describe("ComponentBase", () => {
+  describe("#constructor()", () => {
+    const testModel = "test-model";
+    const component = new ComponentBase({ testModel });
+
+    it("should set models", () => {
+      assert(component.testModel);
+      assert.equal(component.testModel, testModel);
+    });
+  });
   describe("#publish()", () => {
     const component = new ComponentBase();
     publisher.subscribe("test1", (author, data) => {
@@ -32,7 +41,7 @@ describe("ComponentBase", () => {
     });
     publisher.publish(component, "test3", "test-data-3");
   });
-  describe("#subscribe()", () => {
+  describe("#subscribeModel()", () => {
     const component = new ComponentBase();
     component.subscribeModel("test4", data => {
       it("should be called", () => {

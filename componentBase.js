@@ -1,6 +1,11 @@
 import publisher from "./publisher";
 
 export default class ComponentBase {
+  constructor(models = {}) {
+    Object.keys(models).forEach(modelName => {
+      this[modelName] = models[modelName];
+    });
+  }
   publish(subjectName, ...data) {
     publisher.publish(this, subjectName, ...data);
   }

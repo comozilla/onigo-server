@@ -1,9 +1,17 @@
 import assert from "assert";
 import Dashboard from "../dashboard";
 import publisher from "../publisher";
+import AppModel from "../model/appModel";
+import ControllerModel from "../model/controllerModel";
+import OrbModel from "../model/orbModel";
 
 describe("Dashboard", function() {
-  const dashboard = new Dashboard(8082);
+  const controllerModel = new ControllerModel();
+  const dashboard = new Dashboard({
+    appModel: new AppModel(),
+    controllerModel,
+    orbModel: new OrbModel()
+  }, 8082);
   describe("#initializeConnection()", function() {
     let registeredListener = null;
     dashboard.initializeConnection({
@@ -47,12 +55,14 @@ describe("Dashboard", function() {
   });
 
   describe("#publishUpdateLink", () => {
+    const testControllerName = "controllerName";
+    const testOrbName = "orbName";
     publisher.subscribe("updateLink", author => {
       it("should publish updateLink to eventPublisher", () => {
         assert.equal(author, dashboard);
       });
     });
-    dashboard.publishUpdateLink("contrllerName", "orbName");
+    dashboard.publishUpdateLink(testControllerName, testOrbName);
   });
 
   describe("#formatTime()", () => {

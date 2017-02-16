@@ -1,10 +1,8 @@
 import ComponentBase from "./componentBase";
-import VirtualSphero from "sphero-ws-virtual-plugin";
-import controllerModel from "./model/controllerModel";
 
 export default class VirtualSpheroManager extends ComponentBase {
-  constructor(port) {
-    super();
+  constructor(models, port) {
+    super(models);
     this.virtualSphero = new VirtualSphero(port);
 
     this.subscribe("named", this.addSphero);

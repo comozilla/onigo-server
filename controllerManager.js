@@ -1,11 +1,8 @@
-import controllerModel from "./model/controllerModel";
-import appModel from "./model/appModel";
-import orbModel from "./model/orbModel";
 import ComponentBase from "./componentBase";
 
 export default class ControllerManager extends ComponentBase {
-  constructor(defaultHp, damage) {
-    super();
+  constructor(models, defaultHp, damage) {
+    super(models);
 
     this.defaultHp = defaultHp;
     this.damageHp = damage;
@@ -25,72 +22,72 @@ export default class ControllerManager extends ComponentBase {
     this.subscribe("command", this.command);
   }
   changeIsOni(name, isEnabled) {
-    controllerModel.get(name).setIsOni(isEnabled);
+    this.controllerModel.get(name).setIsOni(isEnabled);
   }
   resetHp(name) {
-    controllerModel.get(name).setHp(this.defaultHp);
+    this.controllerModel.get(name).setHp(this.defaultHp);
   }
   changeColor(name, color) {
-    controllerModel.get(name).setColor(color);
+    this.controllerModel.get(name).setColor(color);
   }
   addClient(key, client) {
-    controllerModel.add(key, client);
+    this.controllerModel.add(key, client);
     client.on("arriveCustomMessage", (name, data, mesID) => {
       // Nameが同じなら、clientKeyが別でもHPなどが引き継がれる、と実装するため、
       // requestNameとuseDefinedNameを分けている。
       // requestName ・・ 新しい名前を使う。もしその名前が既に使われていたらrejectする。
       // useDefinedName ・・既存の名前を使う。もしその名前がなければrejectする。
       if (name === "requestName") {
-        if (controllerModel.has(data)) {
+        if (this.controllerModel.has(data)) {
           client.sendCustomMessage("rejectName", null);
         } else {
-          controllerModel.setName(key, data);
+          this.controllerModel.setName(key, data);
           client.sendCustomMessage("acceptName", data);
         }
       } else if (name === "useDefinedName") {
-        if (!controllerModel.has(data)) {
+        if (!this.controllerModel.has(data)) {
           client.sendCustomMessage("rejectName", null);
         } else {
-          controllerModel.setName(key, data);
+          this.controllerModel.setName(key, data);
           client.sendCustomMessage("acceptName", data);
         }
       }
     });
   }
   removeClient(key) {
-    if (controllerModel.hasInUnnamedClients(key)) {
+    if (this.controllerModel.hasInUnnamedClients(key)) {
       this.publish("removedUnnamedClient", key);
-      controllerModel.removeFromUnnamedClients(key);
+      this.controllerModel.removeFromUnnamedClients(key);
     } else {
-      const name = controllerModel.toName(key);
+      const name = this.controllerModel.toName(key);
       this.publish("removedController", name);
     }
   }
   updateGameState(state) {
-    Object.keys(controllerModel.controllers).filter(name => {
-      return controllerModel.get(name).client !== null;
+    Object.keys(this.controllerModel.controllers).filter(name => {
+      return this.controllerModel.get(name).client !== null;
     }).forEach(name => {
-      controllerModel.get(name).client.sendCustomMessage("gameState", state);
+      this.controllerModel.get(name).client.sendCustomMessage("gameState", state);
     });
   }
   updateRankingState(state) {
-    Object.keys(controllerModel.controllers).filter(name => {
-      return controllerModel.get(name).client !== null;
+    Object.keys(this.controllerModel.controllers).filter(name => {
+      return this.controllerModel.get(name).client !== null;
     }).forEach(name => {
-      controllerModel.get(name).client.sendCustomMessage("rankingState", state);
+      this.controllerModel.get(name).client.sendCustomMessage("rankingState", state);
     });
   };
   updateRanking(ranking) {
-    Object.keys(controllerModel.controllers).filter(name => {
-      return controllerModel.get(name).client !== null;
+    Object.keys(this.controllerModel.controllers).filter(name => {
+      return this.controllerModel.get(name).client !== null;
     }).forEach(name => {
-      controllerModel.get(name).client.sendCustomMessage("ranking", ranking);
+      this.controllerModel.get(name).client.sendCustomMessage("ranking", ranking);
     });
   }
   damage(orb) {
-    Object.keys(controllerModel.controllers).forEach(controllerName => {
-      const controller = controllerModel.get(controllerName);
-      if (appModel.gameState === "active" && !controller.isOni &&
+    Object.keys(this.controllerModel.controllers).forEach(controllerName => {
+      const controller = this.controllerModel.get(controllerName);
+      if (this.appModel.gameState === "active" && !controller.isOni &&
           controller.client !== null &&
           orb.linkedClients.indexOf(controller.client.key) !== -1) {
         controller.setHp(controller.hp - this.damageHp);
@@ -98,8 +95,8 @@ export default class ControllerManager extends ComponentBase {
     });
   }
   updateAvailableCommandsCount(count) {
-    Object.keys(controllerModel.controllers).forEach(name => {
-      const client = controllerModel.get(name).client;
+    Object.keys(this.controllerModel.controllers).forEach(name => {
+      const client = this.controllerModel.get(name).client;
       if (client !== null) {
         client.sendCustomMessage("availableCommandsCount", count);
       } else {
@@ -108,16 +105,16 @@ export default class ControllerManager extends ComponentBase {
     });
   }
   updateLink(controllerName, orbName) {
-    controllerModel.get(controllerName).setLink(
-      orbName !== null ? orbModel.getOrbFromSpheroWS(orbName) : null);
+    this.controllerModel.get(controllerName).setLink(
+      orbName !== null ? this.orbModel.getOrbFromSpheroWS(orbName) : null);
   }
   initializeController(key, name, isNewName) {
-    const controller = controllerModel.get(name);
+    const controller = this.controllerModel.get(name);
     const client = controller.client;
 
-    client.sendCustomMessage("gameState", appModel.gameState);
-    client.sendCustomMessage("rankingState", appModel.rankingState);
-    client.sendCustomMessage("availableCommandsCount", appModel.availableCommandsCount);
+    client.sendCustomMessage("gameState", this.appModel.gameState);
+    client.sendCustomMessage("rankingState", this.appModel.rankingState);
+    client.sendCustomMessage("availableCommandsCount", this.appModel.availableCommandsCount);
     client.sendCustomMessage("clientKey", key);
 
     client.on("arriveCustomMessage", (messageName, data, mesID) => {
@@ -133,11 +130,11 @@ export default class ControllerManager extends ComponentBase {
     }
   }
   setCommands(name, commands) {
-    const controller = controllerModel.get(name);
+    const controller = this.controllerModel.get(name);
     controller.commandRunner.setCommands(commands);
   }
   command(controllerName, commandName, args) {
-    const controller = controllerModel.get(controllerName);
+    const controller = this.controllerModel.get(controllerName);
     if (controller.linkedOrb !== null) {
       if (!controller.linkedOrb.hasCommand(commandName)) {
         throw new Error(`command : ${commandName} is not valid.`);

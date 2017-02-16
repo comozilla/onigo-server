@@ -3,7 +3,7 @@ import CommandRunner from "../commandRunner";
 import publisher from "../publisher";
 import ComponentBase from "../componentBase";
 
-class ControllerModel extends ComponentBase {
+export default class ControllerModel extends ComponentBase {
   constructor() {
     super();
 
@@ -24,7 +24,7 @@ class ControllerModel extends ComponentBase {
     if (!this.unnamedClients[key]) {
       throw new Error("setNameしようとしたところ、keyに対するclientが見つかりませんでした。 key: " + key);
     }
-    let isNewName = !this.controllers[name];
+    const isNewName = !this.controllers[name];
     if (isNewName) {
       this.controllers[name] = new Controller(name, new CommandRunner(name));
     } else if (this.controllers[name].client !== null) {
@@ -78,4 +78,3 @@ class ControllerModel extends ComponentBase {
   }
 }
 
-export default new ControllerModel();

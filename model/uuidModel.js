@@ -1,14 +1,13 @@
 import ComponentBase from "../componentBase";
 //import noble from "noble";
-import appModel from "./appModel";
 
-export class UUIDModel extends ComponentBase {
-  constructor() {
-    super();
+export default class UUIDModel extends ComponentBase {
+  constructor(models) {
+    super(models);
 
     this.nameAndUUIDs = {};
 
-    if (!appModel.isTestMode) {
+    if (!this.appModel.isTestMode) {
  /*     noble.on("stateChange", state => {
         if (state === "poweredOn") {
           noble.startScanning();
@@ -35,4 +34,3 @@ export class UUIDModel extends ComponentBase {
   }
 }
 
-export default new UUIDModel();
