@@ -4,12 +4,13 @@ import appModel from "./model/appModel";
 import uuidModel from "./model/uuidModel";
 
 export default class OrbController extends ComponentBase {
-  constructor(connector, spheroWS, defaultColor) {
+  constructor(connector, spheroWS, defaultColor, collisionConfig) {
     super();
 
     this.spheroWS = spheroWS;
     this.connector = connector;
     this.defaultColor = defaultColor;
+    this.collisionConfig = collisionConfig;
 
     this.subscribeModel("addedOrb", this.addOrbToModel);
     this.subscribeModel("removedOrb", this.removeOrbFromModel);
@@ -123,14 +124,7 @@ export default class OrbController extends ComponentBase {
 
           this.publish("log", "connected orb.", "success");
 
-          rawOrb.instance.configureCollisions({
-            meth: 0x01,
-            xt: 0x7A,
-            xs: 0xFF,
-            yt: 0x7A,
-            ys: 0xFF,
-            dead: 100
-          }, () => {
+          rawOrb.instance.configureCollisions(this.collisionConfig, () => {
             this.publish("log", "configured orb.", "success");
             this.spheroWS.spheroServer.addOrb(rawOrb);
             rawOrb.instance.streamOdometer();

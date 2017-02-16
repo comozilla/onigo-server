@@ -59,5 +59,5 @@ new Scoreboard(config.scoreboardPort);
 new SpheroServerManager(spheroWS);
 new ControllerManager(config.defaultHp, config.damage);
 new RankingMaker();
-new OrbController(connector, spheroWS, config.defaultColor);
+new OrbController(connector, spheroWS, config.defaultColor, config.collision);
 
