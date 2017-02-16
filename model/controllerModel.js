@@ -26,7 +26,7 @@ class ControllerModel extends ComponentBase {
     }
     let isNewName = !this.controllers[name];
     if (isNewName) {
-      this.controllers[name] = new Controller(name, new CommandRunner(key));
+      this.controllers[name] = new Controller(name, new CommandRunner(name));
     } else if (this.controllers[name].client !== null) {
       throw new Error("setNameしようとしましたが、既にclientが存在します。 name: " + name);
     }

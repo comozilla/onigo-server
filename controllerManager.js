@@ -62,30 +62,29 @@ export default class ControllerManager extends ComponentBase {
       this.publish("removedUnnamedClient", key);
       controllerModel.removeFromUnnamedClients(key);
     } else {
-      this.publish("removedController", key);
       const name = controllerModel.toName(key);
-      controllerModel.removeClient(name);
+      this.publish("removedController", name);
     }
   }
   updateGameState(state) {
-    Object.keys(controllerModel.controllers).filter(key => {
-      return controllerModel.get(key).client !== null;
-    }).forEach(key => {
-      controllerModel.get(key).client.sendCustomMessage("gameState", state);
+    Object.keys(controllerModel.controllers).filter(name => {
+      return controllerModel.get(name).client !== null;
+    }).forEach(name => {
+      controllerModel.get(name).client.sendCustomMessage("gameState", state);
     });
   }
   updateRankingState(state) {
-    Object.keys(controllerModel.controllers).filter(key => {
-      return controllerModel.get(key).client !== null;
-    }).forEach(key => {
-      controllerModel.get(key).client.sendCustomMessage("rankingState", state);
+    Object.keys(controllerModel.controllers).filter(name => {
+      return controllerModel.get(name).client !== null;
+    }).forEach(name => {
+      controllerModel.get(name).client.sendCustomMessage("rankingState", state);
     });
   };
   updateRanking(ranking) {
-    Object.keys(controllerModel.controllers).filter(key => {
-      return controllerModel.get(key).client !== null;
-    }).forEach(key => {
-      controllerModel.get(key).client.sendCustomMessage("ranking", ranking);
+    Object.keys(controllerModel.controllers).filter(name => {
+      return controllerModel.get(name).client !== null;
+    }).forEach(name => {
+      controllerModel.get(name).client.sendCustomMessage("ranking", ranking);
     });
   }
   damage(orb) {
@@ -137,8 +136,8 @@ export default class ControllerManager extends ComponentBase {
     const controller = controllerModel.get(name);
     controller.commandRunner.setCommands(commands);
   }
-  command(key, commandName, args) {
-    const controller = controllerModel.get(controllerModel.toName(key));
+  command(controllerName, commandName, args) {
+    const controller = controllerModel.get(controllerName);
     if (controller.linkedOrb !== null) {
       if (!controller.linkedOrb.hasCommand(commandName)) {
         throw new Error(`command : ${commandName} is not valid.`);
