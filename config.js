@@ -16,5 +16,13 @@ export default {
   scoreboardPort: 8083,
   defaultHp: 100,
   damage: 10,
-  defaultColor: "white"
+  defaultColor: "white",
+  collision: {
+    meth: 0x01,
+    xt: 0x7A,
+    xs: 0xFF,
+    yt: 0x7A,
+    ys: 0xFF,
+    dead: 100
+  }
 };
