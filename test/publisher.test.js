@@ -1,5 +1,5 @@
 import assert from "assert";
-import EventPublisher from "../publisher";
+import { EventPublisher } from "../publisher";
 
 describe("Publisher", function() {
   describe("#constructor()", function() {
@@ -55,5 +55,20 @@ describe("Publisher", function() {
     publisher.subscribe("a", callback);
     publisher.subscribeModel("a", callbackInModel);
     publisher.publish("hello-author", "a", "data-test", 100, true);
+  });
+  describe("#clearObserveFunctions", () => {
+    const publisher = new EventPublisher();
+    publisher.subscribe("hoge", () => {});
+    publisher.subscribeModel("hoge", () => {});
+
+    it("should clear observeFunctions and observeFunctionsInModel", () => {
+      assert.notDeepEqual(publisher.observeFunctions, {});
+      assert.notDeepEqual(publisher.observeFunctionsInModel, {});
+
+      publisher.clearObserveFunctions();
+
+      assert.deepEqual(publisher.observeFunctions, {});
+      assert.deepEqual(publisher.observeFunctionsInModel, {});
+    });
   });
 });

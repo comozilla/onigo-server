@@ -1,4 +1,5 @@
 import ComponentBase from "./componentBase";
+import VirtualSphero from "sphero-ws-virtual-plugin";
 
 export default class VirtualSpheroManager extends ComponentBase {
   constructor(models, port) {

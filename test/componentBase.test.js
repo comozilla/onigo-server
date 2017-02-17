@@ -3,6 +3,7 @@ import publisher from "../publisher";
 import ComponentBase from "../componentBase";
 
 describe("ComponentBase", () => {
+  publisher.clearObserveFunctions();
   describe("#constructor()", () => {
     const testModel = "test-model";
     const component = new ComponentBase({ testModel });
