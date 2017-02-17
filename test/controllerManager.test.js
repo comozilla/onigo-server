@@ -7,6 +7,8 @@ import sinon from "sinon";
 import config from "../config";
 
 describe("ControllerManager", () => {
+  publisher.clearObserveFunctions();
+
   const appModel = new AppModel();
   const controllerModel = new ControllerModel();
 
@@ -24,7 +26,7 @@ describe("ControllerManager", () => {
     hasCommand() { return true; }
   };
 
-  let controllerManager = new ControllerManager({ appModel, controllerModel }, config.defaultHp, config.damage);
+  const controllerManager = new ControllerManager({ appModel, controllerModel }, config.defaultHp, config.damage);
   describe("#changeIsOni", () => {
     const changeIsOniSpy = sinon.spy(controllerManager, "changeIsOni");
     const setIsOniSpy = sinon.spy(controllerModel.get(testName), "setIsOni");
@@ -189,7 +191,7 @@ describe("ControllerManager", () => {
       assert(sendCustomMessageSpy.withArgs("clientKey", testKey).called);
     });
 
-    publisher.subscribe((author, name, hp) => {
+    publisher.subscribe("hp", (author, name, hp) => {
       it("should publish hp when controller emitted hp", () => {
         assert.equal(author, controllerManager);
         assert.equal(name, testName);
@@ -197,7 +199,7 @@ describe("ControllerManager", () => {
       });
     });
 
-    controller.emit("hp", testName, 80);
+    controller.emit("hp", 80);
 
     initializeControllerSpy.restore();
     sendCustomMessageSpy.restore();
@@ -234,7 +236,7 @@ describe("ControllerManager", () => {
     controllerManager.command(testName, "roll", "args");
 
     it("should be called", () => {
-      assert(commandSpy.withArgs(testKey, "roll", "args").called);
+      assert(commandSpy.withArgs(testName, "roll", "args").called);
     });
 
     it("should call setCommands in commandRunner", () => {

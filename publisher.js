@@ -1,4 +1,4 @@
-export default class EventPublisher {
+export class EventPublisher {
   constructor() {
     this.observeFunctions = {};
     this.observeFunctionsInModel = {};
@@ -26,5 +26,11 @@ export default class EventPublisher {
       observeFunction(author, ...data);
     });
   }
+
+  clearObserveFunctions() {
+    this.observeFunctions = {};
+    this.observeFunctionsInModel = {};
+  }
 }
 
+export default new EventPublisher();

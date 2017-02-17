@@ -6,6 +6,8 @@ import ControllerModel from "../model/controllerModel";
 import OrbModel from "../model/orbModel";
 
 describe("Dashboard", function() {
+  publisher.clearObserveFunctions();
+
   const controllerModel = new ControllerModel();
   const dashboard = new Dashboard({
     appModel: new AppModel(),

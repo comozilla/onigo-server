@@ -4,19 +4,16 @@ import OrbModel from "../model/orbModel";
 import OrbController from "../orbController";
 
 describe("OrbController", () => {
-  appModel.isTestMode = true;
   const appModel = new AppModel();
+  appModel.isTestMode = true;
   const orbModel = new OrbModel();
-  const orbController = new OrbController({ appModel, orbModel }{}, {}, "white", null);
+  const orbController = new OrbController({ appModel, orbModel }, {}, {}, "white", null);
   const testName = "name-test";
   beforeEach(done => {
+    orbModel.orbs = {};
     orbController.addOrbToModel(testName, {
       port: "test"
     });
-    done();
-  });
-  afterEach(done => {
-    orbModel.orbs = {};
     done();
   });
   describe("#addOrbToModel()", () => {

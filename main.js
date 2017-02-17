@@ -10,7 +10,7 @@ import Controller from "./controller";
 import controllerModel from "./model/controllerModel";
 import RankingMaker from "./rankingMaker";
 import Connector from "./connector";
-import EventPublisher from "./publisher";
+import publisher from "./publisher";
 import SpheroServerManager from "./spheroServerManager";
 import VirtualSpheroManager from "./virtualSpheroManager";
 import ControllerManager from "./controllerManager";
@@ -20,7 +20,6 @@ import AppModel from "./model/appModel";
 import ControllerModel from "./model/controllerModel";
 import UUIDModel from "./model/uuidModel";
 
-const publisher = new EventPublisher;
 const models = {
   appModel: new AppModel(),
   orbModel: new OrbModel(),

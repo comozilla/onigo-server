@@ -5,6 +5,7 @@ import sinon from "sinon";
 import publisher from "../publisher";
 
 describe("RankingMaker", () => {
+  publisher.clearObserveFunctions();
   describe("#make", () => {
     const controllerModel = new ControllerModel();
     controllerModel.controllers = {
