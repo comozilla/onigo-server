@@ -3,8 +3,9 @@ import CommandRunner from "../commandRunner";
 
 describe("CommandRunner", () => {
   const commandRunner = new CommandRunner();
+  const timeoutDelay = 1000;
   describe("#stopLoop()", () => {
-    const timeoutId = setTimeout(() => {}, 1000);
+    const timeoutId = setTimeout(() => {}, timeoutDelay);
     commandRunner.loopTimeoutId = timeoutId;
     it("should set loopTimeoutId to null", () => {
       assert.equal(commandRunner.loopTimeoutId, timeoutId);
@@ -13,7 +14,7 @@ describe("CommandRunner", () => {
     });
   });
   describe("clearCustomTimeoutIds()", () => {
-    const timeoutId = setTimeout(() => {}, 1000);
+    const timeoutId = setTimeout(() => {}, timeoutDelay);
     commandRunner.customTimeoutIds = { test1: timeoutId };
     it("should delete timeoutId from customTimeoutIds", () => {
       assert(commandRunner.customTimeoutIds["test1"]);
