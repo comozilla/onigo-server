@@ -33,14 +33,15 @@ describe("ComponentBase", () => {
       });
     });
     publisher.publish(this, "test2", "test-data-2");
-    it("should not call function when author is same", () => {
-      let isCalled = false;
-      component.subscribe("test3", data => {
-        isCalled = data === "test-data-3";
-      });
-      assert(!isCalled);
+
+    let isCalled = false;
+    component.subscribe("test3", data => {
+      isCalled = data === "test-data-3";
     });
     publisher.publish(component, "test3", "test-data-3");
+    it("should not call function when author is same", () => {
+      assert(!isCalled);
+    });
   });
   describe("#subscribeModel()", () => {
     const component = new ComponentBase();
@@ -50,13 +51,5 @@ describe("ComponentBase", () => {
       });
     });
     publisher.publish(this, "test4", "test-data-4");
-    it("should not call function when author is same", () => {
-      let isCalled = false;
-      component.subscribeModel("test5", data => {
-        isCalled = data === "test-data-5";
-      });
-      assert(!isCalled);
-    });
-    publisher.publish(component, "test5", "test-data-5");
   });
 });
