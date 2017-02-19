@@ -113,7 +113,7 @@ export default class OrbController extends ComponentBase {
         this.connector.connect(port, rawOrb.instance).then(() => {
           rawOrb.instance.setInactivityTimeout(9999999, function(err, data) {
             if (err) {
-              console.error(err);
+              throw new Error(err);
             }
             console.log("data: " + data);
           });
