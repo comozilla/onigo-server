@@ -42,9 +42,9 @@ export default class OrbController extends ComponentBase {
   }
 
   setPingStateAll() {
-    Object.keys(this.orbModel.orbs).forEach(orbName => {
+    for (let orbName in this.orbModel.orbs) {
       this.orbModel.setPingState(orbName, "no reply");
-    });
+    }
   }
 
   updateBattery(name, batteryState) {
@@ -63,7 +63,7 @@ export default class OrbController extends ComponentBase {
 
   checkBattery() {
     const orbs = this.spheroWS.spheroServer.getOrb();
-    Object.keys(orbs).forEach(orbName => {
+    for (orbName in orbs) {
       if (!this.appModel.isTestMode) {
         orbs[orbName].instance.getPowerState((error, data) => {
           if (error) {
@@ -75,12 +75,12 @@ export default class OrbController extends ComponentBase {
       } else {
         this.publish("updateBattery", orbName, "test-battery");
       }
-    });
+    }
   }
 
   pingAll() {
     const orbs = this.spheroWS.spheroServer.getOrb();
-    Object.keys(orbs).forEach(orbName => {
+    for (let orbName in orbs) {
       orbs[orbName].instance.ping((err, data) => {
         if (!err) {
           this.publish("replyPing", orbName);
@@ -88,7 +88,7 @@ export default class OrbController extends ComponentBase {
           this.publish("log", "Ping error: \n" + err.toString(), "error");
         }
       });
-    });
+    }
   }
 
   initializeOrb(orb) {

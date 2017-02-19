@@ -116,11 +116,10 @@ export default class Dashboard extends ComponentBase {
 
   updateUnlinkedOrbs() {
     const unlinkedOrbs = this.orbModel.getUnlinkedOrbs();
-    const unlinkedOrbNames = Object.keys(unlinkedOrbs);
     this.orbModel.getNames().forEach(orbName => {
       this.orbModel.setLink(
         orbName,
-        unlinkedOrbNames.indexOf(orbName) >= 0 ? "unlinked" : "linked");
+        unlinkedOrbs[orbName] ? "unlinked" : "linked");
     });
     if (this.socket !== null) {
       this.socket.emit("updateOrbs", this.orbModel.toArray());

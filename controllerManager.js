@@ -64,45 +64,45 @@ export default class ControllerManager extends ComponentBase {
     }
   }
   updateGameState(state) {
-    Object.keys(this.controllerModel.controllers).filter(name => {
-      return this.controllerModel.get(name).client !== null;
-    }).forEach(name => {
-      this.controllerModel.get(name).client.sendCustomMessage("gameState", state);
-    });
+    for (let name in this.controllerModel.controllers) {
+      if (this.controllerModel.get(name).client) {
+        this.controllerModel.get(name).client.sendCustomMessage("gameState", state);
+      }
+    }
   }
   updateRankingState(state) {
-    Object.keys(this.controllerModel.controllers).filter(name => {
-      return this.controllerModel.get(name).client !== null;
-    }).forEach(name => {
-      this.controllerModel.get(name).client.sendCustomMessage("rankingState", state);
-    });
+    for (let name in this.controllerModel.controllers) {
+      if (this.controllerModel.get(name).client) {
+        this.controllerModel.get(name).client.sendCustomMessage("rankingState", state);
+      }
+    }
   };
   updateRanking(ranking) {
-    Object.keys(this.controllerModel.controllers).filter(name => {
-      return this.controllerModel.get(name).client !== null;
-    }).forEach(name => {
-      this.controllerModel.get(name).client.sendCustomMessage("ranking", ranking);
-    });
+    for (let name in this.controllerModel.controllers) {
+      if (this.controllerModel.get(name).client) {
+        this.controllerModel.get(name).client.sendCustomMessage("ranking", ranking);
+      }
+    }
   }
   damage(orb) {
-    Object.keys(this.controllerModel.controllers).forEach(controllerName => {
+    for (let controllerName in this.controllerModel.controllers) {
       const controller = this.controllerModel.get(controllerName);
       if (this.appModel.gameState === "active" && !controller.isOni &&
           controller.client !== null &&
           orb.linkedClients.indexOf(controller.client.key) !== -1) {
         controller.setHp(controller.hp - this.damageHp);
       }
-    });
+    }
   }
   updateAvailableCommandsCount(count) {
-    Object.keys(this.controllerModel.controllers).forEach(name => {
+    for (let name in this.controllerModel.controllers) {
       const client = this.controllerModel.get(name).client;
       if (client !== null) {
         client.sendCustomMessage("availableCommandsCount", count);
       } else {
         console.warn("Tryed to update availableCommandsCount but client is null. name: " + name);
       }
-    });
+    }
   }
   updateLink(controllerName, orbName) {
     this.controllerModel.get(controllerName).setLink(

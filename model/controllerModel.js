@@ -57,24 +57,22 @@ export default class ControllerModel extends ComponentBase {
   }
   getAllStates() {
     const result = {};
-    Object.keys(this.controllers).forEach(name => {
+    for (let name in this.controllers) {
       result[name] = this.controllers[name].getStates();
-    });
+    }
     return result;
   }
   getUnnamedKeys() {
     return Object.keys(this.unnamedClients);
   }
   toName(key) {
-    const nameArray = Object.keys(this.controllers).filter(name => {
-      return this.controllers[name].client !== null &&
-        this.controllers[name].client.key === key;
-    });
-    if (nameArray.length === 1) {
-      return nameArray[0];
-    } else {
-      return null;
+    for (let name in this.controllers) {
+      if (this.controllers[name].client &&
+          this.controllers[name].client.key === key) {
+        return name;
+      }
     }
+    return null;
   }
 }
 

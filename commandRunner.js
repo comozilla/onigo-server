@@ -71,13 +71,13 @@ export default class CommandRunner extends ComponentBase {
   }
 
   clearCustomTimeoutIds() {
-    Object.keys(this.customTimeoutIds).forEach(timeoutIdName => {
+    for (let timeoutIdName in this.customTimeoutIds) {
       const timeoutId = this.customTimeoutIds[timeoutIdName];
       if (timeoutId) {
         clearTimeout(timeoutId);
         delete this.customTimeoutIds[timeoutIdName];
       }
-    });
+    }
   }
 
   loopMethod(index) {
