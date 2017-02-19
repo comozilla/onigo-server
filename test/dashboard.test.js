@@ -11,8 +11,7 @@ describe("Dashboard", function() {
   let controllerModel;
   let dashboard;
 
-  beforeEach(done => {
-    publisher.clearObserveFunctions();
+  before(done => {
     controllerModel = new ControllerModel();
     dashboard = new Dashboard({
       appModel: new AppModel(),
@@ -20,6 +19,11 @@ describe("Dashboard", function() {
       orbModel: new OrbModel()
     }, 8082);
     dashboard.initializeConnection(new EventEmitter());
+    done();
+  });
+
+  beforeEach(done => {
+    publisher.clearObserveFunctions();
     done();
   });
 
