@@ -15,7 +15,7 @@ describe("ControllerManager", () => {
   const testKey = "key-test";
   const testName = "name-test";
 
-  controllerModel.add(testKey, {
+  controllerModel.addUnknownClient(testKey, {
     sendCustomMessage() {},
     key: testKey,
     on() {}
@@ -173,15 +173,15 @@ describe("ControllerManager", () => {
     sendCustomMessageSpy.restore();
   });
 
-  describe("#initializeController", () => {
+  describe("#initializeClient", () => {
     const controller = controllerModel.get(testName);
-    const initializeControllerSpy = sinon.spy(controllerManager, "initializeController");
+    const initializeClientSpy = sinon.spy(controllerManager, "initializeClient");
     const sendCustomMessageSpy = sinon.spy(controller.client, "sendCustomMessage");
 
-    controllerManager.initializeController(testKey, testName, true);
+    controllerManager.initializeClient(testName);
 
     it("should be called", () => {
-      assert(initializeControllerSpy.withArgs(testKey, testName, true));
+      assert(initializeClientSpy.withArgs(testName));
     });
 
     it("should send default datas", () => {
@@ -191,18 +191,21 @@ describe("ControllerManager", () => {
       assert(sendCustomMessageSpy.withArgs("clientKey", testKey).called);
     });
 
-    publisher.subscribe("hp", (author, name, hp) => {
-      it("should publish hp when controller emitted hp", () => {
-        assert.equal(author, controllerManager);
-        assert.equal(name, testName);
-        assert.equal(hp, 80);
-      });
-    });
-
-    controller.emit("hp", 80);
-
-    initializeControllerSpy.restore();
+    initializeClientSpy.restore();
     sendCustomMessageSpy.restore();
+  });
+
+  describe("#initializeController", () => {
+    it("should publish hp when controller emitted hp", () => {
+      const controller = controllerModel.get(testName);
+      controllerManager.initializeController(testName);
+      const testHp = 80;
+
+      const spy = sinon.spy();
+      publisher.subscribe("hp", spy);
+      controller.emit("hp", testHp);
+      assert(spy.withArgs(controllerManager, testName, testHp).calledOnce);
+    });
   });
 
   describe("#setCommands", () => {

@@ -11,13 +11,15 @@ export default class ControllerManager extends ComponentBase {
     this.subscribe("resetHp", this.resetHp);
     this.subscribe("color", this.changeColor);
     this.subscribe("addClient", this.addClient);
+    this.subscribe("addedUnknown", this.initializeUnknown);
     this.subscribe("removeClient", this.removeClient);
     this.subscribe("gameState", this.updateGameState);
     this.subscribe("collision", this.damage);
     this.subscribe("availableCommandsCount", this.updateAvailableCommandsCount);
     this.subscribe("updateLink", this.updateLink);
     this.subscribe("rankingState", this.updateRankingState);
-    this.subscribe("named", this.initializeController);
+    this.subscribe("addedClient", this.initializeClient);
+    this.subscribe("addedController", this.initializeController);
     this.subscribe("setCommands", this.setCommands);
     this.subscribe("command", this.command);
   }
@@ -31,36 +33,14 @@ export default class ControllerManager extends ComponentBase {
     this.controllerModel.get(name).setColor(color);
   }
   addClient(key, client) {
-    this.controllerModel.add(key, client);
-    client.on("arriveCustomMessage", (name, data, mesID) => {
-      // Nameが同じなら、clientKeyが別でもHPなどが引き継がれる、と実装するため、
-      // requestNameとuseDefinedNameを分けている。
-      // requestName ・・ 新しい名前を使う。もしその名前が既に使われていたらrejectする。
-      // useDefinedName ・・既存の名前を使う。もしその名前がなければrejectする。
-      if (name === "requestName") {
-        if (this.controllerModel.has(data)) {
-          client.sendCustomMessage("rejectName", null);
-        } else {
-          this.controllerModel.setName(key, data);
-          client.sendCustomMessage("acceptName", data);
-        }
-      } else if (name === "useDefinedName") {
-        if (!this.controllerModel.has(data)) {
-          client.sendCustomMessage("rejectName", null);
-        } else {
-          this.controllerModel.setName(key, data);
-          client.sendCustomMessage("acceptName", data);
-        }
-      }
-    });
+    this.controllerModel.addUnknownClient(key, client);
   }
   removeClient(key) {
-    if (this.controllerModel.hasInUnnamedClients(key)) {
-      this.publish("removedUnnamedClient", key);
-      this.controllerModel.removeFromUnnamedClients(key);
+    if (this.controllerModel.hasInUnknownClients(key)) {
+      this.controllerModel.removeUnknownClient(key);
     } else {
       const name = this.controllerModel.toName(key);
-      this.publish("removedController", name);
+      this.controllerModel.removeClient(name);
     }
   }
   updateGameState(state) {
@@ -108,26 +88,50 @@ export default class ControllerManager extends ComponentBase {
     this.controllerModel.get(controllerName).setLink(
       orbName !== null ? this.orbModel.getOrbFromSpheroWS(orbName) : null);
   }
-  initializeController(key, name, isNewName) {
+  initializeUnknown(key, client) {
+    client.on("arriveCustomMessage", (name, data, mesID) => {
+      // Nameが同じなら、clientKeyが別でもHPなどが引き継がれる、と実装するため、
+      // requestNameとuseDefinedNameを分けている。
+      // requestName ・・ 新しい名前を使う。もしその名前が既に使われていたらrejectする。
+      // useDefinedName ・・既存の名前を使う。もしその名前がなければrejectする。
+      if (name === "requestName") {
+        if (this.controllerModel.has(data)) {
+          client.sendCustomMessage("rejectName", null);
+        } else {
+          this.controllerModel.setName(key, data);
+          client.sendCustomMessage("acceptName", data);
+        }
+      } else if (name === "useDefinedName") {
+        if (!this.controllerModel.has(data)) {
+          client.sendCustomMessage("rejectName", null);
+        } else {
+          this.controllerModel.setName(key, data);
+          client.sendCustomMessage("acceptName", data);
+        }
+      }
+    });
+  }
+  initializeClient(name) {
     const controller = this.controllerModel.get(name);
     const client = controller.client;
 
     client.sendCustomMessage("gameState", this.appModel.gameState);
     client.sendCustomMessage("rankingState", this.appModel.rankingState);
     client.sendCustomMessage("availableCommandsCount", this.appModel.availableCommandsCount);
-    client.sendCustomMessage("clientKey", key);
+    client.sendCustomMessage("clientKey", client.key);
 
     client.on("arriveCustomMessage", (messageName, data, mesID) => {
       if (messageName === "commands") {
         this.publish("setCommands", name, data);
       }
     });
-
-    if (isNewName) {
-      controller.on("hp", hp => {
-        this.publish("hp", name, hp);
-      });
-    }
+  }
+  initializeController(name) {
+    console.log(name);
+    const controller = this.controllerModel.get(name);
+    controller.on("hp", hp => {
+      this.publish("hp", name, hp);
+    });
   }
   setCommands(name, commands) {
     const controller = this.controllerModel.get(name);

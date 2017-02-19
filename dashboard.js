@@ -37,17 +37,18 @@ export default class Dashboard extends ComponentBase {
 
     this.io.on("connection", this.initializeConnection.bind(this));
 
-    this.subscribe("addedUnnamed", (key, client) => {
+    this.subscribe("addedUnknown", (key, client) => {
       if (this.socket !== null) {
         this.socket.emit("addUnnamed", key);
       }
     });
-    this.subscribe("named", (key, name) => {
+    this.subscribe("addedClient", (name) => {
       if (this.socket !== null) {
-        this.socket.emit("named", key, name, this.controllerModel.get(name).getStates());
+        const controller = this.controllerModel.get(name);
+        this.socket.emit("named", controller.client.key, name, controller.getStates());
       }
     });
-    this.subscribe("removedUnnamed", key => {
+    this.subscribe("removedUnknown", key => {
       if (this.socket !== null) {
         this.socket.emit("removeUnnamed", key);
       }

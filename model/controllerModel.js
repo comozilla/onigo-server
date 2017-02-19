@@ -12,32 +12,39 @@ export default class ControllerModel extends ComponentBase {
     // こうすることで、clientが異なっても、nameが同じ場合、HPなどを共有できるようになる。
 
     // { key: Client, ... }
-    this.unnamedClients = {};
+    this.unknownClients = {};
     // { name: Controller, ... }
     this.controllers = {};
   }
-  add(key, client) {
-    this.unnamedClients[key] = client;
-    this.publish("addedUnnamed", key, client);
+  addUnknownClient(key, client) {
+    this.unknownClients[key] = client;
+    this.publish("addedUnknown", key, client);
+  }
+  addClient(name, key) {
+    this.controllers[name].setClient(this.unknownClients[key]);
+    this.removeUnknownClient(key);
+    this.publish("addedClient", name);
+  }
+  addController(name) {
+    this.controllers[name] = new Controller(name, new CommandRunner(name));
+    this.publish("addedController", name);
   }
   setName(key, name) {
-    if (!this.unnamedClients[key]) {
+    if (!this.unknownClients[key]) {
       throw new Error("setNameしようとしたところ、keyに対するclientが見つかりませんでした。 key: " + key);
     }
     const isNewName = !this.controllers[name];
     if (isNewName) {
-      this.controllers[name] = new Controller(name, new CommandRunner(name));
+      this.addController(name);
     } else if (this.controllers[name].client !== null) {
       throw new Error("setNameしようとしましたが、既にclientが存在します。 name: " + name);
     }
-    this.controllers[name].setClient(this.unnamedClients[key]);
-    delete this.unnamedClients[key];
-    this.publish("named", key, name, isNewName);
+    this.addClient(name, key);
   }
-  removeFromUnnamedClients(key) {
-    if (this.hasInUnnamedClients(key)) {
-      delete this.unnamedClients[key];
-      this.publish("removedUnnamed", key);
+  removeUnknownClient(key) {
+    if (this.hasInUnknownClients(key)) {
+      delete this.unknownClients[key];
+      this.publish("removedUnknown", key);
     }
   }
   removeClient(name) {
@@ -46,8 +53,8 @@ export default class ControllerModel extends ComponentBase {
       this.publish("removedClient", name);
     }
   }
-  hasInUnnamedClients(key) {
-    return typeof this.unnamedClients[key] !== "undefined";
+  hasInUnknownClients(key) {
+    return typeof this.unknownClients[key] !== "undefined";
   }
   has(name) {
     return typeof this.controllers[name] !== "undefined";
@@ -63,7 +70,7 @@ export default class ControllerModel extends ComponentBase {
     return result;
   }
   getUnnamedKeys() {
-    return Object.keys(this.unnamedClients);
+    return Object.keys(this.unknownClients);
   }
   toName(key) {
     for (let name in this.controllers) {
