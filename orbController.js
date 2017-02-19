@@ -95,7 +95,6 @@ export default class OrbController extends ComponentBase {
     if (!this.appModel.isTestMode) {
       const rawOrb = orb.instance;
       rawOrb.color(this.defaultColor);
-      rawOrb.detectCollisions();
       rawOrb.on("collision", () => {
         this.publishCollision(orb);
       });
