@@ -63,7 +63,7 @@ export default class Dashboard extends ComponentBase {
     this.subscribe("removedOrb", this.removeOrb);
     this.subscribe("updateBattery", this.updateBattery);
     this.subscribe("replyPing", this.updatePingState);
-    this.subscribe("log", this.log);
+    this.subscribe("log", this.logAsClientMessage);
     this.subscribe("streamed", this.streamed);
     this.subscribe("updateLink", this.updateUnlinkedOrbs);
     this.subscribe("addOrb", this.updateUnlinkedOrbs);
@@ -76,7 +76,7 @@ export default class Dashboard extends ComponentBase {
     } else {
       console.log("a dashboard connected.");
       this.socket = socket;
-      this.log("accepted a dashboard.", "success");
+      this.logAsClientMessage("accepted a dashboard.", "success");
       socket.emit(
         "defaultData",
         this.appModel.gameState,
@@ -145,7 +145,7 @@ export default class Dashboard extends ComponentBase {
       this.socket.emit("hp", name, hp);
     }
   }
-  log(logText, logType) {
+  logAsClientMessage(logText, logType) {
     if (this.socket !== null) {
       this.socket.emit("log", logText, logType);
     }

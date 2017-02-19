@@ -33,18 +33,18 @@ console.error = (message) => {
     if (connector.isConnecting(port)) {
       models.appModel.incrementError121Count();
       if (models.appModel.error121Count < 5) {
-        dashboard.log(`Catched 121 error. Reconnecting... (${models.appModel.error121Count})`, "warning");
+        dashboard.logAsClientMessage(`Catched 121 error. Reconnecting... (${models.appModel.error121Count})`, "warning");
         connector.reconnect(port);
       } else {
         models.appModel.resetError121Count();
-        dashboard.log("Catched 121 error. But this is 5th try. Give up.", "warning");
+        dashboard.logAsClientMessage("Catched 121 error. But this is 5th try. Give up.", "warning");
         connector.giveUp(port);
       }
     } else {
-      dashboard.log("Catched 121 error. But port is invalid.", "error");
+      dashboard.logAsClientMessage("Catched 121 error. But port is invalid.", "error");
     }
   } else {
-    dashboard.log("Catched unknown error: \n" + message.toString(), "error");
+    dashboard.logAsClientMessage("Catched unknown error: \n" + message.toString(), "error");
   }
   originalError(message);
 };
