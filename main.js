@@ -26,29 +26,6 @@ const models = {
   controllerModel: new ControllerModel()
 };
 
-console.error = (message) => {
-  const exec121Error = /Error: Opening (\\\\\.\\)?(.+): Unknown error code (121|1167)/.exec(message);
-  if (exec121Error !== null) {
-    const port = exec121Error[2];
-    if (connector.isConnecting(port)) {
-      models.appModel.incrementError121Count();
-      if (models.appModel.error121Count < 5) {
-        dashboard.logAsClientMessage(`Catched 121 error. Reconnecting... (${models.appModel.error121Count})`, "warning");
-        connector.reconnect(port);
-      } else {
-        models.appModel.resetError121Count();
-        dashboard.logAsClientMessage("Catched 121 error. But this is 5th try. Give up.", "warning");
-        connector.giveUp(port);
-      }
-    } else {
-      dashboard.logAsClientMessage("Catched 121 error. But port is invalid.", "error");
-    }
-  } else {
-    dashboard.logAsClientMessage("Catched unknown error: \n" + message.toString(), "error");
-  }
-  originalError(message);
-};
-
 const opts = [
   { name: "test", type: "boolean" }
 ];
@@ -58,9 +35,9 @@ models.appModel.isTestMode = isTestMode;
 const spheroWS = spheroWebSocket(config.websocket, isTestMode);
 models.orbModel.setSpheroWS(spheroWS);
 
-const dashboard = new Dashboard(models, config.dashboardPort);
-const connector = new Connector();
+const connector = new Connector(models);
 
+new Dashboard(models, config.dashboardPort);
 new VirtualSpheroManager(models, config.virtualSphero.wsPort);
 new Scoreboard(models, config.scoreboardPort);
 new SpheroServerManager(models, spheroWS);

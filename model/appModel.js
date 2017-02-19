@@ -17,6 +17,8 @@ export default class AppModel extends ComponentBase {
     this.subscribeModel("availableCommandsCount", this.updateAvailableCommandsCount);
     this.subscribeModel("ranking", this.updateRanking);
     this.subscribeModel("setNameOfUUID", this.setNameOfUUID);
+    this.subscribeModel("incrementError121Count", this.incrementError121Count);
+    this.subscribeModel("resetError121Count", this.resetError121Count);
   }
   updateGameState(state) {
     this.gameState = state;
