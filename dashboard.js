@@ -90,8 +90,16 @@ export default class Dashboard extends ComponentBase {
         });
       });
 
-      this.socket.on("pingAll", this.publishPingAll.bind(this));
-      this.socket.on("link", this.publishUpdateLink.bind(this));
+      // 引数は渡さないので別の方法で結びつける
+      this.socket.on("pingAll", () => {
+        this.publishPingAll();
+      });
+
+      // link -> updateLink と名前が変わるので、別の方法で結びつける
+      this.socket.on("link", (controllerName, orbName) => {
+        this.publishUpdateLink(controllerName, orbName);
+      });
+
       socket.emit("updateOrbs", this.orbModel.toArray());
       socket.on("disconnect", () => {
         console.log("a dashboard removed.");
