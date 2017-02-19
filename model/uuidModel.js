@@ -1,5 +1,4 @@
 import ComponentBase from "../componentBase";
-//import noble from "noble";
 
 export default class UUIDModel extends ComponentBase {
   constructor(models) {
@@ -8,15 +7,19 @@ export default class UUIDModel extends ComponentBase {
     this.nameAndUUIDs = {};
 
     if (!this.appModel.isTestMode) {
- /*     noble.on("stateChange", state => {
+      // noble は、非対応環境だと、import した直後にエラーが発生してしまう
+      // そのため、require を使ってこのタイミングで読み込むしかない
+      // SystemJS とか使うともっとかっこいいかも
+
+      const noble = require("noble");
+      noble.on("stateChange", state => {
         if (state === "poweredOn") {
           noble.startScanning();
         }
       });
-
       noble.on("discover", peripheral => {
         this.setName(peripheral.uuid, peripheral.advertisement.localName);
-      }); */
+      });
     }
   }
   setName(uuid, name) {

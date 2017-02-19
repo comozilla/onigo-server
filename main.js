@@ -24,7 +24,6 @@ const models = {
   appModel: new AppModel(),
   orbModel: new OrbModel(),
   controllerModel: new ControllerModel(),
-  uuidModel: new UUIDModel()
 };
 
 console.error = (message) => {
@@ -55,6 +54,8 @@ const opts = [
 ];
 const isTestMode = argv.option(opts).run().options.test;
 models.appModel.isTestMode = isTestMode;
+
+models.uuidModel = new UUIDModel(models);
 
 const spheroWS = spheroWebSocket(config.websocket, isTestMode);
 models.orbModel.setSpheroWS(spheroWS);

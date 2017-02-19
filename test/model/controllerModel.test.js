@@ -25,7 +25,7 @@ describe("ControllerModel", () => {
         }
       };
       controllerModel.controllers[testName] = {
-        client: { testKey }
+        client: { key: testKey }
       };
       const name = controllerModel.toName(testKey);
       assert.equal(name, testName);
