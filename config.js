@@ -24,5 +24,6 @@ export default {
     yt: 0x20,
     ys: 0x20,
     dead: 0x02
-  }
+  },
+  isUseNoble: false
 };

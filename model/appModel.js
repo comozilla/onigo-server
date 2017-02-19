@@ -10,11 +10,13 @@ export default class AppModel extends ComponentBase {
     this.isTestMode = false;
     this.error121Count = 0;
     this.ranking = null;
+    this.nameAndUUIDs = {};
 
     this.subscribeModel("gameState", this.updateGameState);
     this.subscribeModel("rankingState", this.updateRankingState);
     this.subscribeModel("availableCommandsCount", this.updateAvailableCommandsCount);
     this.subscribeModel("ranking", this.updateRanking);
+    this.subscribeModel("setNameOfUUID", this.setNameOfUUID);
   }
   updateGameState(state) {
     this.gameState = state;
@@ -33,6 +35,19 @@ export default class AppModel extends ComponentBase {
   }
   updateRanking(ranking) {
     this.ranking = ranking;
+  }
+  setNameOfUUID(name, uuid) {
+    console.log(`name: ${name}, uuid: ${uuid}`);
+    this.nameAndUUIDs[name] = uuid;
+  }
+  containsUUID(name) {
+    return typeof this.nameAndUUIDs[name] !== "undefined";
+  }
+  getUUID(name) {
+    if (!this.containsUUID(name)) {
+      throw new Error("The name's uuid was not found. name: " + name);
+    }
+    return this.nameAndUUIDs[name];
   }
 }
 

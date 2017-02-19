@@ -102,8 +102,8 @@ export default class OrbController extends ComponentBase {
   }
 
   addOrb(name, port) {
-    if (this.uuidModel.contains(name)) {
-      port = this.uuidModel.getUUID(name);
+    if (this.appModel.containsUUID(name)) {
+      port = this.appModel.getUUID(name);
       console.log("changed!", port);
     }
     const rawOrb = this.spheroWS.spheroServer.makeRawOrb(name, port);
