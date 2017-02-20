@@ -63,7 +63,7 @@ export default class OrbController extends ComponentBase {
 
   checkBattery() {
     const orbs = this.spheroWS.spheroServer.getOrb();
-    for (orbName in orbs) {
+    for (let orbName in orbs) {
       if (!this.appModel.isTestMode) {
         orbs[orbName].instance.getPowerState((error, data) => {
           if (error) {
