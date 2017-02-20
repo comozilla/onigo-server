@@ -10,7 +10,4 @@ describe("VirtualSpheroManager", () => {
       assert(virtualSpheroManager.virtualSphero instanceof VirtualSphero);
     });
   });
-  describe("#removeSphero", () => {
-
-  });
 });
