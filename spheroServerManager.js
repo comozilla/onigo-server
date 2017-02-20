@@ -1,4 +1,3 @@
-import spheroWebSocket from "sphero-websocket";
 import ComponentBase from "./componentBase";
 
 export default class SpheroServerManager extends ComponentBase {
@@ -12,7 +11,6 @@ export default class SpheroServerManager extends ComponentBase {
     this.spheroServer.events.on("removeClient", this.publishRemoveClient.bind(this));
     this.spheroServer.events.on("addOrb", this.publishAddedOrb.bind(this));
     this.spheroServer.events.on("removeOrb", this.publishRemovedOrb.bind(this));
-
   }
 
   publishAddClient(key, client) {
