@@ -36,7 +36,7 @@ export default class ControllerModel extends ComponentBase {
     const isNewName = !this.controllers[name];
     if (isNewName) {
       this.addController(name);
-    } else if (this.controllers[name].client !== null) {
+    } else if (this.controllers[name].client) {
       throw new Error("setNameしようとしましたが、既にclientが存在します。 name: " + name);
     }
     this.addClient(name, key);

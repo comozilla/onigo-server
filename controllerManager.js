@@ -68,8 +68,7 @@ export default class ControllerManager extends ComponentBase {
     for (let controllerName in this.controllerModel.controllers) {
       const controller = this.controllerModel.get(controllerName);
       if (this.appModel.gameState === "active" && !controller.isOni &&
-          controller.client !== null &&
-          orb.linkedClients.indexOf(controller.client.key) !== -1) {
+          controller.client && orb.linkedClients.indexOf(controller.client.key) !== -1) {
         controller.setHp(controller.hp - this.damageHp);
       }
     }
@@ -77,7 +76,7 @@ export default class ControllerManager extends ComponentBase {
   updateAvailableCommandsCount(count) {
     for (let name in this.controllerModel.controllers) {
       const client = this.controllerModel.get(name).client;
-      if (client !== null) {
+      if (client) {
         client.sendCustomMessage("availableCommandsCount", count);
       } else {
         console.warn("Tryed to update availableCommandsCount but client is null. name: " + name);
@@ -86,7 +85,7 @@ export default class ControllerManager extends ComponentBase {
   }
   updateLink(controllerName, orbName) {
     this.controllerModel.get(controllerName).setLink(
-      orbName !== null ? this.orbModel.getOrbFromSpheroWS(orbName) : null);
+      orbName ? this.orbModel.getOrbFromSpheroWS(orbName) : null);
   }
   initializeUnknown(key, client) {
     client.on("arriveCustomMessage", (name, data, mesID) => {
@@ -139,7 +138,7 @@ export default class ControllerManager extends ComponentBase {
   }
   command(controllerName, commandName, args) {
     const controller = this.controllerModel.get(controllerName);
-    if (controller.linkedOrb !== null) {
+    if (controller.linkedOrb) {
       if (!controller.linkedOrb.hasCommand(commandName)) {
         throw new Error(`command : ${commandName} is not valid.`);
       }

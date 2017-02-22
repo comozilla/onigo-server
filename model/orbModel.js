@@ -60,14 +60,14 @@ export default class OrbModel extends ComponentBase {
   }
 
   getUnlinkedOrbs() {
-    if (this.spheroWS === null) {
+    if (!this.spheroWS) {
       throw new Error("spheroWS is null.");
     }
     return this.spheroWS.spheroServer.getUnlinkedOrbs();
   }
 
   getOrbFromSpheroWS(orbName) {
-    if (this.spheroWS === null) {
+    if (!this.spheroWS) {
       throw new Error("spheroWS is null.");
     }
     return this.spheroWS.spheroServer.getOrb(orbName);

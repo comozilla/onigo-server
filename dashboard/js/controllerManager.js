@@ -10,8 +10,7 @@ export default class ControllerManager {
 
     eventPublisher.on("defaultControllers", controllers => {
       for (let name in controllers) {
-        this.addController(controllers[name].key !== null ? controllers[name].key : "no client",
-          name, controllers[name]);
+        this.addController(controllers[name].key || "no client", name, controllers[name]);
       }
     });
     eventPublisher.on("named", (key, name, controllerDetails) => {

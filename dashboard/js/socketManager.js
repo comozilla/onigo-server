@@ -2,7 +2,7 @@ import eventPublisher from "./publisher";
 
 let instance = null;
 function SocketManager() {
-  if (instance !== null) {
+  if (instance) {
     return instance;
   }
   eventPublisher.on("gameState", this.sendGameState.bind(this));

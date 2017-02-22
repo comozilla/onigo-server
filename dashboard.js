@@ -38,23 +38,23 @@ export default class Dashboard extends ComponentBase {
     this.io.on("connection", this.initializeConnection.bind(this));
 
     this.subscribe("addedUnknown", (key, client) => {
-      if (this.socket !== null) {
+      if (this.socket) {
         this.socket.emit("addUnnamed", key);
       }
     });
     this.subscribe("addedClient", (name) => {
-      if (this.socket !== null) {
+      if (this.socket) {
         const controller = this.controllerModel.get(name);
         this.socket.emit("named", controller.client.key, name, controller.getStates());
       }
     });
     this.subscribe("removedUnknown", key => {
-      if (this.socket !== null) {
+      if (this.socket) {
         this.socket.emit("removeUnnamed", key);
       }
     });
     this.subscribe("removedClient", name => {
-      if (this.socket !== null) {
+      if (this.socket) {
         this.socket.emit("removeClient", name);
       }
     });
@@ -70,7 +70,7 @@ export default class Dashboard extends ComponentBase {
     this.subscribe("hp", this.updateHp);
   }
   initializeConnection(socket) {
-    if (this.socket !== null) {
+    if (this.socket) {
       this.socket.disconnect();
       console.log("a dashboard rejected.");
     } else {
@@ -112,13 +112,13 @@ export default class Dashboard extends ComponentBase {
     this.publish("pingAll");
   }
   addOrb(name, orb) {
-    if (this.socket !== null) {
+    if (this.socket) {
       this.socket.emit("updateOrbs", this.orbModel.toArray());
     }
   }
 
   removeOrb(name) {
-    if (this.socket !== null) {
+    if (this.socket) {
       this.socket.emit("updateOrbs", this.orbModel.toArray());
     }
   }
@@ -130,23 +130,23 @@ export default class Dashboard extends ComponentBase {
         orbName,
         unlinkedOrbs[orbName] ? "unlinked" : "linked");
     });
-    if (this.socket !== null) {
+    if (this.socket) {
       this.socket.emit("updateOrbs", this.orbModel.toArray());
     }
   }
 
   updateBattery() {
-    if (this.socket !== null) {
+    if (this.socket) {
       this.socket.emit("updateOrbs", this.orbModel.toArray());
     }
   }
   updateHp(name, hp) {
-    if (this.socket !== null) {
+    if (this.socket) {
       this.socket.emit("hp", name, hp);
     }
   }
   logAsClientMessage(logText, logType) {
-    if (this.socket !== null) {
+    if (this.socket) {
       this.socket.emit("log", logText, logType);
     }
   }
@@ -154,12 +154,12 @@ export default class Dashboard extends ComponentBase {
     if (!this.orbModel.has(orbName)) {
       throw new Error("updatePingState しようとしましたが、orb が見つかりませんでした。 : " + orbName);
     }
-    if (this.socket !== null) {
+    if (this.socket) {
       this.socket.emit("updateOrbs", this.orbModel.toArray());
     }
   }
   streamed(orbName, time) {
-    if (this.socket !== null) {
+    if (this.socket) {
       this.socket.emit("streamed", orbName, this.formatTime(time));
     }
   }

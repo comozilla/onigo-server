@@ -23,7 +23,7 @@ export default class RankingMaker extends ComponentBase {
     // [ { hp: 100, name: "xxx" }, { hp: 80, name: "xxx" }, ...]
     const ranking = controllerNames.filter(name => {
       // まず鬼であるものを除外する
-      return controllers[name].linkedOrb !== null && !controllers[name].isOni;
+      return controllers[name].linkedOrb && !controllers[name].isOni;
     }).sort((a, b) => {
       // HPに基づき、降順にソートする
       return controllers[b].hp - controllers[a].hp;
@@ -38,7 +38,7 @@ export default class RankingMaker extends ComponentBase {
     // { name: getStates(), ... }
     const onis = {};
     controllerNames.filter(name => {
-      return controllers[name].linkedOrb !== null && controllers[name].isOni;
+      return controllers[name].linkedOrb && controllers[name].isOni;
     }).forEach(name => {
       onis[name] = controllers[name].getStates();
     });

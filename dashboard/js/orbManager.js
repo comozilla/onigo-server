@@ -96,8 +96,7 @@ export default class OrbManager {
       throw new Error("updateBattery しようとした Orb は存在しませんでした。 : " + orbName);
     }
     const batteryTd = trElement.querySelector(".td-battery");
-    batteryTd.textContent =
-      this.orbMap.get(orbName).battery === null ? "unchecked" : this.orbMap.get(orbName).battery;
+    batteryTd.textContent = this.orbMap.get(orbName).battery || "unchecked";
   }
   updatePingStateForRow(orbName) {
     const trElement = this.getRow(orbName);
@@ -117,7 +116,7 @@ export default class OrbManager {
   }
   getRow(orbName) {
     const trElement = document.querySelector(`[data-row-name="${orbName}"]`);
-    if (trElement === null) {
+    if (!trElement) {
       throw new Error("getRow しようとした Row は存在しませんでした。 : " + orbName);
     }
     return trElement;

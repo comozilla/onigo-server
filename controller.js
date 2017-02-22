@@ -17,23 +17,23 @@ export default class Controller extends EventEmitter {
   }
   setHp(hp) {
     this.hp = hp;
-    if (this.client !== null) {
+    if (this.client) {
       this.client.sendCustomMessage("hp", this.hp);
     }
     this.emit("hp", this.hp);
   }
   setIsOni(isOni) {
     this.isOni = isOni;
-    if (this.client !== null) {
+    if (this.client) {
       this.client.sendCustomMessage("oni", this.isOni);
     }
     this.emit("oni", this.isOni);
   }
   setLink(orb) {
     // client も持っているが、それに左右されずにするため link は別に持つ必要がある
-    this.linkedOrb = orb !== null ? orb : null;
-    if (this.client !== null) {
-      if (orb === null) {
+    this.linkedOrb = orb;
+    if (this.client) {
+      if (!orb) {
         this.client.unlink();
       } else {
         this.client.setLinkedOrb(orb);
@@ -43,21 +43,21 @@ export default class Controller extends EventEmitter {
   }
   setClient(client) {
     this.client = client;
-    if (this.client !== null) {
+    if (this.client) {
       this.client.sendCustomMessage("hp", this.hp);
       this.client.sendCustomMessage("oni", this.isOni);
       this.client.sendCustomMessage("color", this.color);
-    }
-    if (this.linkedOrb !== null && this.client !== null) {
-      // HPなどの Orb -> Client への伝達で、
-      // client にも linkedOrb を入れておく必要がある。
-      this.client.setLinkedOrb(this.linkedOrb);
+      if (this.linkedOrb) {
+        // HPなどの Orb -> Client への伝達で、
+        // client にも linkedOrb を入れておく必要がある。
+        this.client.setLinkedOrb(this.linkedOrb);
+      }
     }
   }
   setColor(color) {
     this.color = color;
     updateColor.call(this);
-    if (this.client !== null) {
+    if (this.client) {
       this.client.sendCustomMessage("color", this.color);
     }
   }
@@ -65,15 +65,15 @@ export default class Controller extends EventEmitter {
     return {
       hp: this.hp,
       isOni: this.isOni,
-      link: this.linkedOrb !== null ? this.linkedOrb.name : null,
-      key: this.client !== null ? this.client.key : null,
+      link: this.linkedOrb ? this.linkedOrb.name : null,
+      key: this.client ? this.client.key : null,
       color: this.color
     };
   }
 }
 
 function updateColor() {
-  if (this.linkedOrb !== null) {
+  if (this.linkedOrb) {
     this.linkedOrb.command("color", [this.color]);
   }
 }

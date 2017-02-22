@@ -23,7 +23,7 @@ export default class Scoreboard extends ComponentBase {
     this.io.on("connection", socket => {
       console.log("a scoreboard connected.");
       this.sockets.push(socket);
-      if (this.appModel.ranking !== null) {
+      if (this.appModel.ranking) {
         socket.emit("data", this.appModel.ranking);
       }
     });

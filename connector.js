@@ -8,7 +8,7 @@ class Connector {
 
     console.error = (message) => {
       const exec121Error = /Error: Opening (\\\\\.\\)?(.+): Unknown error code (121|1167)/.exec(message);
-      if (exec121Error !== null) {
+      if (exec121Error) {
         const port = exec121Error[2];
         if (this.isConnecting(port)) {
           this.publish("incrementError121Count");
