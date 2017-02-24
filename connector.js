@@ -1,4 +1,6 @@
-class Connector {
+import ComponentBase from "./componentBase";
+
+class Connector extends ComponentBase {
   constructor(models) {
     super(models);
 
