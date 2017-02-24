@@ -72,16 +72,6 @@ export default class OrbManager {
       eventPublisher.emit("disconnect", orbName);
     });
     disconnectTd.appendChild(disconnectButton);
-    const reconnectTd = document.createElement("td");
-    reconnectTd.classList.add("td-reconnect");
-    trElement.appendChild(reconnectTd);
-    const reconnectButton = document.createElement("button");
-    reconnectButton.textContent = "Reconnect";
-    reconnectButton.addEventListener("click", () => {
-      reconnectButton.disabled = true;
-      eventPublisher.emit("reconnect", orbName);
-    });
-    reconnectTd.appendChild(reconnectButton);
     this.updateLinkForRow(orbName);
     this.updateBatteryForRow(orbName);
     this.updatePingStateForRow(orbName);
@@ -106,8 +96,7 @@ export default class OrbManager {
       throw new Error("updateBattery しようとした Orb は存在しませんでした。 : " + orbName);
     }
     const batteryTd = trElement.querySelector(".td-battery");
-    batteryTd.textContent =
-      this.orbMap.get(orbName).battery === null ? "unchecked" : this.orbMap.get(orbName).battery;
+    batteryTd.textContent = this.orbMap.get(orbName).battery || "unchecked";
   }
   updatePingStateForRow(orbName) {
     const trElement = this.getRow(orbName);
@@ -125,14 +114,9 @@ export default class OrbManager {
     const streamTimeTd = trElement.querySelector(".td-stream-time");
     streamTimeTd.textContent = time;
   }
-  enableReconnectButton(orbName) {
-    const trElement = this.getRow(orbName);
-    const reconnectButton = trElement.querySelector(".td-reconnect > button");
-    reconnectButton.disabled = false;
-  }
   getRow(orbName) {
     const trElement = document.querySelector(`[data-row-name="${orbName}"]`);
-    if (trElement === null) {
+    if (!trElement) {
       throw new Error("getRow しようとした Row は存在しませんでした。 : " + orbName);
     }
     return trElement;

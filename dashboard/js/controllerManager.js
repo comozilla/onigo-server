@@ -9,10 +9,9 @@ export default class ControllerManager {
     this.orbNames = [];
 
     eventPublisher.on("defaultControllers", controllers => {
-      Object.keys(controllers).forEach(name => {
-        this.addController(controllers[name].key !== null ? controllers[name].key : "no client",
-          name, controllers[name]);
-      });
+      for (let name in controllers) {
+        this.addController(controllers[name].key || "no client", name, controllers[name]);
+      }
     });
     eventPublisher.on("named", (key, name, controllerDetails) => {
       if (this.has(name)) {

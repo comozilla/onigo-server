@@ -7,7 +7,8 @@
     "build": "webpack --progress --colors",
     "build:watch": "webpack --progress --colors --watch",
     "start": "babel-node main.js",
-    "test": "babel-node main.js --test",
+    "testrun": "babel-node main.js --test",
+    "test": "mocha test/**/*.js --compilers js:babel-register",
     "debug": "babel-node --debug-brk main.js"
   },
   "babel": {
@@ -31,10 +32,12 @@
     "babel-core": "^6.10.4",
     "babel-loader": "^6.2.4",
     "babel-preset-es2015": "^6.9.0",
+    "babel-register": "^6.22.0",
     "css-loader": "^0.23.1",
     "gulp": "^3.9.1",
     "minimist": "^1.2.0",
-    "noble": "^1.7.0",
+    "mocha": "^3.2.0",
+    "sinon": "^1.17.7",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.1"
   },
@@ -44,7 +47,10 @@
     "knockout": "^3.4.0",
     "socket.io": "^1.4.8",
     "sphero": "github:orbotix/sphero.js#master",
-    "sphero-websocket": "^0.5.10",
     "sphero-ws-virtual-plugin": "1.1.2"
+  },
+  "optionalDependencies": {
+    "noble": "^1.7.0",
+    "sphero-websocket": "^0.5.10"
   }
 }

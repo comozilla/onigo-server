@@ -1,216 +1,174 @@
 import express from "express";
 import io from "socket.io";
-import { EventEmitter } from "events";
 import util from "util";
-import OrbMap from "./util/orbMap";
-import controllerModel from "./controllerModel";
+import { Server as createServer } from "http";
+import socketIO from "socket.io";
+import ComponentBase from "./componentBase";
 
-let instance = null;
+const socketSubjects = [
+  "gameState",
+  "rankingState",
+  "availableCommandsCount",
+  "addOrb",
+  "removeOrb",
+  "oni",
+  "checkBattery",
+  "resetHp",
+  "pingall",
+  "color"
+];
 
-function Dashboard(port) {
-  EventEmitter.call(this);
+export default class Dashboard extends ComponentBase {
+  constructor(models, port) {
+    super(models);
 
-  if (instance !== null) {
-    return instance;
+    this.app = express();
+    this.server = createServer(this.app);
+    this.io = socketIO(this.server);
+    this.io.origins(`localhost:${port}`);
+
+    this.socket = null;
+
+
+    this.app.use(express.static("dashboard"));
+    this.server.listen(port, () => {
+      console.log(`dashboard is listening on port ${port}`);
+    });
+
+    this.io.on("connection", this.initializeConnection.bind(this));
+
+    this.subscribe("addedUnknown", (key, client) => {
+      if (this.socket) {
+        this.socket.emit("addUnnamed", key);
+      }
+    });
+    this.subscribe("addedClient", (name) => {
+      if (this.socket) {
+        const controller = this.controllerModel.get(name);
+        this.socket.emit("named", controller.client.key, name, controller.getStates());
+      }
+    });
+    this.subscribe("removedUnknown", key => {
+      if (this.socket) {
+        this.socket.emit("removeUnnamed", key);
+      }
+    });
+    this.subscribe("removedClient", name => {
+      if (this.socket) {
+        this.socket.emit("removeClient", name);
+      }
+    });
+
+    this.subscribe("addedOrb", this.addOrb);
+    this.subscribe("removedOrb", this.removeOrb);
+    this.subscribe("updateBattery", this.updateBattery);
+    this.subscribe("replyPing", this.updatePingState);
+    this.subscribe("log", this.logAsClientMessage);
+    this.subscribe("streamed", this.streamed);
+    this.subscribe("updateLink", this.updateUnlinkedOrbs);
+    this.subscribe("addOrb", this.updateUnlinkedOrbs);
+    this.subscribe("hp", this.updateHp);
   }
-
-  this.app = express();
-  this.server = require("http").Server(this.app);
-  this.io = require("socket.io")(this.server);
-  this.io.origins(`localhost:${port}`);
-
-  this.socket = null;
-
-  this.gameState = "inactive";
-  this.rankingState = "hide";
-  this.availableCommandsCount = 1;
-
-  this.orbMap = new OrbMap();
-
-  this.app.use(express.static("dashboard"));
-  this.server.listen(port, () => {
-    console.log(`dashboard is listening on port ${port}`);
-  });
-
-  this.io.on("connection", socket => {
-    if (this.socket !== null) {
-      socket.disconnect();
+  initializeConnection(socket) {
+    if (this.socket) {
+      this.socket.disconnect();
       console.log("a dashboard rejected.");
     } else {
       console.log("a dashboard connected.");
       this.socket = socket;
-      this.log("accepted a dashboard.", "success");
+      this.logAsClientMessage("accepted a dashboard.", "success");
       socket.emit(
-          "defaultData",
-          this.gameState,
-          this.availableCommandsCount,
-          controllerModel.getAllStates(),
-          this.orbMap.toArray(),
-          controllerModel.getUnnamedKeys());
-      socket.on("gameState", state => {
-        if (/^(active|inactive)$/.test(state)) {
-          this.gameState = state;
-          this.emit("gameState", state);
-        }
+        "defaultData",
+        this.appModel.gameState,
+        this.appModel.availableCommandsCount,
+        this.controllerModel.getAllStates(),
+        this.orbModel.toArray(),
+        this.controllerModel.getUnnamedKeys());
+
+      socketSubjects.forEach(subjectName => {
+        this.socket.on(subjectName, (...data) => {
+          this.publish(subjectName, ...data);
+        });
       });
-      socket.on("rankingState", state => {
-        if (/^(show|hide)$/.test(state)) {
-          this.rankingState = state;
-          this.emit("rankingState", state);
-        }
+
+      // 引数は渡さないので別の方法で結びつける
+      this.socket.on("pingAll", () => {
+        this.publishPingAll();
       });
-      socket.on("availableCommandsCount", count => {
-        if (count >= 1 && count <= 6) {
-          this.availableCommandsCount = count;
-          this.emit("availableCommandsCount", count);
-        }
+
+      // link -> updateLink と名前が変わるので、別の方法で結びつける
+      this.socket.on("link", (controllerName, orbName) => {
+        this.publishUpdateLink(controllerName, orbName);
       });
-      socket.on("link", (name, orbName) => {
-        this.emit("updateLink", name, orbName);
-      });
-      socket.on("addOrb", (name, port) => {
-        this.emit("addOrb", name, port);
-      });
-      socket.on("removeOrb", name => {
-        this.emit("removeOrb", name);
-      });
-      socket.on("orbReconnect", name => {
-        this.emit("reconnect", name);
-      });
-      socket.on("oni", (name, enable) => {
-        this.emit("oni", name, enable);
-      });
-      socket.on("checkBattery", () => {
-        this.emit("checkBattery");
-      });
+
+      socket.emit("updateOrbs", this.orbModel.toArray());
       socket.on("disconnect", () => {
         console.log("a dashboard removed.");
         this.socket = null;
       });
-      socket.on("resetHp", name => {
-        this.emit("resetHp", name);
-      });
-      socket.on("pingAll", () => {
-        this.emit("pingAll");
-        Object.keys(this.orbMap.orbs).forEach(orbName => {
-          this.orbMap.setPingState(orbName, "no reply");
-        });
-        socket.emit("updateOrbs", this.orbMap.toArray());
-      });
-      socket.on("color", (name, color) => {
-        this.emit("color", name, color);
-      });
     }
-  });
+  }
+  publishPingAll() {
+    this.publish("pingAll");
+  }
+  addOrb(name, orb) {
+    if (this.socket) {
+      this.socket.emit("updateOrbs", this.orbModel.toArray());
+    }
+  }
 
-  controllerModel.on("add", (key, client) => {
-    if (this.socket !== null) {
-      this.socket.emit("addUnnamed", key);
+  removeOrb(name) {
+    if (this.socket) {
+      this.socket.emit("updateOrbs", this.orbModel.toArray());
     }
-  });
-  controllerModel.on("named", (key, name) => {
-    if (this.socket !== null) {
-      this.socket.emit("named", key, name, controllerModel.get(name).getStates());
-    }
-  });
-  controllerModel.on("removeUnnamed", key => {
-    if (this.socket !== null) {
-      this.socket.emit("removeUnnamed", key);
-    }
-  });
-  controllerModel.on("remove", name => {
-    if (this.socket !== null) {
-      this.socket.emit("removeClient", name);
-    }
-  });
+  }
 
-  instance = this;
-  return this;
+  updateUnlinkedOrbs() {
+    const unlinkedOrbs = this.orbModel.getUnlinkedOrbs();
+    this.orbModel.getNames().forEach(orbName => {
+      this.orbModel.setLink(
+        orbName,
+        unlinkedOrbs[orbName] ? "unlinked" : "linked");
+    });
+    if (this.socket) {
+      this.socket.emit("updateOrbs", this.orbModel.toArray());
+    }
+  }
+
+  updateBattery() {
+    if (this.socket) {
+      this.socket.emit("updateOrbs", this.orbModel.toArray());
+    }
+  }
+  updateHp(name, hp) {
+    if (this.socket) {
+      this.socket.emit("hp", name, hp);
+    }
+  }
+  logAsClientMessage(logText, logType) {
+    if (this.socket) {
+      this.socket.emit("log", logText, logType);
+    }
+  }
+  updatePingState(orbName) {
+    if (!this.orbModel.has(orbName)) {
+      throw new Error("updatePingState しようとしましたが、orb が見つかりませんでした。 : " + orbName);
+    }
+    if (this.socket) {
+      this.socket.emit("updateOrbs", this.orbModel.toArray());
+    }
+  }
+  streamed(orbName, time) {
+    if (this.socket) {
+      this.socket.emit("streamed", orbName, this.formatTime(time));
+    }
+  }
+  formatTime(time) {
+    return ("0" + time.getHours()).slice(-2) + ":" +
+      ("0" + time.getMinutes()).slice(-2) + ":" +
+      ("0" + time.getSeconds()).slice(-2);
+  }
+  publishUpdateLink(controllerName, orbName) {
+    this.publish("updateLink", controllerName, orbName);
+  }
 }
-
-Dashboard.prototype.addOrb = function(name, port) {
-  if (this.orbMap.has(name)) {
-    throw new Error(`追加しようとしたOrbは既に存在します。 : ${name}`);
-  }
-  this.orbMap.set(name, {
-    orbName: name,
-    port,
-    battery: null,
-    link: "unlinked",
-    pingState: "unchecked"
-  });
-  if (this.socket !== null) {
-    this.socket.emit("updateOrbs", this.orbMap.toArray());
-  }
-};
-
-Dashboard.prototype.removeOrb = function(name) {
-  if (!this.orbMap.has(name)) {
-    throw new Error(`削除しようとしたOrbは存在しません。 : ${name}`);
-  }
-  this.orbMap.remove(name);
-  if (this.socket !== null) {
-    this.socket.emit("updateOrbs", this.orbMap.toArray());
-  }
-};
-
-Dashboard.prototype.updateUnlinkedOrbs = function(unlinkedOrbs) {
-  const unlinkedOrbNames = Object.keys(unlinkedOrbs);
-  this.orbMap.getNames().forEach(orbName => {
-    this.orbMap.setLink(
-      orbName,
-      unlinkedOrbNames.indexOf(orbName) >= 0 ? "unlinked" : "linked");
-  });
-  if (this.socket !== null) {
-    this.socket.emit("updateOrbs", this.orbMap.toArray());
-  }
-};
-
-Dashboard.prototype.updateBattery = function(orbName, batteryState) {
-  const orbNameItem = this.orbMap.get(orbName);
-  if (typeof orbNameItem === "undefined") {
-    throw new Error("updateBattery しようとしましたが、orb が見つかりませんでした。 : " + orbName);
-  }
-  orbNameItem.battery = batteryState;
-  if (this.socket !== null) {
-    this.socket.emit("updateOrbs", this.orbMap.toArray());
-  }
-};
-
-Dashboard.prototype.updateHp = function(controllerKey, hp) {
-  if (this.socket !== null) {
-    this.socket.emit("hp", controllerKey, hp);
-  }
-};
-
-Dashboard.prototype.log = function(logText, logType) {
-  if (this.socket !== null) {
-    this.socket.emit("log", logText, logType);
-  }
-};
-
-Dashboard.prototype.updatePingState = function(orbName) {
-  if (!this.orbMap.has(orbName)) {
-    throw new Error("updatePingState しようとしましたが、orb が見つかりませんでした。 : " + orbName);
-  }
-  this.orbMap.setPingState(orbName, "reply");
-  if (this.socket !== null) {
-    this.socket.emit("updateOrbs", this.orbMap.toArray());
-  }
-};
-
-Dashboard.prototype.streamed = function(orbName, time) {
-  if (this.socket !== null) {
-    this.socket.emit("streamed", orbName, time);
-  }
-};
-
-Dashboard.prototype.successReconnect = function(orbName) {
-  if (this.socket !== null) {
-    this.socket.emit("successReconnect", orbName);
-  }
-};
-
-util.inherits(Dashboard, EventEmitter);
-
-module.exports = Dashboard;
